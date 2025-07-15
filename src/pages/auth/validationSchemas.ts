@@ -12,16 +12,6 @@ export const passwordSchema = z.string()
     message: 'Пароль має містити принаймні одну цифру'
   });
 
-export const userSchema = z.object({
-  username: z.string().min(1, 'Введіть імʼя'),
-  email: z.string().email('Введіть коректну пошту'),
-  password: passwordSchema,
-  confirmPassword: z.string().min(6, 'Пароль має бути не менше 6 символів'),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Паролі не співпадають',
-  path: ['confirmPassword'],
-});
-
 export const loginSchema = z.object({
   contact: z.string().min(1, 'Введіть пошту або номер телефону').refine(
     val => {
@@ -31,9 +21,8 @@ export const loginSchema = z.object({
     },
     { message: 'Введіть коректну пошту (наприклад user@gmail.com) або номер телефону (наприклад +380123456789)' }
   ),
-  password: passwordSchema,
+  password: passwordSchema
 });
-
 
 export const registerSchema = z.object({
   firstName: z.string().min(1, 'Введіть імʼя'),
@@ -46,14 +35,5 @@ export const registerSchema = z.object({
     },
     { message: 'Введіть коректну пошту (наприклад user@gmail.com) або номер телефону (наприклад +380123456789)' }
   ),
-  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Потрібно прийняти умови' }) }),
-});
-
-export const confirmSchema = z.object({
-  code: z.string().min(6, 'Код має бути 6 символів'),
-  password: passwordSchema,
-  repeatPassword: z.string().min(6, 'Пароль має бути не менше 6 символів')
-}).refine(data => data.password === data.repeatPassword, {
-  message: 'Паролі не співпадають',
-  path: ['repeatPassword'],
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Потрібно прийняти умови' }) })
 });

@@ -1,25 +1,52 @@
 import { useState } from 'react';
-import { registerSchema } from '../../common/utils/zod-validation';
+import { registerSchema, confirmSchema } from '../../common/utils/zod-validation';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
+import {
+  initialRegister,
+  verifyRegister,
+  completeRegister,
+  resetRegister,
+  googleAuth,
+} from '../../redux/auth/authSlice';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+type CredentialResponse = {
+  credential?: string;
+  select_by?: string;
+  clientId?: string;
+};
+import type { RootState, AppDispatch } from '../../redux/store';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     contact: '',
+    contactType: 'email' as 'email' | 'phone',
     acceptTerms: false,
   });
-
-  const [step, setStep] = useState<'main' | 'confirm'>('main');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [submitted, setSubmitted] = useState(false);
 
   const [confirmData, setConfirmData] = useState({
     code: '',
     password: '',
     repeatPassword: '',
   });
+  const dispatch = useDispatch<AppDispatch>();
+  const selectRegisterState = createSelector(
+    (state: RootState) => state.auth,
+    (auth) => ({
+      loading: auth.loading,
+      error: auth.error,
+      registerStep: auth.registerStep
+    })
+  );
+  const { loading, error, registerStep } = useSelector(selectRegisterState);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
+
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
   const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
   const [confirmSubmitted, setConfirmSubmitted] = useState(false);
@@ -35,12 +62,12 @@ export default function RegisterPage() {
   };
 
   const validateConfirm = (fields = confirmData) => {
+    const result = confirmSchema.safeParse(fields);
+    if (result.success) return {};
     const newErrors: Record<string, string> = {};
-    if (!fields.code.trim()) newErrors.code = 'Введіть код підтвердження';
-    if (!fields.password.trim()) newErrors.password = 'Введіть пароль';
-    else if (fields.password.length < 6) newErrors.password = 'Пароль має бути не менше 6 символів';
-    if (!fields.repeatPassword.trim()) newErrors.repeatPassword = 'Повторіть пароль';
-    else if (fields.password !== fields.repeatPassword) newErrors.repeatPassword = 'Паролі не співпадають';
+    result.error.errors.forEach(err => {
+      if (err.path[0]) newErrors[err.path[0] as string] = err.message;
+    });
     return newErrors;
   };
 
@@ -82,7 +109,14 @@ export default function RegisterPage() {
     setErrors(newErrors);
     setTouched({ firstName: true, lastName: true, contact: true });
     if (Object.keys(newErrors).length === 0 && formData.acceptTerms) {
-      setStep('confirm');
+      dispatch(initialRegister({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        contact_info: {
+          type: formData.contactType,
+          value: formData.contact
+        },
+      }));
     }
   };
 
@@ -93,20 +127,60 @@ export default function RegisterPage() {
     setConfirmErrors(newErrors);
     setConfirmTouched({ code: true, password: true, repeatPassword: true });
     if (Object.keys(newErrors).length === 0) {
-      alert('Реєстрація завершена!');
+      dispatch(verifyRegister({
+        contact_info: formData.contact,
+        code: confirmData.code,
+      })).then((res: any) => {
+        if (!res.error) {
+          dispatch(completeRegister({
+            contact_info: formData.contact,
+            password: confirmData.password,
+            password_confirm: confirmData.repeatPassword,
+          })).then((res: any) => {
+            if (res.error) {
+              console.error('Registration error:', res.error);
+            }
+          });
+        }
+      });
     }
   };
 
-  const handleGoogleLogin = () => {
-    if (!formData.acceptTerms) return;
-    alert('not found');
+
+  const handleBack = () => {
+    dispatch(resetRegister());
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Реєстрація</h2>
-        {step === 'main' ? (
+        
+        <div className="mb-6 flex justify-center">
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLogin
+              onSuccess={(credentialResponse: CredentialResponse) => {
+                if (credentialResponse.credential) {
+                  dispatch(googleAuth(credentialResponse.credential));
+                }
+              }}
+              onError={() => {
+                console.log('Login Failed');
+              }}
+              useOneTap
+            />
+          </GoogleOAuthProvider>
+        </div>
+        
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">або</span>
+          </div>
+        </div>
+        {registerStep === 'initial' ? (
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <div className="relative">
@@ -179,16 +253,6 @@ export default function RegisterPage() {
               disabled={!formData.acceptTerms}
             >
               Продовжити
-            </button>
-
-            <button
-              type="button"
-              className="w-full py-2 mb-4 bg-white border border-gray-300 text-gray-800 font-semibold rounded flex items-center justify-center gap-2 hover:bg-gray-50 transition disabled:bg-gray-100 disabled:text-gray-400"
-              onClick={handleGoogleLogin}
-              disabled={!formData.acceptTerms}
-            >
-              <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
-              Увійти через Google
             </button>
 
             <div className="flex justify-end">
@@ -264,7 +328,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 className="text-indigo-600 hover:underline text-sm bg-transparent border-none cursor-pointer"
-                onClick={() => setStep('main')}
+                onClick={handleBack}
               >
                 Вказати інші дані
               </button>
