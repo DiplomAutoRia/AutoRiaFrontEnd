@@ -53,7 +53,7 @@ const NotFound = () => {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4, whiteSpace: 'pre-line' }}>
             {t('404')}
           </Typography>
-          <Button component={Link} to={""} variant="contained" color="primary" size="large">
+          <Button component={Link} to={''} variant="contained" color="primary" size="large">
             {t('toMain')}
           </Button>
         </Box>
