@@ -41,14 +41,13 @@ export function useDebounceValidation({ validate, successCallback, errorCallback
             successCallback?.();
             setIsFieldValid(true);
           }
-        } catch (error) {
+        } catch {
           errorCallback?.();
           setIsFieldValid(false);
         } finally {
           setIsValidating(false);
         }
       }, 1000),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [validate],
   );
 
