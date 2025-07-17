@@ -1,4 +1,5 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+
 import { apiSlice } from './api/apiSlice';
 import authReducer from './auth/authSlice';
 
@@ -12,9 +13,7 @@ export function setupStore(preloadedState?: Partial<RootState>) {
     reducer: rootReducer,
     devTools: true,
     preloadedState,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware()
-        .concat(apiSlice.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
   });
 }
 

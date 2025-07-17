@@ -1,22 +1,25 @@
 import { useState } from 'react';
-import { registerSchema, confirmSchema } from '../../common/utils/zod-validation';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { createSelector } from '@reduxjs/toolkit';
+
+import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
 import {
-  initialRegister,
-  verifyRegister,
   completeRegister,
-  resetRegister,
   googleAuth,
+  initialRegister,
+  resetRegister,
+  verifyRegister,
 } from '../../redux/auth/authSlice';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import type { AppDispatch, RootState } from '../../redux/store';
+
 type CredentialResponse = {
   credential?: string;
   select_by?: string;
   clientId?: string;
 };
-import type { RootState, AppDispatch } from '../../redux/store';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -38,24 +41,24 @@ export default function RegisterPage() {
     (auth) => ({
       loading: auth.loading,
       error: auth.error,
-      registerStep: auth.registerStep
-    })
+      registerStep: auth.registerStep,
+    }),
   );
-  const { loading, error, registerStep } = useSelector(selectRegisterState);
+  const { registerStep } = useSelector(selectRegisterState);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [, setSubmitted] = useState(false);
 
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
   const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
-  const [confirmSubmitted, setConfirmSubmitted] = useState(false);
+  const [, setConfirmSubmitted] = useState(false);
 
   const validate = (fieldValues = formData) => {
     const result = registerSchema.safeParse(fieldValues);
     if (result.success) return {};
     const newErrors: Record<string, string> = {};
-    result.error.errors.forEach(err => {
+    result.error.errors.forEach((err) => {
       if (err.path[0]) newErrors[err.path[0] as string] = err.message;
     });
     return newErrors;
@@ -65,7 +68,7 @@ export default function RegisterPage() {
     const result = confirmSchema.safeParse(fields);
     if (result.success) return {};
     const newErrors: Record<string, string> = {};
-    result.error.errors.forEach(err => {
+    result.error.errors.forEach((err) => {
       if (err.path[0]) newErrors[err.path[0] as string] = err.message;
     });
     return newErrors;
@@ -73,7 +76,7 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updated = {
         ...prev,
         [name]: type === 'checkbox' ? checked : value,
@@ -85,12 +88,12 @@ export default function RegisterPage() {
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setConfirmData(prev => {
+    setConfirmData((prev) => {
       const updated = { ...prev, [name]: value };
       setConfirmErrors(validateConfirm(updated));
       return updated;
@@ -99,7 +102,7 @@ export default function RegisterPage() {
 
   const handleConfirmFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setConfirmTouched(prev => ({ ...prev, [name]: true }));
+    setConfirmTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,14 +112,16 @@ export default function RegisterPage() {
     setErrors(newErrors);
     setTouched({ firstName: true, lastName: true, contact: true });
     if (Object.keys(newErrors).length === 0 && formData.acceptTerms) {
-      dispatch(initialRegister({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        contact_info: {
-          type: formData.contactType,
-          value: formData.contact
-        },
-      }));
+      dispatch(
+        initialRegister({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          contact_info: {
+            type: formData.contactType,
+            value: formData.contact,
+          },
+        }),
+      );
     }
   };
 
@@ -127,16 +132,20 @@ export default function RegisterPage() {
     setConfirmErrors(newErrors);
     setConfirmTouched({ code: true, password: true, repeatPassword: true });
     if (Object.keys(newErrors).length === 0) {
-      dispatch(verifyRegister({
-        contact_info: formData.contact,
-        code: confirmData.code,
-      })).then((res: any) => {
+      dispatch(
+        verifyRegister({
+          contact_info: formData.contact,
+          code: confirmData.code,
+        }),
+      ).then((res: any) => {
         if (!res.error) {
-          dispatch(completeRegister({
-            contact_info: formData.contact,
-            password: confirmData.password,
-            password_confirm: confirmData.repeatPassword,
-          })).then((res: any) => {
+          dispatch(
+            completeRegister({
+              contact_info: formData.contact,
+              password: confirmData.password,
+              password_confirm: confirmData.repeatPassword,
+            }),
+          ).then((res: any) => {
             if (res.error) {
               console.error('Registration error:', res.error);
             }
@@ -146,7 +155,6 @@ export default function RegisterPage() {
     }
   };
 
-
   const handleBack = () => {
     dispatch(resetRegister());
   };
@@ -155,7 +163,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Реєстрація</h2>
-        
+
         <div className="mb-6 flex justify-center">
           <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <GoogleLogin
@@ -171,7 +179,7 @@ export default function RegisterPage() {
             />
           </GoogleOAuthProvider>
         </div>
-        
+
         <div className="relative mb-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -196,7 +204,9 @@ export default function RegisterPage() {
                   placeholder="Імʼя"
                 />
               </div>
-              {errors.firstName && (touched.firstName || formData.firstName) && <p className="text-red-600 text-sm mt-1">{errors.firstName}</p>}
+              {errors.firstName && (touched.firstName || formData.firstName) && (
+                <p className="text-red-600 text-sm mt-1">{errors.firstName}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -213,7 +223,9 @@ export default function RegisterPage() {
                   placeholder="Прізвище"
                 />
               </div>
-              {errors.lastName && (touched.lastName || formData.lastName) && <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>}
+              {errors.lastName && (touched.lastName || formData.lastName) && (
+                <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -230,7 +242,9 @@ export default function RegisterPage() {
                   placeholder="Пошта або номер телефону"
                 />
               </div>
-              {errors.contact && (touched.contact || formData.contact) && <p className="text-red-600 text-sm mt-1">{errors.contact}</p>}
+              {errors.contact && (touched.contact || formData.contact) && (
+                <p className="text-red-600 text-sm mt-1">{errors.contact}</p>
+              )}
             </div>
 
             <div className="flex items-center mb-4">
@@ -277,7 +291,9 @@ export default function RegisterPage() {
                   placeholder="Код підтвердження"
                 />
               </div>
-              {confirmErrors.code && (confirmTouched.code || confirmData.code) && <p className="text-red-600 text-sm mt-1">{confirmErrors.code}</p>}
+              {confirmErrors.code && (confirmTouched.code || confirmData.code) && (
+                <p className="text-red-600 text-sm mt-1">{confirmErrors.code}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -294,7 +310,9 @@ export default function RegisterPage() {
                   placeholder="Пароль"
                 />
               </div>
-              {confirmErrors.password && (confirmTouched.password || confirmData.password) && <p className="text-red-600 text-sm mt-1">{confirmErrors.password}</p>}
+              {confirmErrors.password && (confirmTouched.password || confirmData.password) && (
+                <p className="text-red-600 text-sm mt-1">{confirmErrors.password}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -311,7 +329,9 @@ export default function RegisterPage() {
                   placeholder="Повторіть пароль"
                 />
               </div>
-              {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && <p className="text-red-600 text-sm mt-1">{confirmErrors.repeatPassword}</p>}
+              {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && (
+                <p className="text-red-600 text-sm mt-1">{confirmErrors.repeatPassword}</p>
+              )}
             </div>
 
             <button
