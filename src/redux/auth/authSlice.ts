@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+
 import { routes } from '../../routes';
 
 interface User {
@@ -35,104 +36,29 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (data: { contact_info: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${routes.API.BASE}/users/login/`, {
-        contact_info: data.contact_info,
-        password: data.password
-      }, {
+      const response = await axios.post(
+        `${routes.API.BASE}/users/login/`,
+        {
+          contact_info: data.contact_info,
+          password: data.password,
+        },
+        {
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            Accept: 'application/json',
           },
-          validateStatus: (status) => status < 500
-        });
+          validateStatus: (status) => status < 500,
+        },
+      );
 
-        if (response.status >= 400) {
-          if (response.data?.non_field_errors) {
-            throw new Error(response.data.non_field_errors.join(', '));
-          } else if (response.data?.password) {
-            throw new Error(response.data.password);
-          }
-          throw new Error('Login failed. Please try again.');
+      if (response.status >= 400) {
+        if (response.data?.non_field_errors) {
+          throw new Error(response.data.non_field_errors.join(', '));
+        } else if (response.data?.password) {
+          throw new Error(response.data.password);
         }
-
-        Cookies.set('access_token', response.data.access);
-        Cookies.set('refresh_token', response.data.refresh);
-
-        return {
-          user: {
-            id: response.data.user_id,
-            first_name: response.data.first_name,
-            last_name: response.data.last_name,
-            email: response.data.email,
-            is_verified: true
-          }
-        };
-    } catch (err: any) {
-      if (err.response?.data?.non_field_errors) {
-        return rejectWithValue(err.response.data.non_field_errors.join(', '));
-      } else if (err.response?.data?.password) {
-        return rejectWithValue(err.response.data.password);
+        throw new Error('Login failed. Please try again.');
       }
-      return rejectWithValue(err.message || 'Помилка входу. Перевірте введені дані');
-    }
-  }
-);
-
-export const initialRegister = createAsyncThunk(
-  'auth/initialRegister',
-  async (data: { 
-    first_name: string; 
-    last_name: string; 
-    contact_info: { type: 'email' | 'phone'; value: string }
-  }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${routes.API.BASE}/users/register/initial/`, {
-        first_name: data.first_name,
-        last_name: data.last_name,
-        contact_info: data.contact_info.value
-      });
-
-      return {
-        contactInfo: data.contact_info,
-        message: `Verification code sent to your ${data.contact_info.type}.`
-      };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Registration error');
-    }
-  }
-);
-
-export const verifyRegister = createAsyncThunk(
-  'auth/verifyRegister',
-  async (data: { contact_info: string; code: string }, { rejectWithValue }) => {
-    try {
-      await axios.post(`${routes.API.BASE}/users/register/verify/`, data);
-      return { message: "Verification successful. Now you can set your password." };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Verification error');
-    }
-  }
-);
-
-export const completeRegister = createAsyncThunk(
-  'auth/completeRegister',
-  async (data: { contact_info: string; password: string; password_confirm: string }, { rejectWithValue }) => {
-    try {
-      await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
-      return { message: "User registered successfully." };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Completion error');
-    }
-  }
-);
-
-export const googleAuth = createAsyncThunk(
-  'auth/googleAuth',
-  async (token: string, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${routes.API.BASE}/users/google-auth/`, {
-        token
-      });
 
       Cookies.set('access_token', response.data.access);
       Cookies.set('refresh_token', response.data.refresh);
@@ -143,14 +69,93 @@ export const googleAuth = createAsyncThunk(
           first_name: response.data.first_name,
           last_name: response.data.last_name,
           email: response.data.email,
-          is_verified: true
-        }
+          is_verified: true,
+        },
       };
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Google authentication failed');
+      if (err.response?.data?.non_field_errors) {
+        return rejectWithValue(err.response.data.non_field_errors.join(', '));
+      } else if (err.response?.data?.password) {
+        return rejectWithValue(err.response.data.password);
+      }
+      return rejectWithValue(err.message || 'Помилка входу. Перевірте введені дані');
     }
-  }
+  },
 );
+
+export const initialRegister = createAsyncThunk(
+  'auth/initialRegister',
+  async (
+    data: {
+      first_name: string;
+      last_name: string;
+      contact_info: { type: 'email' | 'phone'; value: string };
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      await axios.post(`${routes.API.BASE}/users/register/initial/`, {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        contact_info: data.contact_info.value,
+      });
+
+      return {
+        contactInfo: data.contact_info,
+        message: `Verification code sent to your ${data.contact_info.type}.`,
+      };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Registration error');
+    }
+  },
+);
+
+export const verifyRegister = createAsyncThunk(
+  'auth/verifyRegister',
+  async (data: { contact_info: string; code: string }, { rejectWithValue }) => {
+    try {
+      await axios.post(`${routes.API.BASE}/users/register/verify/`, data);
+      return { message: 'Verification successful. Now you can set your password.' };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Verification error');
+    }
+  },
+);
+
+export const completeRegister = createAsyncThunk(
+  'auth/completeRegister',
+  async (data: { contact_info: string; password: string; password_confirm: string }, { rejectWithValue }) => {
+    try {
+      await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
+      return { message: 'User registered successfully.' };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Completion error');
+    }
+  },
+);
+
+export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: string, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`${routes.API.BASE}/users/google-auth/`, {
+      token,
+    });
+
+    Cookies.set('access_token', response.data.access);
+    Cookies.set('refresh_token', response.data.refresh);
+
+    return {
+      user: {
+        id: response.data.user_id,
+        first_name: response.data.first_name,
+        last_name: response.data.last_name,
+        email: response.data.email,
+        is_verified: true,
+      },
+    };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.detail || 'Google authentication failed');
+  }
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -173,7 +178,7 @@ const authSlice = createSlice({
     },
     clearError(state) {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -247,7 +252,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
-  }
+  },
 });
 
 export const { logout, resetRegister, setContactInfo, clearError } = authSlice.actions;

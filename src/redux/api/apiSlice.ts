@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
 import { routes } from '../../routes';
 
 const baseQuery = fetchBaseQuery({
@@ -16,12 +17,6 @@ const baseQuery = fetchBaseQuery({
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: [
-    'USERS',
-    'VEHICLES',
-    'COMMENTS',
-    'FAVORITES',
-    'REPORTS',
-  ],
+  tagTypes: ['USERS', 'VEHICLES', 'COMMENTS', 'FAVORITES', 'REPORTS'],
   endpoints: () => ({}),
 });
