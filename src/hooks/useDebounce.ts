@@ -47,7 +47,7 @@ export function useDebounceValidation({ validate, successCallback, errorCallback
         } finally {
           setIsValidating(false);
         }
-      }, 1000),
+      }, 3000),
     [validate],
   );
 
