@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
@@ -8,6 +9,7 @@ import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { loginSchema } from '../../common/utils/zod-validation';
 import { googleAuth, loginUser } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
+import { routes } from '../../routes';
 
 export default function LoginPage() {
   const {
@@ -23,7 +25,14 @@ export default function LoginPage() {
   });
 
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+  const { loading, error, user } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (user) {
+      navigate(routes.HOME);
+    }
+  }, [user, navigate]);
 
   const onSubmit = (data: { contact: string; password: string }) => {
     dispatch(
@@ -115,7 +124,7 @@ export default function LoginPage() {
           {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
 
           <div className="mt-4 text-center">
-            <Link to="/register" className="text-indigo-600 hover:underline">
+            <Link to={routes.REGISTER} className="text-indigo-600 hover:underline">
               Немає акаунту? Зареєструватись
             </Link>
           </div>

@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
 interface User {
@@ -26,7 +27,7 @@ interface AuthState {
 const initialState: AuthState = {
   loading: false,
   error: null,
-  user: null,
+  user: getUserFromStorage(),
   registerStep: 'initial',
   contactInfo: null,
   successMessage: null,
@@ -126,8 +127,25 @@ export const completeRegister = createAsyncThunk(
   'auth/completeRegister',
   async (data: { contact_info: string; password: string; password_confirm: string }, { rejectWithValue }) => {
     try {
-      await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
-      return { message: 'User registered successfully.' };
+      const response = await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
+
+      // Set tokens if returned
+      if (response.data.access) {
+        Cookies.set('access_token', response.data.access);
+        Cookies.set('refresh_token', response.data.refresh);
+      }
+
+      return {
+        message: 'User registered successfully.',
+        user: response.data.user || {
+          id: response.data.user_id,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          email: response.data.email,
+          phone_number: response.data.phone_number,
+          is_verified: true,
+        },
+      };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Completion error');
     }
@@ -136,7 +154,7 @@ export const completeRegister = createAsyncThunk(
 
 export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: string, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${routes.API.BASE}/users/google-auth/`, {
+    const response = await axios.post(`${routes.API.BASE}/users/social/google/login/`, {
       token,
     });
 
@@ -166,6 +184,7 @@ const authSlice = createSlice({
       state.error = null;
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
+      removeUserFromStorage();
     },
     resetRegister(state) {
       state.registerStep = 'initial';
@@ -190,6 +209,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.error = null;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -233,6 +253,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.registerStep = 'done';
         state.successMessage = action.payload.message;
+        state.user = action.payload.user;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(completeRegister.rejected, (state, action) => {
         state.loading = false;
@@ -247,6 +269,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.error = null;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(googleAuth.rejected, (state, action) => {
         state.loading = false;
