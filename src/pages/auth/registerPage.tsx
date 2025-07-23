@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { createSelector } from '@reduxjs/toolkit';
@@ -14,6 +14,7 @@ import {
   verifyRegister,
 } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
+import { routes } from '../../routes';
 
 type CredentialResponse = {
   credential?: string;
@@ -36,15 +37,17 @@ export default function RegisterPage() {
     repeatPassword: '',
   });
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const selectRegisterState = createSelector(
     (state: RootState) => state.auth,
     (auth) => ({
       loading: auth.loading,
       error: auth.error,
       registerStep: auth.registerStep,
+      user: auth.user,
     }),
   );
-  const { registerStep } = useSelector(selectRegisterState);
+  const { registerStep, user } = useSelector(selectRegisterState);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -53,6 +56,12 @@ export default function RegisterPage() {
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
   const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
   const [, setConfirmSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate(routes.HOME);
+    }
+  }, [user, navigate]);
 
   const validate = (fieldValues = formData) => {
     const result = registerSchema.safeParse(fieldValues);
@@ -270,7 +279,7 @@ export default function RegisterPage() {
             </button>
 
             <div className="flex justify-end">
-              <Link to="/login" className="text-indigo-600 hover:underline text-sm">
+              <Link to={routes.LOGIN} className="text-indigo-600 hover:underline text-sm">
                 Вже зареєстровані?
               </Link>
             </div>
@@ -342,7 +351,7 @@ export default function RegisterPage() {
             </button>
 
             <div className="flex justify-between mt-4">
-              <Link to="/login" className="text-indigo-600 hover:underline text-sm">
+              <Link to={routes.LOGIN} className="text-indigo-600 hover:underline text-sm">
                 Вже зареєстровані
               </Link>
               <button

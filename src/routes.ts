@@ -1,8 +1,9 @@
 export const routes = {
-  home: '/',
-  login: '/login',
-  register: '/register',
-  notFound: '*',
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  PROFILE: '/profile',
+  NOT_FOUND: '*',
   API: {
     BASE: import.meta.env.VITE_BASE_API_URL,
     USERS: '/users',
