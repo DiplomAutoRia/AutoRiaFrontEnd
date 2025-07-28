@@ -175,6 +175,41 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
   }
 });
 
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (data: { first_name?: string; last_name?: string; email?: string; phone_number?: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(`${routes.API.BASE}/users/profile/`, data, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      return {
+        user: response.data,
+      };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Profile update failed');
+    }
+  }
+);
+
+export const deleteProfile = createAsyncThunk(
+  'auth/deleteProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${routes.API.BASE}/users/profile/delete/`, {
+        withCredentials: true
+      });
+      return {};
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Profile deletion failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -272,6 +307,38 @@ const authSlice = createSlice({
         saveUserToStorage(action.payload.user);
       })
       .addCase(googleAuth.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.error = null;
+        saveUserToStorage(action.payload.user);
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      
+      .addCase(deleteProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProfile.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.error = null;
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        removeUserFromStorage();
+      })
+      .addCase(deleteProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

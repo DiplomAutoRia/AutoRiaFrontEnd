@@ -1,9 +1,58 @@
-import { useSelector } from 'react-redux';
-
-import type { RootState } from '../../redux/store';
+import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateProfile, deleteProfile } from '../../redux/auth/authSlice';
+import type { RootState, AppDispatch } from '../../redux/store';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const { user, loading } = useSelector((state: RootState) => state.auth);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
+    email: user?.email || '',
+    phone_number: user?.phone_number || '',
+  });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleEditProfile = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setFormData({
+      first_name: user?.first_name || '',
+      last_name: user?.last_name || '',
+      email: user?.email || '',
+      phone_number: user?.phone_number || '',
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      await dispatch(updateProfile(formData)).unwrap();
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await dispatch(deleteProfile()).unwrap();
+      navigate('/');
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   if (!user) {
     return (
@@ -50,25 +99,91 @@ export default function ProfilePage() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Особиста інформація</h2>
                   <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Ім'я</label>
-                      <p className="mt-1 text-sm text-gray-900">{user.first_name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Прізвище</label>
-                      <p className="mt-1 text-sm text-gray-900">{user.last_name}</p>
-                    </div>
-                    {user.email && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Email</label>
-                        <p className="mt-1 text-sm text-gray-900">{user.email}</p>
-                      </div>
-                    )}
-                    {user.phone_number && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Телефон</label>
-                        <p className="mt-1 text-sm text-gray-900">{user.phone_number}</p>
-                      </div>
+                    {isEditing ? (
+                      <>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Ім'я</label>
+                          <input
+                            type="text"
+                            name="first_name"
+                            value={formData.first_name}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Прізвище</label>
+                          <input
+                            type="text"
+                            name="last_name"
+                            value={formData.last_name}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                        </div>
+                        {user.email && (
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">Email</label>
+                            <input
+                              type="email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleChange}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            />
+                          </div>
+                        )}
+                        {user.phone_number && (
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">Телефон</label>
+                            <input
+                              type="tel"
+                              name="phone_number"
+                              value={formData.phone_number}
+                              onChange={handleChange}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            />
+                          </div>
+                        )}
+                        <div className="flex space-x-3 pt-2">
+                          <button
+                            onClick={handleSaveProfile}
+                            disabled={loading}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                          >
+                            {loading ? 'Збереження...' : 'Зберегти'}
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                          >
+                            Скасувати
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Ім'я</label>
+                          <p className="mt-1 text-sm text-gray-900">{user.first_name}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Прізвище</label>
+                          <p className="mt-1 text-sm text-gray-900">{user.last_name}</p>
+                        </div>
+                        {user.email && (
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">Email</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.email}</p>
+                          </div>
+                        )}
+                        {user.phone_number && (
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">Телефон</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.phone_number}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -92,8 +207,12 @@ export default function ProfilePage() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Дії</h2>
                   <div className="space-y-3">
-                    <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
-                      Редагувати профіль
+                    <button 
+                      onClick={handleEditProfile}
+                      disabled={loading}
+                      className={`w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {loading ? 'Завантаження...' : 'Редагувати профіль'}
                     </button>
                     <button className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
                       Мої оголошення
@@ -113,9 +232,36 @@ export default function ProfilePage() {
                     <button className="w-full bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors">
                       Змінити пароль
                     </button>
-                    <button className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                    <button 
+                      onClick={() => setShowDeleteConfirm(true)}
+                      disabled={loading}
+                      className={`w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
                       Видалити акаунт
                     </button>
+                    {showDeleteConfirm && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                          <h3 className="text-lg font-medium text-gray-900 mb-4">Підтвердження видалення</h3>
+                          <p className="text-gray-600 mb-6">Ви впевнені, що хочете видалити свій акаунт? Ця дія незворотня.</p>
+                          <div className="flex justify-end space-x-3">
+                            <button
+                              onClick={() => setShowDeleteConfirm(false)}
+                              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                            >
+                              Скасувати
+                            </button>
+                            <button
+                              onClick={handleDeleteAccount}
+                              disabled={loading}
+                              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {loading ? 'Видалення...' : 'Видалити'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
