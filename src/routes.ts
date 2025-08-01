@@ -5,6 +5,8 @@ export const routes = {
   FORGOT_PASSWORD: '/forgot-password',
   PROFILE: '/profile',
   NOT_FOUND: '*',
+  CREATE: "/create-listing",
+  CAR_DETAILS: "/car/:id",
   API: {
     BASE: import.meta.env.VITE_BASE_API_URL,
     USERS: '/users',
@@ -13,5 +15,6 @@ export const routes = {
     USER_MESSAGES: '/user_messages',
     COMMENTS: '/comments',
     REPORTS: '/reports',
+
   },
 };

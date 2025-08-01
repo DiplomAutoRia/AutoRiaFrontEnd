@@ -41,7 +41,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   
-  // State for typing status for each field
   const [firstNameIsTyping, setFirstNameIsTyping] = useState(false);
   const [lastNameIsTyping, setLastNameIsTyping] = useState(false);
   const [contactIsTyping, setContactIsTyping] = useState(false);
@@ -64,14 +63,13 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
-  
-  // Debounced errors
-  const firstNameError = useDebounce(firstNameIsTyping ? '' : errors.firstName || '', 3000);
-  const lastNameError = useDebounce(lastNameIsTyping ? '' : errors.lastName || '', 3000);
-  const contactError = useDebounce(contactIsTyping ? '' : errors.contact || '', 3000);
-  const codeError = useDebounce(codeIsTyping ? '' : confirmErrors.code || '', 3000);
-  const passwordError = useDebounce(passwordIsTyping ? '' : confirmErrors.password || '', 3000);
-  const repeatPasswordError = useDebounce(repeatPasswordIsTyping ? '' : confirmErrors.repeatPassword || '', 3000);
+
+  const firstNameError = useDebounce(firstNameIsTyping ? '' : errors.firstName || '', 2000);
+  const lastNameError = useDebounce(lastNameIsTyping ? '' : errors.lastName || '', 2000);
+  const contactError = useDebounce(contactIsTyping ? '' : errors.contact || '', 2000);
+  const codeError = useDebounce(codeIsTyping ? '' : confirmErrors.code || '', 2000);
+  const passwordError = useDebounce(passwordIsTyping ? '' : confirmErrors.password || '', 2000);
+  const repeatPasswordError = useDebounce(repeatPasswordIsTyping ? '' : confirmErrors.repeatPassword || '', 2000);
 
   useEffect(() => {
     if (user) {

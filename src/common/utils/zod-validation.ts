@@ -67,3 +67,18 @@ export const confirmSchema = z
     message: 'Паролі не співпадають',
     path: ['repeatPassword'],
   });
+
+export const carListingSchema = z.object({
+  title: z.string().min(1, 'Введіть назву'),
+  price: z.coerce.number().positive('Ціна має бути більше нуля'),
+  year: z.coerce
+    .number()
+    .min(1900, 'Рік випуску має бути не менше 1900')
+    .max(new Date().getFullYear() + 1, 'Рік випуску не може бути в майбутньому'),
+  mileage: z.coerce.number().nonnegative('Пробіг не може бути відʼємним'),
+  brand: z.string().min(1, 'Оберіть марку'),
+  fuel: z.string().min(1, 'Оберіть тип палива'),
+  transmission: z.string().min(1, 'Оберіть коробку передач'),
+  location: z.string().min(1, 'Введіть місцезнаходження'),
+  image: z.any(), // Will be updated for file validation
+});

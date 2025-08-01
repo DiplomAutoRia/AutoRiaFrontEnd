@@ -1,4 +1,7 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import type { RootState } from '../../redux/store';
 
 import {
   CalendarToday,
@@ -36,41 +39,7 @@ const MainPage = () => {
   const [priceFrom, setPriceFrom] = React.useState('');
   const [priceTo, setPriceTo] = React.useState('');
 
-  const mockVehicles = [
-    {
-      id: 1,
-      title: 'BMW X5 2020',
-      price: 45000,
-      year: 2020,
-      mileage: 35000,
-      fuel: 'Бензин',
-      transmission: 'Автомат',
-      location: 'Київ',
-      image: '/api/placeholder/300/200',
-    },
-    {
-      id: 2,
-      title: 'Mercedes-Benz C-Class 2019',
-      price: 38000,
-      year: 2019,
-      mileage: 42000,
-      fuel: 'Дизель',
-      transmission: 'Автомат',
-      location: 'Львів',
-      image: '/api/placeholder/300/200',
-    },
-    {
-      id: 3,
-      title: 'Audi A4 2021',
-      price: 52000,
-      year: 2021,
-      mileage: 25000,
-      fuel: 'Бензин',
-      transmission: 'Автомат',
-      location: 'Одеса',
-      image: '/api/placeholder/300/200',
-    },
-  ];
+  const vehicles = useSelector((state: RootState) => state.vehicles.vehicles);
 
   const popularBrands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
 
@@ -164,9 +133,23 @@ const MainPage = () => {
           Рекомендовані автомобілі
         </Typography>
         <Grid container spacing={3}>
-          {mockVehicles.map((vehicle) => (
+          {vehicles.map((vehicle) => (
             <Grid item xs={12} sm={6} md={4} key={vehicle.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card 
+                component={Link} 
+                to={`/car/${vehicle.id}`}
+                sx={{ 
+                  height: '100%', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    boxShadow: 6,
+                    transform: 'translateY(-4px)',
+                    transition: 'all 0.3s ease',
+                  }
+                }}
+              >
                 <CardMedia
                   component="img"
                   height="200"
