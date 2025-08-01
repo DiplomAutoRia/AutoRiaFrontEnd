@@ -9,7 +9,9 @@ import MainPage from './pages/mainPage';
 import ProfilePage from './pages/profilePage/ProfilePage';
 import { routes } from './routes';
 import CreateListingPage from './pages/cars/CreateListingPage';
+import EditListingPage from './pages/cars/EditListingPage';
 import CarDetailsPage from './pages/cars/CarDetailsPage';
+import MyListingsPage from './pages/profilePage/MyListingsPage';
 
 function App() {
   return (
@@ -17,12 +19,18 @@ function App() {
       <Navbar />
       <Routes>
         <Route path={routes.HOME} element={<MainPage />} />
-        <Route path={routes.REGISTER} element={<RegisterPage />} />
         <Route path={routes.LOGIN} element={<LoginPage />} />
-        <Route path={routes.PROFILE} element={<ProfilePage />} />
-        <Route path={routes.NOT_FOUND} element={<NotFound />} />
-        <Route path={routes.CREATE} element={<CreateListingPage />} />
+        <Route path={routes.REGISTER} element={<RegisterPage />} />
         <Route path={routes.CAR_DETAILS} element={<CarDetailsPage />} />
+        
+
+        <Route path={routes.PROFILE} element={<ProfilePage />} />
+        <Route path={routes.MY_LISTINGS} element={<MyListingsPage />} />
+        <Route path={routes.CREATE} element={<CreateListingPage />} />
+        <Route path={routes.EDIT_LISTING} element={<EditListingPage />} />
+        
+
+        <Route path={routes.NOT_FOUND} element={<NotFound />} />
       </Routes>
     </>
   );

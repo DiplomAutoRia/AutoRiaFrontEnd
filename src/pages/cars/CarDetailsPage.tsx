@@ -2,7 +2,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/store';
-import type { Vehicle } from '../../redux/vehicles/vehiclesSlice';
+import vehiclesAPI from '../../api/vehiclesAPI';
+import { CircularProgress } from '@mui/material';
 import {
   Box,
   Button,
@@ -24,12 +25,75 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+
+interface Vehicle {
+  id: string;
+  brand: string;
+  model: string;
+  images: Array<{ image: string }>;
+  price: number;
+  currency: string;
+  year: number;
+  mileage: number;
+  fuel_type: string;
+  transmission: string;
+  location: string;
+  description?: string;
+}
+
 const CarDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const vehicles = useSelector((state: RootState) => state.vehicles.vehicles);
 
-  const vehicle: Vehicle | undefined = vehicles.find(v => v.id === id);
+  const [vehicle, setVehicle] = React.useState<Vehicle | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchVehicle = async () => {
+      try {
+        setLoading(true);
+        const response = await vehiclesAPI.getById(id!);
+        setVehicle(response.data);
+      } catch (err) {
+        setError('Не вдалося завантажити дані автомобіля');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchVehicle();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" sx={{ mt: 2 }}>Завантаження...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h4" align="center" color="error">
+          {error}
+        </Typography>
+        <Button 
+          variant="contained" 
+          sx={{ mt: 2, mx: 'auto', display: 'block' }}
+          onClick={() => navigate('/')}
+        >
+          На головну
+        </Button>
+      </Container>
+    );
+  }
 
   if (!vehicle) {
     return (
@@ -39,7 +103,7 @@ const CarDetailsPage = () => {
         </Typography>
         <Button 
           variant="contained" 
-          sx={{ mt: 2 }}
+          sx={{ mt: 2, mx: 'auto', display: 'block' }}
           onClick={() => navigate('/')}
         >
           На головну
@@ -62,52 +126,86 @@ const CarDetailsPage = () => {
         
         <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
           <Typography variant="h3" gutterBottom>
-            {vehicle.title}
+            {vehicle.brand} {vehicle.model}
           </Typography>
           
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
-              {vehicle.image ? (
-                <Box sx={{ 
-                  width: '100%', 
-                  height: '400px', 
-                  backgroundColor: '#e0e0e0',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  overflow: 'hidden',
-                  borderRadius: 2
-                }}>
-                  <img
-                    src={vehicle.image}
-                    alt={vehicle.title}
-                    style={{ 
-                      maxWidth: '100%', 
-                      maxHeight: '100%',
-                      objectFit: 'contain' 
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Box sx={{ 
-                  width: '100%', 
-                  height: '400px', 
-                  backgroundColor: '#e0e0e0',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 2
-                }}>
-                  <Typography variant="h6" color="textSecondary">
-                    Зображення відсутнє
-                  </Typography>
-                </Box>
-              )}
+              <Box sx={{ 
+                width: '100%', 
+                backgroundColor: '#e0e0e0',
+                borderRadius: 2,
+                overflow: 'hidden'
+              }}>
+                {vehicle.images && vehicle.images.length > 0 ? (
+<Grid container spacing={1}>
+  <Grid item xs={12}>
+    <Box sx={{ 
+      height: '500px', 
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden'
+    }}>
+      <img
+        src={vehicle.images[0].image}
+        alt={`${vehicle.brand} ${vehicle.model}`}
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          objectFit: 'cover' 
+        }}
+      />
+    </Box>
+  </Grid>
+  <Grid item xs={12}>
+    <Grid container spacing={1}>
+      {vehicle.images.slice(1, 5).map((image: { image: string }, index: number) => (
+        <Grid item xs={6} sm={3} key={index}>
+          <Box sx={{ 
+            height: '200px', 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden'
+          }}>
+            <img
+              src={image.image}
+              alt={`${vehicle.brand} ${vehicle.model} ${index + 1}`}
+              style={{ 
+                width: '100%', 
+                height: '100%',
+                objectFit: 'cover' 
+              }}
+            />
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
+  </Grid>
+</Grid>
+                ) : (
+                  <Box sx={{ 
+                    width: '100%', 
+                    height: '400px', 
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    <Typography variant="h6" color="textSecondary">
+                      Зображення відсутні
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Grid>
             
             <Grid item xs={12} md={6}>
               <Typography variant="h4" color="primary" gutterBottom>
-                ${vehicle.price.toLocaleString()}
+                {vehicle.currency === 'USD' ? '$' : 
+                 vehicle.currency === 'EUR' ? '€' : 
+                 vehicle.currency === 'UAH' ? '₴' : ''}
+                {vehicle.price.toLocaleString()}
               </Typography>
               
               <Stack spacing={2} sx={{ mb: 3 }}>
@@ -123,7 +221,7 @@ const CarDetailsPage = () => {
                 
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <LocalGasStation color="action" />
-                  <Typography variant="body1"><strong>Паливо:</strong> {vehicle.fuel}</Typography>
+                  <Typography variant="body1"><strong>Паливо:</strong> {vehicle.fuel_type}</Typography>
                 </Stack>
                 
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -152,10 +250,13 @@ const CarDetailsPage = () => {
                 Додаткова інформація
               </Typography>
               <Paper elevation={0} sx={{ p: 2, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
-                <Typography>
-                  Додатковий опис автомобіля буде додано тут. Продавець може додати детальний опис стану автомобіля,
-                  особливості експлуатації, інформацію про технічне обслуговування та інші важливі деталі.
-                </Typography>
+                {vehicle.description ? (
+                  <Typography>{vehicle.description}</Typography>
+                ) : (
+                  <Typography>
+                    Продавець не надав додатковий опис. Ви можете зв'язатися з продавцем для отримання більше інформації.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
           </Grid>

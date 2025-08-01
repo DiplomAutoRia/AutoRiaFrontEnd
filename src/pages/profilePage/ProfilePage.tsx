@@ -214,7 +214,10 @@ export default function ProfilePage() {
                     >
                       {loading ? 'Завантаження...' : 'Редагувати профіль'}
                     </button>
-                    <button className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    <button 
+                      onClick={() => navigate('/my-listings')}
+                      className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
                       Мої оголошення
                     </button>
                     <button className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
