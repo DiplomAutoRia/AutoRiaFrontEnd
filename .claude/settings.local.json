@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx prettier:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

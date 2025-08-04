@@ -3,6 +3,9 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+
+import { getErrorMessage } from '../../common/utils/errorUtils';
+import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
 interface User {
@@ -72,13 +75,8 @@ export const loginUser = createAsyncThunk(
           is_verified: true,
         },
       };
-    } catch (err: any) {
-      if (err.response?.data?.non_field_errors) {
-        return rejectWithValue(err.response.data.non_field_errors.join(', '));
-      } else if (err.response?.data?.password) {
-        return rejectWithValue(err.response.data.password);
-      }
-      return rejectWithValue(err.message || 'Помилка входу. Перевірте введені дані');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -104,8 +102,8 @@ export const initialRegister = createAsyncThunk(
         contactInfo: data.contact_info,
         message: `Verification code sent to your ${data.contact_info.type}.`,
       };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Registration error');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -116,8 +114,8 @@ export const verifyRegister = createAsyncThunk(
     try {
       await axios.post(`${routes.API.BASE}/users/register/verify/`, data);
       return { message: 'Verification successful. Now you can set your password.' };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Verification error');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -126,10 +124,26 @@ export const completeRegister = createAsyncThunk(
   'auth/completeRegister',
   async (data: { contact_info: string; password: string; password_confirm: string }, { rejectWithValue }) => {
     try {
-      await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
-      return { message: 'User registered successfully.' };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Completion error');
+      const response = await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
+
+      if (response.data.access) {
+        Cookies.set('access_token', response.data.access);
+        Cookies.set('refresh_token', response.data.refresh);
+      }
+
+      return {
+        message: 'User registered successfully.',
+        user: response.data.user || {
+          id: response.data.user_id,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          email: response.data.email,
+          phone_number: response.data.phone_number,
+          is_verified: true,
+        },
+      };
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -152,10 +166,54 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
         is_verified: true,
       },
     };
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data?.detail || 'Google authentication failed');
+  } catch (err: unknown) {
+    return rejectWithValue(getErrorMessage(err));
   }
 });
+
+export const checkTokenValidity = createAsyncThunk(
+  'auth/checkTokenValidity',
+  async () => {
+    try {
+      const accessToken = Cookies.get('access_token');
+      const refreshToken = Cookies.get('refresh_token');
+      
+      if (!accessToken || !refreshToken) {
+        removeUserFromStorage();
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        return { user: null };
+      }
+
+      await axios.post(`${routes.API.BASE}/users/token/verify/`, {
+        token: accessToken,
+      });
+
+      const user = getUserFromStorage();
+      return { user };
+    } catch (err: unknown) {
+      try {
+        const refreshToken = Cookies.get('refresh_token');
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
+        const refreshResponse = await axios.post(`${routes.API.BASE}/users/token/refresh/`, {
+          refresh: refreshToken,
+        });
+
+        Cookies.set('access_token', refreshResponse.data.access);
+        const user = getUserFromStorage();
+        return { user };
+      } catch (refreshErr: unknown) {
+        removeUserFromStorage();
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        return { user: null };
+      }
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -190,6 +248,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.error = null;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -247,10 +306,26 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.error = null;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(googleAuth.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      .addCase(checkTokenValidity.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkTokenValidity.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.error = null;
+        saveUserToStorage(action.payload.user);
+      })
+      .addCase(checkTokenValidity.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.error = null;
       });
   },
 });

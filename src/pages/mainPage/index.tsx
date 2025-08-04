@@ -1,26 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import {
-  CalendarToday,
-  DirectionsCar,
-  FavoriteBorder,
-  LocalGasStation,
-  LocationOn,
-  Search,
-  Share,
-  Speed,
-} from '@mui/icons-material';
+import { Search } from '@mui/icons-material';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
-  CardMedia,
   Chip,
   Container,
   FormControl,
   Grid,
-  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -30,53 +18,45 @@ import {
   Typography,
 } from '@mui/material';
 
+import VehicleCard from '../../components/vehicles/VehicleCard';
+import { POPULAR_BRANDS } from '../../models/brands';
+import { useGetFavoritesQuery } from '../../redux/api/favoritesApi';
+import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
+
 const MainPage = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [brand, setBrand] = React.useState('');
   const [priceFrom, setPriceFrom] = React.useState('');
   const [priceTo, setPriceTo] = React.useState('');
 
-  const mockVehicles = [
-    {
-      id: 1,
-      title: 'BMW X5 2020',
-      price: 45000,
-      year: 2020,
-      mileage: 35000,
-      fuel: 'Бензин',
-      transmission: 'Автомат',
-      location: 'Київ',
-      image: '/api/placeholder/300/200',
-    },
-    {
-      id: 2,
-      title: 'Mercedes-Benz C-Class 2019',
-      price: 38000,
-      year: 2019,
-      mileage: 42000,
-      fuel: 'Дизель',
-      transmission: 'Автомат',
-      location: 'Львів',
-      image: '/api/placeholder/300/200',
-    },
-    {
-      id: 3,
-      title: 'Audi A4 2021',
-      price: 52000,
-      year: 2021,
-      mileage: 25000,
-      fuel: 'Бензин',
-      transmission: 'Автомат',
-      location: 'Одеса',
-      image: '/api/placeholder/300/200',
-    },
-  ];
+  const { data: vehiclesData } = useGetVehiclesQuery({ limit: 6 });
+  const { data: favorites = [] } = useGetFavoritesQuery();
 
-  const popularBrands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
+  const favoriteIds = favorites.reduce(
+    (acc, fav) => {
+      acc[fav.vehicle] = fav.id;
+      return acc;
+    },
+    {} as Record<number, number>,
+  );
+
+
+  const handleSearch = () => {
+    const searchParams = new URLSearchParams();
+    if (searchQuery) searchParams.set('search', searchQuery);
+    if (brand) searchParams.set('brand', brand);
+    if (priceFrom) searchParams.set('price_from', priceFrom);
+    if (priceTo) searchParams.set('price_to', priceTo);
+    navigate(`/vehicles?${searchParams.toString()}`);
+  };
+
+  const handleBrandClick = (brandName: string) => {
+    navigate(`/vehicles?brand=${brandName}`);
+  };
 
   return (
     <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-      {/* Hero Section */}
       <Box
         sx={{
           background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
@@ -92,7 +72,6 @@ const MainPage = () => {
             Найкращі автомобілі України
           </Typography>
 
-          {/* Search Form */}
           <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={4}>
@@ -110,7 +89,7 @@ const MainPage = () => {
                 <FormControl fullWidth>
                   <InputLabel>Марка</InputLabel>
                   <Select value={brand} onChange={(e) => setBrand(e.target.value)}>
-                    {popularBrands.map((brandName) => (
+                    {POPULAR_BRANDS.map((brandName) => (
                       <MenuItem key={brandName} value={brandName}>
                         {brandName}
                       </MenuItem>
@@ -137,7 +116,14 @@ const MainPage = () => {
                 />
               </Grid>
               <Grid item xs={12} md={2}>
-                <Button variant="contained" fullWidth size="large" startIcon={<Search />} sx={{ py: 1.5 }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  startIcon={<Search />}
+                  sx={{ py: 1.5 }}
+                  onClick={handleSearch}
+                >
                   Пошук
                 </Button>
               </Grid>
@@ -146,87 +132,55 @@ const MainPage = () => {
         </Container>
       </Box>
 
-      {/* Popular Brands */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Typography variant="h4" gutterBottom>
           Популярні марки
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-          {popularBrands.map((brandName) => (
-            <Chip key={brandName} label={brandName} variant="outlined" clickable sx={{ mb: 1 }} />
+          {POPULAR_BRANDS.map((brandName) => (
+            <Chip
+              key={brandName}
+              label={brandName}
+              variant="outlined"
+              clickable
+              sx={{ mb: 1 }}
+              onClick={() => handleBrandClick(brandName)}
+            />
           ))}
         </Stack>
       </Container>
 
-      {/* Featured Vehicles */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Рекомендовані автомобілі
-        </Typography>
-        <Grid container spacing={3}>
-          {mockVehicles.map((vehicle) => (
-            <Grid item xs={12} sm={6} md={4} key={vehicle.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={vehicle.image}
-                  alt={vehicle.title}
-                  sx={{ backgroundColor: '#e0e0e0' }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" component="h3" gutterBottom>
-                    {vehicle.title}
-                  </Typography>
-                  <Typography variant="h5" color="primary" gutterBottom>
-                    ${vehicle.price.toLocaleString()}
-                  </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography variant="h4" gutterBottom>
+            Рекомендовані автомобілі
+          </Typography>
+          <Button variant="outlined" onClick={() => navigate('/vehicles')}>
+            Переглянути всі
+          </Button>
+        </Box>
 
-                  <Stack spacing={1}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <CalendarToday fontSize="small" color="action" />
-                      <Typography variant="body2">{vehicle.year}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Speed fontSize="small" color="action" />
-                      <Typography variant="body2">{vehicle.mileage.toLocaleString()} км</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <LocalGasStation fontSize="small" color="action" />
-                      <Typography variant="body2">{vehicle.fuel}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <DirectionsCar fontSize="small" color="action" />
-                      <Typography variant="body2">{vehicle.transmission}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <LocationOn fontSize="small" color="action" />
-                      <Typography variant="body2">{vehicle.location}</Typography>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-                <Box sx={{ p: 2, pt: 0 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Button variant="contained" size="small">
-                      Детальніше
-                    </Button>
-                    <Stack direction="row" spacing={1}>
-                      <IconButton size="small">
-                        <FavoriteBorder />
-                      </IconButton>
-                      <IconButton size="small">
-                        <Share />
-                      </IconButton>
-                    </Stack>
-                  </Stack>
-                </Box>
-              </Card>
+        <Grid container spacing={3}>
+          {vehiclesData?.results?.slice(0, 6).map((vehicle) => (
+            <Grid item xs={12} sm={6} md={4} key={vehicle.id}>
+              <VehicleCard
+                vehicle={vehicle}
+                isFavorite={!!favoriteIds[vehicle.id]}
+                favoriteId={favoriteIds[vehicle.id]}
+              />
             </Grid>
           ))}
         </Grid>
+
+        {!vehiclesData?.results?.length && (
+          <Box textAlign="center" py={8}>
+            <Typography variant="h6" color="text.secondary">
+              Завантаження оголошень...
+            </Typography>
+          </Box>
+        )}
       </Container>
 
-      {/* Statistics */}
       <Box sx={{ backgroundColor: 'white', py: 6 }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} textAlign="center">

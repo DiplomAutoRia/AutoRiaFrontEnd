@@ -4,6 +4,16 @@ import { Link } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { 
+  Box, 
+  Container, 
+  TextField, 
+  Button, 
+  Typography, 
+  CircularProgress, 
+  Divider,
+  Alert
+} from '@mui/material';
 
 import { loginSchema } from '../../common/utils/zod-validation';
 import { googleAuth, loginUser } from '../../redux/auth/authSlice';
@@ -35,12 +45,41 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6">Вхід</h2>
+    <Container 
+      maxWidth="sm"
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'grey.100',
+        py: 5
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          backgroundColor: 'white',
+          p: 4,
+          borderRadius: 2,
+          boxShadow: 3
+        }}
+      >
+        <Typography 
+          variant="h4" 
+          component="h2"
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+            fontWeight: 'bold'
+          }}
+        >
+          Вхід
+        </Typography>
 
-        <div className="mb-6 flex justify-center">
-          <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
             <GoogleLogin
               onSuccess={(credentialResponse: { credential?: string }) => {
                 if (credentialResponse.credential) {
@@ -48,79 +87,101 @@ export default function LoginPage() {
                 }
               }}
               onError={() => {
-                console.log('Login Failed');
               }}
               useOneTap
             />
           </GoogleOAuthProvider>
-        </div>
+        </Box>
 
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">або</span>
-          </div>
-        </div>
+        <Box sx={{ position: 'relative', mb: 3 }}>
+          <Divider />
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'white',
+              px: 1
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              або
+            </Typography>
+          </Box>
+        </Box>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-4">
-            <input
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              fullWidth
               type="text"
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                errors.contact ? 'border-red-500' : 'border-gray-300'
-              }`}
               placeholder="Введіть email або телефон (+380XXXXXXXXX)"
+              error={!!errors.contact}
+              helperText={errors.contact?.message}
               {...register('contact')}
+              sx={{ mb: 1 }}
             />
-            {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact.message}</p>}
-          </div>
+          </Box>
 
-          <div className="mb-4">
-            <input
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              fullWidth
               type="password"
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
               placeholder="Введіть пароль"
+              error={!!errors.password}
+              helperText={errors.password?.message}
               {...register('password')}
+              sx={{ mb: 1 }}
             />
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-          </div>
+          </Box>
 
-          <button
+          <Button
             type="submit"
-            className="w-full py-2 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-700 transition disabled:bg-indigo-300 flex justify-center items-center"
+            fullWidth
+            variant="contained"
             disabled={loading}
+            sx={{
+              py: 1.5,
+              mb: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
             {loading && (
-              <svg
-                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
+              <CircularProgress 
+                size={20} 
+                sx={{ 
+                  color: 'white',
+                  mr: 1 
+                }} 
+              />
             )}
             {loading ? 'Завантаження...' : 'Увійти'}
-          </button>
+          </Button>
 
-          {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-          <div className="mt-4 text-center">
-            <Link to="/register" className="text-indigo-600 hover:underline">
-              Немає акаунту? Зареєструватись
-            </Link>
-          </div>
-        </form>
-      </div>
-    </div>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2">
+              <Link 
+                to="/register" 
+                style={{ 
+                  color: '#1976d2', 
+                  textDecoration: 'none' 
+                }}
+              >
+                Немає акаунту? Зареєструватись
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Container>
   );
 }
