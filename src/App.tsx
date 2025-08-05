@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { useAppDispatch } from './redux/store';
-import { checkTokenValidity } from './redux/auth/authSlice';
 
 import './App.css';
 import Navbar from './components/Navbar';
@@ -16,6 +14,8 @@ import EditVehiclePage from './pages/vehicles/EditVehiclePage';
 import MyVehiclesPage from './pages/vehicles/MyVehiclesPage';
 import VehicleDetailPage from './pages/vehicles/VehicleDetailPage';
 import VehiclesPage from './pages/vehicles/VehiclesPage';
+import { checkTokenValidity } from './redux/auth/authSlice';
+import { useAppDispatch } from './redux/store';
 import { routes } from './routes';
 
 function App() {

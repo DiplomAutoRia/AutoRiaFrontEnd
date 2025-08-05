@@ -1,23 +1,16 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Box, Button, CircularProgress, Container, Divider, TextField, Typography } from '@mui/material';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { 
-  Box, 
-  Container, 
-  TextField, 
-  Button, 
-  Typography, 
-  CircularProgress, 
-  Divider,
-  Alert
-} from '@mui/material';
 
 import { loginSchema } from '../../common/utils/zod-validation';
 import { googleAuth, loginUser } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
+import { routes } from '../../routes';
 
 export default function LoginPage() {
   const {
@@ -33,7 +26,14 @@ export default function LoginPage() {
   });
 
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+  const { loading, error, user } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (user) {
+      navigate(routes.HOME);
+    }
+  }, [user, navigate]);
 
   const onSubmit = (data: { contact: string; password: string }) => {
     dispatch(
@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Container 
+    <Container
       maxWidth="sm"
       sx={{
         minHeight: '100vh',
@@ -53,7 +53,7 @@ export default function LoginPage() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'grey.100',
-        py: 5
+        py: 5,
       }}
     >
       <Box
@@ -63,31 +63,30 @@ export default function LoginPage() {
           backgroundColor: 'white',
           p: 4,
           borderRadius: 2,
-          boxShadow: 3
+          boxShadow: 3,
         }}
       >
-        <Typography 
-          variant="h4" 
+        <Typography
+          variant="h4"
           component="h2"
           sx={{
             textAlign: 'center',
             mb: 3,
-            fontWeight: 'bold'
+            fontWeight: 'bold',
           }}
         >
           Вхід
         </Typography>
 
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
-          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
             <GoogleLogin
               onSuccess={(credentialResponse: { credential?: string }) => {
                 if (credentialResponse.credential) {
                   dispatch(googleAuth(credentialResponse.credential));
                 }
               }}
-              onError={() => {
-              }}
+              onError={() => {}}
               useOneTap
             />
           </GoogleOAuthProvider>
@@ -102,7 +101,7 @@ export default function LoginPage() {
               left: '50%',
               transform: 'translate(-50%, -50%)',
               backgroundColor: 'white',
-              px: 1
+              px: 1,
             }}
           >
             <Typography variant="body2" color="text.secondary">
@@ -146,16 +145,16 @@ export default function LoginPage() {
               mb: 2,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
             {loading && (
-              <CircularProgress 
-                size={20} 
-                sx={{ 
+              <CircularProgress
+                size={20}
+                sx={{
                   color: 'white',
-                  mr: 1 
-                }} 
+                  mr: 1,
+                }}
               />
             )}
             {loading ? 'Завантаження...' : 'Увійти'}
@@ -169,11 +168,11 @@ export default function LoginPage() {
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2">
-              <Link 
-                to="/register" 
-                style={{ 
-                  color: '#1976d2', 
-                  textDecoration: 'none' 
+              <Link
+                to="/register"
+                style={{
+                  color: '#1976d2',
+                  textDecoration: 'none',
                 }}
               >
                 Немає акаунту? Зареєструватись

@@ -55,7 +55,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
       </Box>
 
       <Grid container spacing={2}>
-        
         <Grid item xs={12} sm={6} md={3}>
           <FormControl fullWidth size="small">
             <InputLabel>Тип транспорту</InputLabel>
@@ -73,7 +72,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
           </FormControl>
         </Grid>
 
-        
         <Grid item xs={12} sm={6} md={3}>
           <FormControl fullWidth size="small">
             <InputLabel>Марка</InputLabel>
@@ -91,7 +89,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
           </FormControl>
         </Grid>
 
-        
         <Grid item xs={12} sm={6} md={3}>
           <TextField
             fullWidth
@@ -115,8 +112,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
         </Grid>
       </Grid>
 
-
-      
       <Box mt={2}>
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -124,7 +119,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={3}>
-              
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
                   Тип палива
@@ -150,7 +144,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
                 </FormGroup>
               </Grid>
 
-              
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
                   Коробка передач
@@ -176,7 +169,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
                 </FormGroup>
               </Grid>
 
-              
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
                   Колір

@@ -1,6 +1,6 @@
 export const POPULAR_BRANDS = [
   'BMW',
-  'Mercedes-Benz', 
+  'Mercedes-Benz',
   'Audi',
   'Volkswagen',
   'Toyota',
@@ -18,7 +18,7 @@ export const POPULAR_BRANDS = [
   'Skoda',
   'Opel',
   'Mitsubishi',
-  'Lexus'
+  'Lexus',
 ] as const;
 
-export type Brand = typeof POPULAR_BRANDS[number];
+export type Brand = (typeof POPULAR_BRANDS)[number];

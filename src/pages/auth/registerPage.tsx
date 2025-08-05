@@ -1,20 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { createSelector } from '@reduxjs/toolkit';
 import {
   Box,
   Button,
+  Checkbox,
   Container,
+  Divider,
+  FormControlLabel,
   Stack,
   TextField,
   Typography,
-  Checkbox,
-  FormControlLabel,
-  Divider,
 } from '@mui/material';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { createSelector } from '@reduxjs/toolkit';
 
 import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
 import {
@@ -25,6 +25,7 @@ import {
   verifyRegister,
 } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
+import { routes } from '../../routes';
 
 type CredentialResponse = {
   credential?: string;
@@ -47,15 +48,17 @@ export default function RegisterPage() {
     repeatPassword: '',
   });
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const selectRegisterState = createSelector(
     (state: RootState) => state.auth,
     (auth) => ({
       loading: auth.loading,
       error: auth.error,
       registerStep: auth.registerStep,
+      user: auth.user,
     }),
   );
-  const { registerStep } = useSelector(selectRegisterState);
+  const { registerStep, user } = useSelector(selectRegisterState);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -64,6 +67,12 @@ export default function RegisterPage() {
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
   const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
   const [, setConfirmSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate(routes.HOME);
+    }
+  }, [user, navigate]);
 
   const validate = (fieldValues = formData) => {
     const result = registerSchema.safeParse(fieldValues);
@@ -203,8 +212,7 @@ export default function RegisterPage() {
                   dispatch(googleAuth(credentialResponse.credential));
                 }
               }}
-              onError={() => {
-              }}
+              onError={() => {}}
               useOneTap
             />
           </GoogleOAuthProvider>
@@ -249,7 +257,6 @@ export default function RegisterPage() {
                 fullWidth
                 variant="outlined"
               />
-
               <TextField
                 type="text"
                 name="contact"
@@ -266,13 +273,7 @@ export default function RegisterPage() {
               />
 
               <FormControlLabel
-                control={
-                  <Checkbox
-                    name="acceptTerms"
-                    checked={formData.acceptTerms}
-                    onChange={handleChange}
-                  />
-                }
+                control={<Checkbox name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} />}
                 label={
                   <Typography variant="body2" color="text.primary">
                     Я приймаю умови
@@ -328,7 +329,9 @@ export default function RegisterPage() {
                 onBlur={handleConfirmFocus}
                 autoComplete="off"
                 error={!!(confirmErrors.password && (confirmTouched.password || confirmData.password))}
-                helperText={confirmErrors.password && (confirmTouched.password || confirmData.password) && confirmErrors.password}
+                helperText={
+                  confirmErrors.password && (confirmTouched.password || confirmData.password) && confirmErrors.password
+                }
                 fullWidth
                 variant="outlined"
               />
@@ -342,19 +345,19 @@ export default function RegisterPage() {
                 onFocus={handleConfirmFocus}
                 onBlur={handleConfirmFocus}
                 autoComplete="off"
-                error={!!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))}
-                helperText={confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && confirmErrors.repeatPassword}
+                error={
+                  !!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))
+                }
+                helperText={
+                  confirmErrors.repeatPassword &&
+                  (confirmTouched.repeatPassword || confirmData.repeatPassword) &&
+                  confirmErrors.repeatPassword
+                }
                 fullWidth
                 variant="outlined"
               />
 
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ py: 1.5 }}
-              >
+              <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5 }}>
                 Завершити реєстрацію
               </Button>
 
@@ -369,16 +372,14 @@ export default function RegisterPage() {
                   variant="text"
                   color="primary"
                   onClick={handleBack}
-                  sx={{ 
+                  sx={{
                     textTransform: 'none',
                     p: 0,
                     minWidth: 'auto',
-                    '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' }
+                    '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' },
                   }}
                 >
-                  <Typography variant="body2">
-                    Вказати інші дані
-                  </Typography>
+                  <Typography variant="body2">Вказати інші дані</Typography>
                 </Button>
               </Stack>
             </Stack>

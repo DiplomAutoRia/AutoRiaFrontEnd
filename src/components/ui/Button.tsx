@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material';
 
 export interface ButtonProps extends MuiButtonProps {
@@ -7,10 +8,7 @@ export interface ButtonProps extends MuiButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ loading, disabled, children, ...props }) => {
   return (
-    <MuiButton
-      {...props}
-      disabled={disabled || loading}
-    >
+    <MuiButton {...props} disabled={disabled || loading}>
       {loading ? 'Loading...' : children}
     </MuiButton>
   );

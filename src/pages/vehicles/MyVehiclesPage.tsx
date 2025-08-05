@@ -33,8 +33,7 @@ const MyVehiclesPage: React.FC = () => {
         await deleteVehicle(vehicleToDelete).unwrap();
         setDeleteConfirmOpen(false);
         setVehicleToDelete(null);
-      } catch (err) {
-      }
+      } catch {}
     }
   };
 
@@ -86,7 +85,6 @@ const MyVehiclesPage: React.FC = () => {
         />
       )}
 
-      
       <Dialog open={deleteConfirmOpen} onClose={handleDeleteCancel} maxWidth="sm" fullWidth>
         <DialogTitle>Підтвердження видалення</DialogTitle>
         <DialogContent>

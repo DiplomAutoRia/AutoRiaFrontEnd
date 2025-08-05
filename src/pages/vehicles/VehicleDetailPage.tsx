@@ -48,8 +48,7 @@ const VehicleDetailPage: React.FC = () => {
       } else {
         await addToFavorites({ vehicle: Number(id) }).unwrap();
       }
-    } catch (error) {
-    }
+    } catch {}
   };
 
   const handleShare = () => {
@@ -99,7 +98,6 @@ const VehicleDetailPage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      
       <Box mb={3}>
         <Button onClick={() => navigate(-1)} startIcon={<ArrowBack />} sx={{ mb: 2 }}>
           Назад
@@ -111,7 +109,11 @@ const VehicleDetailPage: React.FC = () => {
               {vehicle.brand} {vehicle.model} {vehicle.year}
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-              <Chip label={vehicle.vehicle_type?.toUpperCase() || 'UNKNOWN'} color="primary" sx={{ textTransform: 'capitalize' }} />
+              <Chip
+                label={vehicle.vehicle_type?.toUpperCase() || 'UNKNOWN'}
+                color="primary"
+                sx={{ textTransform: 'capitalize' }}
+              />
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Visibility fontSize="small" color="action" />
                 <Typography variant="body2">{vehicle.views_count} переглядів</Typography>
@@ -135,7 +137,6 @@ const VehicleDetailPage: React.FC = () => {
       </Box>
 
       <Grid container spacing={4}>
-        
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2, mb: 2 }}>
             {images.length > 0 ? (
@@ -190,7 +191,6 @@ const VehicleDetailPage: React.FC = () => {
             )}
           </Paper>
 
-          
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Опис
@@ -201,7 +201,6 @@ const VehicleDetailPage: React.FC = () => {
           </Paper>
         </Grid>
 
-        
         <Grid item xs={12} md={4}>
           <Card sx={{ mb: 3 }}>
             <CardContent>
@@ -298,7 +297,6 @@ const VehicleDetailPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

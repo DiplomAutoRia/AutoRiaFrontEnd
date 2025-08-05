@@ -18,8 +18,7 @@ const EditVehiclePage: React.FC = () => {
     try {
       const result = await updateVehicle({ id: Number(id), data }).unwrap();
       navigate(`/vehicles/${result.id}`);
-    } catch (err) {
-    }
+    } catch {}
   };
 
   const handleCancel = () => {

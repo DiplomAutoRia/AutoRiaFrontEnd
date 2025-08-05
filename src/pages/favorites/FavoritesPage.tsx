@@ -28,8 +28,7 @@ const FavoritesPage: React.FC = () => {
   const handleRemoveFavorite = async (favoriteId: number) => {
     try {
       await removeFromFavorites(favoriteId).unwrap();
-    } catch (err) {
-    }
+    } catch {}
   };
 
   const formatPrice = (price: number, currency: string) => {

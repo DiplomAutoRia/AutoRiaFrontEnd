@@ -1,18 +1,23 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
+import { z } from 'zod';
+
 import { useChangePasswordMutation } from '../../redux/api/authApi';
 
 const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, 'Поточний пароль обов\'язковий'),
+    currentPassword: z.string().min(1, "Поточний пароль обов'язковий"),
     newPassword: z
       .string()
       .min(8, 'Новий пароль повинен містити принаймні 8 символів')
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Пароль повинен містити принаймні одну велику літеру, одну малу літеру та одну цифру'),
-    confirmPassword: z.string().min(1, 'Підтвердження пароля обов\'язкове'),
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Пароль повинен містити принаймні одну велику літеру, одну малу літеру та одну цифру',
+      ),
+    confirmPassword: z.string().min(1, "Підтвердження пароля обов'язкове"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Паролі не співпадають',
@@ -44,11 +49,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
         current_password: data.currentPassword,
         new_password: data.newPassword,
       }).unwrap();
-      
+
       reset();
       onSuccess?.();
-    } catch (err) {
-    }
+    } catch {}
   };
 
   return (
@@ -102,17 +106,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
       />
 
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button
-          onClick={onCancel}
-          disabled={isLoading}
-        >
+        <Button onClick={onCancel} disabled={isLoading}>
           Скасувати
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isLoading}
-        >
+        <Button type="submit" variant="contained" disabled={isLoading}>
           {isLoading ? 'Змінюємо...' : 'Змінити пароль'}
         </Button>
       </Box>

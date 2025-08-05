@@ -41,7 +41,6 @@ const MainPage = () => {
     {} as Record<number, number>,
   );
 
-
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
     if (searchQuery) searchParams.set('search', searchQuery);

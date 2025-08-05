@@ -63,12 +63,11 @@ interface VehicleFormProps {
 
 const steps = ['Основна інформація', 'Технічні характеристики', 'Додаткова інформація'];
 
-
 const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, isLoading = false }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
-  const [formKey, setFormKey] = useState(Date.now());
+  const [formKey] = useState(Date.now());
 
   const {
     control,

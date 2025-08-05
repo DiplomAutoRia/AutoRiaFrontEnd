@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Alert, Box, Button, TextField } from '@mui/material';
+import { z } from 'zod';
 
 import type { User } from '../../models/auth';
 
@@ -47,7 +47,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       if (onSubmit) {
         await onSubmit(data);
@@ -57,7 +57,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
       setTimeout(() => {
         onSuccess?.();
       }, 1500);
-    } catch (error) {
+    } catch {
       setError('Помилка при оновленні профілю. Спробуйте ще раз.');
     } finally {
       setIsSubmitting(false);
@@ -130,17 +130,10 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
       />
 
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button
-          onClick={handleCancel}
-          disabled={isSubmitting}
-        >
+        <Button onClick={handleCancel} disabled={isSubmitting}>
           Скасувати
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
           {isSubmitting ? 'Збереження...' : 'Зберегти зміни'}
         </Button>
       </Box>

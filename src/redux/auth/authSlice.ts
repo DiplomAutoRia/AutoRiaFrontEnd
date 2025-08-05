@@ -3,7 +3,6 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-
 import { getErrorMessage } from '../../common/utils/errorUtils';
 import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
 import { routes } from '../../routes';
@@ -29,7 +28,7 @@ interface AuthState {
 const initialState: AuthState = {
   loading: false,
   error: null,
-  user: null,
+  user: getUserFromStorage(),
   registerStep: 'initial',
   contactInfo: null,
   successMessage: null,
@@ -150,7 +149,7 @@ export const completeRegister = createAsyncThunk(
 
 export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: string, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${routes.API.BASE}/users/google-auth/`, {
+    const response = await axios.post(`${routes.API.BASE}/users/social/google/login/`, {
       token,
     });
 
@@ -171,49 +170,46 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
   }
 });
 
-export const checkTokenValidity = createAsyncThunk(
-  'auth/checkTokenValidity',
-  async () => {
+export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', async () => {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const refreshToken = Cookies.get('refresh_token');
+
+    if (!accessToken || !refreshToken) {
+      removeUserFromStorage();
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+      return { user: null };
+    }
+
+    await axios.post(`${routes.API.BASE}/users/token/verify/`, {
+      token: accessToken,
+    });
+
+    const user = getUserFromStorage();
+    return { user };
+  } catch {
     try {
-      const accessToken = Cookies.get('access_token');
       const refreshToken = Cookies.get('refresh_token');
-      
-      if (!accessToken || !refreshToken) {
-        removeUserFromStorage();
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
-        return { user: null };
+      if (!refreshToken) {
+        throw new Error('No refresh token');
       }
 
-      await axios.post(`${routes.API.BASE}/users/token/verify/`, {
-        token: accessToken,
+      const refreshResponse = await axios.post(`${routes.API.BASE}/users/token/refresh/`, {
+        refresh: refreshToken,
       });
 
+      Cookies.set('access_token', refreshResponse.data.access);
       const user = getUserFromStorage();
       return { user };
-    } catch (err: unknown) {
-      try {
-        const refreshToken = Cookies.get('refresh_token');
-        if (!refreshToken) {
-          throw new Error('No refresh token');
-        }
-
-        const refreshResponse = await axios.post(`${routes.API.BASE}/users/token/refresh/`, {
-          refresh: refreshToken,
-        });
-
-        Cookies.set('access_token', refreshResponse.data.access);
-        const user = getUserFromStorage();
-        return { user };
-      } catch (refreshErr: unknown) {
-        removeUserFromStorage();
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
-        return { user: null };
-      }
+    } catch {
+      removeUserFromStorage();
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+      return { user: null };
     }
   }
-);
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -224,6 +220,7 @@ const authSlice = createSlice({
       state.error = null;
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
+      removeUserFromStorage();
     },
     resetRegister(state) {
       state.registerStep = 'initial';
@@ -292,6 +289,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.registerStep = 'done';
         state.successMessage = action.payload.message;
+        state.user = action.payload.user;
+        saveUserToStorage(action.payload.user);
       })
       .addCase(completeRegister.rejected, (state, action) => {
         state.loading = false;

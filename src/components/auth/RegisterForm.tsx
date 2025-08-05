@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { Box, Checkbox, FormControlLabel, Button as MuiButton, TextField, Typography } from '@mui/material';
 import { createSelector } from '@reduxjs/toolkit';
-import { Box, TextField, FormControlLabel, Checkbox, Typography, Button as MuiButton } from '@mui/material';
 
 import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
 import { completeRegister, initialRegister, resetRegister, verifyRegister } from '../../redux/auth/authSlice';
@@ -162,7 +162,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
               }),
             ).then((res) => {
               if (res.type.endsWith('/rejected')) {
-                }
+              }
             });
           }
         });
@@ -221,13 +221,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         />
 
         <FormControlLabel
-          control={
-            <Checkbox
-              name="acceptTerms"
-              checked={formData.acceptTerms}
-              onChange={handleChange}
-            />
-          }
+          control={<Checkbox name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} />}
           label="Я приймаю умови"
         />
 
@@ -272,7 +266,9 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         placeholder="Пароль"
         fullWidth
         error={!!(confirmErrors.password && (confirmTouched.password || confirmData.password))}
-        helperText={confirmErrors.password && (confirmTouched.password || confirmData.password) ? confirmErrors.password : ''}
+        helperText={
+          confirmErrors.password && (confirmTouched.password || confirmData.password) ? confirmErrors.password : ''
+        }
       />
 
       <TextField
@@ -286,7 +282,11 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         placeholder="Повторіть пароль"
         fullWidth
         error={!!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))}
-        helperText={confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) ? confirmErrors.repeatPassword : ''}
+        helperText={
+          confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword)
+            ? confirmErrors.repeatPassword
+            : ''
+        }
       />
 
       <Button type="submit" className="w-full">
@@ -299,12 +299,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
             Вже зареєстровані
           </Typography>
         </Link>
-        <MuiButton
-          variant="text"
-          size="small"
-          onClick={handleBack}
-          sx={{ color: '#1976d2', textTransform: 'none' }}
-        >
+        <MuiButton variant="text" size="small" onClick={handleBack} sx={{ color: '#1976d2', textTransform: 'none' }}>
           Вказати інші дані
         </MuiButton>
       </Box>

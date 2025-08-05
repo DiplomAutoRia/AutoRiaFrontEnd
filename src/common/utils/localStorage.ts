@@ -5,15 +5,14 @@ const REFRESH_TOKEN_STORAGE_KEY = 'autoRia_refreshToken';
 export const saveUserToStorage = (user: any) => {
   try {
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const getUserFromStorage = () => {
   try {
     const stored = localStorage.getItem(USER_STORAGE_KEY);
     return stored ? JSON.parse(stored) : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -21,21 +20,19 @@ export const getUserFromStorage = () => {
 export const removeUserFromStorage = () => {
   try {
     localStorage.removeItem(USER_STORAGE_KEY);
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const saveTokenToStorage = (token: string) => {
   try {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const getTokenFromStorage = () => {
   try {
     return localStorage.getItem(TOKEN_STORAGE_KEY);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -43,21 +40,19 @@ export const getTokenFromStorage = () => {
 export const removeTokenFromStorage = () => {
   try {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const saveRefreshTokenToStorage = (token: string) => {
   try {
     localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, token);
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const getRefreshTokenFromStorage = () => {
   try {
     return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -65,8 +60,7 @@ export const getRefreshTokenFromStorage = () => {
 export const removeRefreshTokenFromStorage = () => {
   try {
     localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  } catch (error) {
-  }
+  } catch {}
 };
 
 export const clearAllStorage = () => {

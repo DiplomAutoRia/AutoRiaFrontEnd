@@ -15,8 +15,7 @@ const CreateVehiclePage: React.FC = () => {
     try {
       const result = await createVehicle(data).unwrap();
       navigate(`/vehicles/${result.id}`);
-    } catch (err) {
-    }
+    } catch {}
   };
 
   const handleCancel = () => {

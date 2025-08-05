@@ -100,7 +100,6 @@ const VehiclesPage: React.FC = () => {
         Пошук транспорту
       </Typography>
 
-      
       <Paper sx={{ p: 3, mb: 3 }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
@@ -119,12 +118,10 @@ const VehiclesPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      
       {!shouldUseSearch && (
         <VehicleFilters filters={filters} onFiltersChange={handleFiltersChange} onReset={handleFiltersReset} />
       )}
 
-      
       <Box>
         {shouldUseSearch && (
           <Typography variant="h6" gutterBottom>

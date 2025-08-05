@@ -48,8 +48,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         await addToFavorites({ vehicle: vehicle.id }).unwrap();
         setIsFavoriteState(true);
       }
-    } catch (error) {
-    }
+    } catch {}
   };
 
   const handleShare = () => {
