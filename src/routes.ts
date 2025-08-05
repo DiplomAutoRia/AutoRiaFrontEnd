@@ -3,6 +3,12 @@ export const routes = {
   LOGIN: '/login',
   REGISTER: '/register',
   PROFILE: '/profile',
+  VEHICLES: '/vehicles',
+  VEHICLE_DETAIL: '/vehicles/:id',
+  VEHICLE_CREATE: '/vehicles/create',
+  VEHICLE_EDIT: '/vehicles/:id/edit',
+  MY_VEHICLES: '/my-vehicles',
+  FAVORITES: '/favorites',
   NOT_FOUND: '*',
   API: {
     BASE: import.meta.env.VITE_BASE_API_URL,

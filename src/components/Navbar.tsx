@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AppBar, Avatar, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { AppBar, Avatar, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
 import { logout } from '../redux/auth/authSlice';
 import type { RootState } from '../redux/store';
@@ -42,11 +42,30 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" sx={{ mr: 4 }}>
           <Link to={routes.HOME} style={{ color: 'inherit', textDecoration: 'none' }}>
-            Auto Ria 2
+            AutoRia
           </Link>
         </Typography>
+
+        <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+          <Button color="inherit" component={Link} to={routes.VEHICLES}>
+            Каталог
+          </Button>
+          {user && (
+            <>
+              <Button color="inherit" component={Link} to={routes.MY_VEHICLES}>
+                Мої оголошення
+              </Button>
+              <Button color="inherit" component={Link} to={routes.FAVORITES}>
+                Обране
+              </Button>
+              <Button color="inherit" component={Link} to={routes.VEHICLE_CREATE}>
+                Додати оголошення
+              </Button>
+            </>
+          )}
+        </Box>
 
         {user ? (
           <>
@@ -71,16 +90,32 @@ const Navbar = () => {
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
               <MenuItem onClick={handleProfile}>Профіль</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  navigate(routes.MY_VEHICLES);
+                  handleClose();
+                }}
+              >
+                Мої оголошення
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  navigate(routes.FAVORITES);
+                  handleClose();
+                }}
+              >
+                Обране
+              </MenuItem>
               <MenuItem onClick={handleLogout}>Вийти</MenuItem>
             </Menu>
           </>
         ) : (
           <>
             <Button color="inherit" component={Link} to={routes.LOGIN}>
-              Login
+              Вхід
             </Button>
             <Button color="inherit" component={Link} to={routes.REGISTER}>
-              Register
+              Реєстрація
             </Button>
           </>
         )}

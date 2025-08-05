@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npx prettier:*)",
       "Bash(npm run lint)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": []
   }

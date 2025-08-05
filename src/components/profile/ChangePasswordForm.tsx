@@ -1,31 +1,38 @@
-import { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Box, Button, TextField, Typography } from '@mui/material';
 import { z } from 'zod';
 
-import { Button, Input } from '../ui';
+import { useChangePasswordMutation } from '../../redux/api/authApi';
 
 const changePasswordSchema = z
   .object({
-    current_password: z.string().min(1, "Поточний пароль обов'язковий"),
-    new_password: z.string().min(6, 'Новий пароль повинен містити щонайменше 6 символів'),
-    confirm_password: z.string().min(1, "Підтвердження пароля обов'язкове"),
+    currentPassword: z.string().min(1, "Поточний пароль обов'язковий"),
+    newPassword: z
+      .string()
+      .min(8, 'Новий пароль повинен містити принаймні 8 символів')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Пароль повинен містити принаймні одну велику літеру, одну малу літеру та одну цифру',
+      ),
+    confirmPassword: z.string().min(1, "Підтвердження пароля обов'язкове"),
   })
-  .refine((data) => data.new_password === data.confirm_password, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Паролі не співпадають',
-    path: ['confirm_password'],
+    path: ['confirmPassword'],
   });
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
 interface ChangePasswordFormProps {
-  onSubmit?: (_data: ChangePasswordFormData) => void;
+  onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function ChangePasswordForm({ onSubmit, onCancel }: ChangePasswordFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCancel }) => {
+  const [changePassword, { isLoading, error }] = useChangePasswordMutation();
 
   const {
     register,
@@ -34,70 +41,80 @@ export default function ChangePasswordForm({ onSubmit, onCancel }: ChangePasswor
     reset,
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
-    defaultValues: {
-      current_password: '',
-      new_password: '',
-      confirm_password: '',
-    },
   });
 
-  const handleFormSubmit = async (data: ChangePasswordFormData) => {
-    setIsSubmitting(true);
+  const onSubmit = async (data: ChangePasswordFormData) => {
     try {
-      if (onSubmit) {
-        await onSubmit(data);
-      } else {
-        console.log('Password change data:', data);
-      }
-      reset();
-    } catch (error) {
-      console.error('Password change error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      await changePassword({
+        current_password: data.currentPassword,
+        new_password: data.newPassword,
+      }).unwrap();
 
-  const handleCancel = () => {
-    reset();
-    if (onCancel) {
-      onCancel();
-    }
+      reset();
+      onSuccess?.();
+    } catch {}
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-      <Input
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
+      <Typography variant="h6" component="h2" gutterBottom>
+        Змінити пароль
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {'data' in error && typeof error.data === 'object' && error.data && 'message' in error.data
+            ? String(error.data.message)
+            : 'Помилка при зміні пароля'}
+        </Alert>
+      )}
+
+      <TextField
+        {...register('currentPassword')}
+        margin="normal"
+        required
+        fullWidth
         label="Поточний пароль"
         type="password"
-        {...register('current_password')}
-        error={errors.current_password?.message}
-        placeholder="Введіть поточний пароль"
+        autoComplete="current-password"
+        error={!!errors.currentPassword}
+        helperText={errors.currentPassword?.message}
       />
 
-      <Input
+      <TextField
+        {...register('newPassword')}
+        margin="normal"
+        required
+        fullWidth
         label="Новий пароль"
         type="password"
-        {...register('new_password')}
-        error={errors.new_password?.message}
-        placeholder="Введіть новий пароль"
+        autoComplete="new-password"
+        error={!!errors.newPassword}
+        helperText={errors.newPassword?.message}
       />
 
-      <Input
+      <TextField
+        {...register('confirmPassword')}
+        margin="normal"
+        required
+        fullWidth
         label="Підтвердити новий пароль"
         type="password"
-        {...register('confirm_password')}
-        error={errors.confirm_password?.message}
-        placeholder="Підтвердіть новий пароль"
+        autoComplete="new-password"
+        error={!!errors.confirmPassword}
+        helperText={errors.confirmPassword?.message}
       />
 
-      <div className="flex gap-3 pt-4">
-        <Button type="submit" variant="warning" isLoading={isSubmitting} className="flex-1">
-          Змінити пароль
-        </Button>
-        <Button type="button" variant="secondary" onClick={handleCancel} className="flex-1">
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+        <Button onClick={onCancel} disabled={isLoading}>
           Скасувати
         </Button>
-      </div>
-    </form>
+        <Button type="submit" variant="contained" disabled={isLoading}>
+          {isLoading ? 'Змінюємо...' : 'Змінити пароль'}
+        </Button>
+      </Box>
+    </Box>
   );
-}
+};
+
+export default ChangePasswordForm;

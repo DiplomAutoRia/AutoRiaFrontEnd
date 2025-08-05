@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Box, Button, TextField } from '@mui/material';
 import { z } from 'zod';
 
-import type { RootState } from '../../redux/store';
-import { Button, Input } from '../ui';
+import type { User } from '../../models/auth';
 
 const profileEditSchema = z.object({
   first_name: z.string().min(2, "Ім'я повинно містити щонайменше 2 символи"),
@@ -18,13 +17,16 @@ const profileEditSchema = z.object({
 type ProfileEditFormData = z.infer<typeof profileEditSchema>;
 
 interface ProfileEditFormProps {
+  user?: User | null;
   onSubmit?: (_data: ProfileEditFormData) => void;
   onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function ProfileEditForm({ onSubmit, onCancel }: ProfileEditFormProps) {
-  const { user, loading } = useSelector((state: RootState) => state.auth);
+const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCancel, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const {
     register,
@@ -43,14 +45,20 @@ export default function ProfileEditForm({ onSubmit, onCancel }: ProfileEditFormP
 
   const handleFormSubmit = async (data: ProfileEditFormData) => {
     setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
+
     try {
       if (onSubmit) {
         await onSubmit(data);
       } else {
-        console.log('Profile update data:', data);
       }
-    } catch (error) {
-      console.error('Profile update error:', error);
+      setSuccess(true);
+      setTimeout(() => {
+        onSuccess?.();
+      }, 1500);
+    } catch {
+      setError('Помилка при оновленні профілю. Спробуйте ще раз.');
     } finally {
       setIsSubmitting(false);
     }
@@ -64,45 +72,73 @@ export default function ProfileEditForm({ onSubmit, onCancel }: ProfileEditFormP
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-      <Input
-        label="Ім'я"
+    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} sx={{ mt: 1 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Профіль успішно оновлено!
+        </Alert>
+      )}
+
+      <TextField
         {...register('first_name')}
-        error={errors.first_name?.message}
-        placeholder="Введіть ваше ім'я"
+        margin="normal"
+        required
+        fullWidth
+        label="Ім'я"
+        error={!!errors.first_name}
+        helperText={errors.first_name?.message}
+        disabled={isSubmitting}
       />
 
-      <Input
-        label="Прізвище"
+      <TextField
         {...register('last_name')}
-        error={errors.last_name?.message}
-        placeholder="Введіть ваше прізвище"
+        margin="normal"
+        required
+        fullWidth
+        label="Прізвище"
+        error={!!errors.last_name}
+        helperText={errors.last_name?.message}
+        disabled={isSubmitting}
       />
 
-      <Input
+      <TextField
+        {...register('email')}
+        margin="normal"
+        fullWidth
         label="Email"
         type="email"
-        {...register('email')}
-        error={errors.email?.message}
-        placeholder="Введіть ваш email"
+        error={!!errors.email}
+        helperText={errors.email?.message}
+        disabled={isSubmitting}
       />
 
-      <Input
+      <TextField
+        {...register('phone_number')}
+        margin="normal"
+        fullWidth
         label="Номер телефону"
         type="tel"
-        {...register('phone_number')}
-        error={errors.phone_number?.message}
-        placeholder="Введіть ваш номер телефону"
+        error={!!errors.phone_number}
+        helperText={errors.phone_number?.message}
+        disabled={isSubmitting}
       />
 
-      <div className="flex gap-3 pt-4">
-        <Button type="submit" isLoading={isSubmitting || loading} className="flex-1">
-          Зберегти зміни
-        </Button>
-        <Button type="button" variant="secondary" onClick={handleCancel} className="flex-1">
+      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+        <Button onClick={handleCancel} disabled={isSubmitting}>
           Скасувати
         </Button>
-      </div>
-    </form>
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
+          {isSubmitting ? 'Збереження...' : 'Зберегти зміни'}
+        </Button>
+      </Box>
+    </Box>
   );
-}
+};
+
+export default ProfileEditForm;
