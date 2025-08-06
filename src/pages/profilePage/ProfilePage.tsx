@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfile, deleteProfile } from '../../redux/auth/authSlice';
 import type { RootState, AppDispatch } from '../../redux/store';
 import { useNavigate } from 'react-router-dom';
+import { routes } from '../../routes';
 
 export default function ProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -14,7 +15,20 @@ export default function ProfilePage() {
     last_name: user?.last_name || '',
     email: user?.email || '',
     phone_number: user?.phone_number || '',
+    location: user?.location || '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        phone_number: user.phone_number || '',
+        location: user.location || '',
+      });
+    }
+  }, [user]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEditProfile = () => {
@@ -28,6 +42,7 @@ export default function ProfilePage() {
       last_name: user?.last_name || '',
       email: user?.email || '',
       phone_number: user?.phone_number || '',
+      location: user?.location || '',
     });
   };
 
@@ -145,6 +160,16 @@ export default function ProfilePage() {
                             />
                           </div>
                         )}
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Місцезнаходження</label>
+                          <input
+                            type="text"
+                            name="location"
+                            value={formData.location}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                        </div>
                         <div className="flex space-x-3 pt-2">
                           <button
                             onClick={handleSaveProfile}
@@ -181,6 +206,12 @@ export default function ProfilePage() {
                           <div>
                             <label className="text-sm font-medium text-gray-700">Телефон</label>
                             <p className="mt-1 text-sm text-gray-900">{user.phone_number}</p>
+                          </div>
+                        )}
+                        {user.location && (
+                          <div>
+                            <label className="text-sm font-medium text-gray-700">Місцезнаходження</label>
+                            <p className="mt-1 text-sm text-gray-900">{user.location}</p>
                           </div>
                         )}
                       </>
@@ -232,7 +263,10 @@ export default function ProfilePage() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Безпека</h2>
                   <div className="space-y-3">
-                    <button className="w-full bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors">
+                    <button 
+                      onClick={() => navigate(routes.FORGOT_PASSWORD)}
+                      className="w-full bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors"
+                    >
                       Змінити пароль
                     </button>
                     <button 
@@ -248,12 +282,18 @@ export default function ProfilePage() {
                           <h3 className="text-lg font-medium text-gray-900 mb-4">Підтвердження видалення</h3>
                           <p className="text-gray-600 mb-6">Ви впевнені, що хочете видалити свій акаунт? Ця дія незворотня.</p>
                           <div className="flex justify-end space-x-3">
-                            <button
-                              onClick={() => setShowDeleteConfirm(false)}
-                              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                            >
-                              Скасувати
-                            </button>
+                    <button 
+                      onClick={() => navigate('/my-listings')}
+                      className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Мої оголошення
+                    </button>
+                    <button 
+                      onClick={() => navigate('/change-password')}
+                      className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Змінити пароль
+                    </button>
                             <button
                               onClick={handleDeleteAccount}
                               disabled={loading}

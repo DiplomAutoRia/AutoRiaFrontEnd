@@ -3,6 +3,21 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+const authApi = axios.create();
+
+authApi.interceptors.request.use(
+  (config) => {
+    const accessToken = Cookies.get('access_token');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
@@ -12,6 +27,7 @@ interface User {
   last_name: string;
   email?: string;
   phone_number?: string;
+  location?: string;
   is_verified: boolean;
 }
 
@@ -129,7 +145,6 @@ export const completeRegister = createAsyncThunk(
     try {
       const response = await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
 
-      // Set tokens if returned
       if (response.data.access) {
         Cookies.set('access_token', response.data.access);
         Cookies.set('refresh_token', response.data.refresh);
@@ -175,20 +190,56 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
   }
 });
 
+import type { RootState } from '../../store';
+
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (data: { first_name?: string; last_name?: string; email?: string; phone_number?: string }, { rejectWithValue }) => {
+  async (data: { 
+    first_name: string; 
+    last_name: string; 
+    email?: string; 
+    phone_number?: string;
+    location?: string;
+  }, { rejectWithValue, getState }) => {
     try {
-      const response = await axios.patch(`${routes.API.BASE}/users/profile/`, data, {
-        withCredentials: true,
+      const formattedData = {...data};
+      if (formattedData.phone_number) {
+        let cleaned = formattedData.phone_number.replace(/\D/g, '');
+
+        if (cleaned.startsWith('0')) {
+          cleaned = '38' + cleaned.substring(1);
+        }
+
+        formattedData.phone_number = '+' + cleaned;
+      }
+      
+      const response = await authApi.put(`${routes.API.BASE}/users/profile/`, {
+        first_name: formattedData.first_name,
+        last_name: formattedData.last_name,
+        email: formattedData.email || null,
+        phone_number: formattedData.phone_number || null,
+        location: formattedData.location || null,
+      }, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       });
 
+      const state = getState() as RootState;
+      const currentUser = state.auth.user;
+
+      const updatedUser = {
+        ...currentUser,
+        first_name: formattedData.first_name,
+        last_name: formattedData.last_name,
+        email: formattedData.email || currentUser?.email,
+        phone_number: formattedData.phone_number || currentUser?.phone_number,
+        location: formattedData.location || currentUser?.location
+      } as User;
+
       return {
-        user: response.data,
+        user: updatedUser,
       };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Profile update failed');
@@ -200,12 +251,41 @@ export const deleteProfile = createAsyncThunk(
   'auth/deleteProfile',
   async (_, { rejectWithValue }) => {
     try {
-      await axios.delete(`${routes.API.BASE}/users/profile/delete/`, {
-        withCredentials: true
+      await authApi.delete(`${routes.API.BASE}/users/profile/delete/`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
       });
       return {};
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Profile deletion failed');
+    }
+  }
+);
+
+export const requestPasswordReset = createAsyncThunk(
+  'auth/requestPasswordReset',
+  async (contact_info: { type: string; value: string }, { rejectWithValue }) => {
+    try {
+      await axios.post(`${routes.API.BASE}/users/password-reset/request/`, {
+        contact_info: contact_info
+      });
+      return { message: 'Password reset code sent to your contact info' };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Password reset request failed');
+    }
+  }
+);
+
+export const confirmPasswordReset = createAsyncThunk(
+  'auth/confirmPasswordReset',
+  async (data: { contact_info: string; code: string; password: string }, { rejectWithValue }) => {
+    try {
+      await axios.post(`${routes.API.BASE}/users/password-reset/confirm/`, data);
+      return { message: 'Password reset successful. You can now login with your new password.' };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.detail || 'Password reset confirmation failed');
     }
   }
 );
@@ -341,7 +421,34 @@ const authSlice = createSlice({
       .addCase(deleteProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      
+.addCase(requestPasswordReset.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(requestPasswordReset.fulfilled, (state, action) => {
+  state.loading = false;
+  state.successMessage = action.payload.message;
+  state.error = null;
+})
+.addCase(requestPasswordReset.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload as string;
+})
+.addCase(confirmPasswordReset.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(confirmPasswordReset.fulfilled, (state, action) => {
+  state.loading = false;
+  state.successMessage = action.payload.message;
+  state.error = null;
+})
+.addCase(confirmPasswordReset.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload as string;
+});
   },
 });
 
