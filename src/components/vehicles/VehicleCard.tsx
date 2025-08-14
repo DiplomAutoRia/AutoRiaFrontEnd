@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -16,6 +17,7 @@ import { Box, Button, Card, CardContent, CardMedia, Chip, IconButton, Stack, Too
 
 import type { Vehicle } from '../../models/vehicle';
 import { useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
+import type { RootState } from '../../redux/store';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -35,6 +37,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.user);
   const [addToFavorites] = useAddToFavoritesMutation();
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
   const [isFavoriteState, setIsFavoriteState] = useState(isFavorite);
@@ -188,11 +191,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               </>
             ) : (
               <>
-                <Tooltip title={isFavoriteState ? 'Видалити з обраного' : 'Додати до обраного'}>
-                  <IconButton size="small" onClick={handleFavoriteToggle}>
-                    {isFavoriteState ? <Favorite color="error" /> : <FavoriteBorder />}
-                  </IconButton>
-                </Tooltip>
+                {user && (
+                  <Tooltip title={isFavoriteState ? 'Видалити з обраного' : 'Додати до обраного'}>
+                    <IconButton size="small" onClick={handleFavoriteToggle}>
+                      {isFavoriteState ? <Favorite color="error" /> : <FavoriteBorder />}
+                    </IconButton>
+                  </Tooltip>
+                )}
                 <Tooltip title="Поділитися">
                   <IconButton size="small" onClick={handleShare}>
                     <Share />

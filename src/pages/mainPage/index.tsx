@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { Search } from '@mui/icons-material';
@@ -22,6 +23,7 @@ import VehicleCard from '../../components/vehicles/VehicleCard';
 import { POPULAR_BRANDS } from '../../models/brands';
 import { useGetFavoritesQuery } from '../../redux/api/favoritesApi';
 import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -30,8 +32,9 @@ const MainPage = () => {
   const [priceFrom, setPriceFrom] = React.useState('');
   const [priceTo, setPriceTo] = React.useState('');
 
+  const user = useSelector((state: RootState) => state.auth.user);
   const { data: vehiclesData } = useGetVehiclesQuery({ limit: 6 });
-  const { data: favorites = [] } = useGetFavoritesQuery();
+  const { data: favorites = [] } = useGetFavoritesQuery(undefined, { skip: !user });
 
   const favoriteIds = favorites.reduce(
     (acc, fav) => {
@@ -164,8 +167,8 @@ const MainPage = () => {
             <Grid item xs={12} sm={6} md={4} key={vehicle.id}>
               <VehicleCard
                 vehicle={vehicle}
-                isFavorite={!!favoriteIds[vehicle.id]}
-                favoriteId={favoriteIds[vehicle.id]}
+                isFavorite={user ? !!favoriteIds[vehicle.id] : false}
+                favoriteId={user ? favoriteIds[vehicle.id] : undefined}
               />
             </Grid>
           ))}

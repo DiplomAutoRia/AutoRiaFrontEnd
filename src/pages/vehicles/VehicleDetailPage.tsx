@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ArrowBack, Email, Favorite, FavoriteBorder, Phone, Share, Visibility } from '@mui/icons-material';
@@ -21,25 +22,30 @@ import {
   Typography,
 } from '@mui/material';
 
+import { MessageModal } from '../../components/messages';
 import {
   useAddToFavoritesMutation,
   useGetFavoritesQuery,
   useRemoveFromFavoritesMutation,
 } from '../../redux/api/favoritesApi';
 import { useGetVehicleQuery } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 
 const VehicleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
 
+  const user = useSelector((state: RootState) => state.auth.user);
   const { data: vehicle, isLoading, error } = useGetVehicleQuery(Number(id));
-  const { data: favorites = [] } = useGetFavoritesQuery();
+  const { data: favorites = [] } = useGetFavoritesQuery(undefined, { skip: !user });
   const [addToFavorites] = useAddToFavoritesMutation();
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
 
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+
   const favorite = favorites.find((fav) => fav.vehicle === Number(id));
-  const isFavorite = !!favorite;
+  const isFavorite = user ? !!favorite : false;
 
   const handleFavoriteToggle = async () => {
     try {
@@ -61,6 +67,32 @@ const VehicleDetailPage: React.FC = () => {
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
+  };
+
+  const handleContactSeller = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (!vehicle) {
+      return;
+    }
+
+    if (vehicle.user === user.id) {
+      alert('Ви не можете написати самому собі');
+      return;
+    }
+
+    setMessageModalOpen(true);
+  };
+
+  const handleCallSeller = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    alert('Функція дзвінка буде додана пізніше');
   };
 
   const formatPrice = (price: number, currency: string) => {
@@ -122,11 +154,13 @@ const VehicleDetailPage: React.FC = () => {
           </Box>
 
           <Stack direction="row" spacing={1}>
-            <Tooltip title={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'}>
-              <IconButton onClick={handleFavoriteToggle} color={isFavorite ? 'error' : 'default'}>
-                {isFavorite ? <Favorite /> : <FavoriteBorder />}
-              </IconButton>
-            </Tooltip>
+            {user && (
+              <Tooltip title={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'}>
+                <IconButton onClick={handleFavoriteToggle} color={isFavorite ? 'error' : 'default'}>
+                  {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title="Поділитися">
               <IconButton onClick={handleShare}>
                 <Share />
@@ -303,10 +337,10 @@ const VehicleDetailPage: React.FC = () => {
                 Зв'язатися з продавцем
               </Typography>
               <Stack spacing={2}>
-                <Button variant="contained" fullWidth startIcon={<Phone />} size="large">
+                <Button variant="contained" fullWidth startIcon={<Phone />} size="large" onClick={handleCallSeller}>
                   Телефонувати
                 </Button>
-                <Button variant="outlined" fullWidth startIcon={<Email />} size="large">
+                <Button variant="outlined" fullWidth startIcon={<Email />} size="large" onClick={handleContactSeller}>
                   Написати повідомлення
                 </Button>
               </Stack>
@@ -314,6 +348,16 @@ const VehicleDetailPage: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Message Modal */}
+      {vehicle && user && (
+        <MessageModal
+          open={messageModalOpen}
+          onClose={() => setMessageModalOpen(false)}
+          vehicle={vehicle}
+          receiverId={vehicle.user}
+        />
+      )}
     </Container>
   );
 };

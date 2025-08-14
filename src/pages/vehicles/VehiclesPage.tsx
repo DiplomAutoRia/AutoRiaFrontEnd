@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
 import { Search } from '@mui/icons-material';
@@ -11,6 +12,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import type { VehicleFilters as VehicleFiltersType } from '../../models/vehicle';
 import { useGetFavoritesQuery } from '../../redux/api/favoritesApi';
 import { useGetVehiclesQuery, useSearchVehiclesQuery } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 
 const VehiclesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -46,7 +48,8 @@ const VehiclesPage: React.FC = () => {
 
   const { data, isLoading, error } = shouldUseSearch ? searchResult : listResult;
 
-  const { data: favorites = [] } = useGetFavoritesQuery();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const { data: favorites = [] } = useGetFavoritesQuery(undefined, { skip: !user });
 
   const favoriteIds = favorites.reduce(
     (acc, fav) => {
@@ -137,7 +140,7 @@ const VehiclesPage: React.FC = () => {
           currentPage={currentPage}
           pageSize={data?.page_size || 10}
           onPageChange={handlePageChange}
-          favoriteIds={favoriteIds}
+          favoriteIds={user ? favoriteIds : {}}
         />
       </Box>
     </Container>

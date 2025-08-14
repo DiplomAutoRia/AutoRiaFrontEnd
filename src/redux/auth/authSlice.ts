@@ -4,7 +4,15 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 import { getErrorMessage } from '../../common/utils/errorUtils';
-import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
+import {
+  clearAllStorage,
+  getRefreshTokenFromStorage,
+  getTokenFromStorage,
+  getUserFromStorage,
+  saveRefreshTokenToStorage,
+  saveTokenToStorage,
+  saveUserToStorage,
+} from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
 interface User {
@@ -62,8 +70,10 @@ export const loginUser = createAsyncThunk(
         throw new Error('Login failed. Please try again.');
       }
 
-      Cookies.set('access_token', response.data.access);
-      Cookies.set('refresh_token', response.data.refresh);
+      Cookies.set('access_token', response.data.access, { expires: 30 });
+      Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+      saveTokenToStorage(response.data.access);
+      saveRefreshTokenToStorage(response.data.refresh);
 
       return {
         user: {
@@ -126,8 +136,10 @@ export const completeRegister = createAsyncThunk(
       const response = await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
 
       if (response.data.access) {
-        Cookies.set('access_token', response.data.access);
-        Cookies.set('refresh_token', response.data.refresh);
+        Cookies.set('access_token', response.data.access, { expires: 30 });
+        Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+        saveTokenToStorage(response.data.access);
+        saveRefreshTokenToStorage(response.data.refresh);
       }
 
       return {
@@ -153,8 +165,10 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
       token,
     });
 
-    Cookies.set('access_token', response.data.access);
-    Cookies.set('refresh_token', response.data.refresh);
+    Cookies.set('access_token', response.data.access, { expires: 30 });
+    Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+    saveTokenToStorage(response.data.access);
+    saveRefreshTokenToStorage(response.data.refresh);
 
     return {
       user: {
@@ -172,14 +186,21 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
 
 export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', async () => {
   try {
-    const accessToken = Cookies.get('access_token');
-    const refreshToken = Cookies.get('refresh_token');
+    let accessToken = Cookies.get('access_token') || getTokenFromStorage();
+    let refreshToken = Cookies.get('refresh_token') || getRefreshTokenFromStorage();
 
     if (!accessToken || !refreshToken) {
-      removeUserFromStorage();
+      clearAllStorage();
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
       return { user: null };
+    }
+
+    if (accessToken && !Cookies.get('access_token')) {
+      Cookies.set('access_token', accessToken, { expires: 30 });
+    }
+    if (refreshToken && !Cookies.get('refresh_token')) {
+      Cookies.set('refresh_token', refreshToken, { expires: 30 });
     }
 
     await axios.post(`${routes.API.BASE}/users/token/verify/`, {
@@ -190,7 +211,7 @@ export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', as
     return { user };
   } catch {
     try {
-      const refreshToken = Cookies.get('refresh_token');
+      const refreshToken = Cookies.get('refresh_token') || getRefreshTokenFromStorage();
       if (!refreshToken) {
         throw new Error('No refresh token');
       }
@@ -199,11 +220,14 @@ export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', as
         refresh: refreshToken,
       });
 
-      Cookies.set('access_token', refreshResponse.data.access);
+      const newAccessToken = refreshResponse.data.access;
+      Cookies.set('access_token', newAccessToken, { expires: 30 });
+      saveTokenToStorage(newAccessToken);
+
       const user = getUserFromStorage();
       return { user };
     } catch {
-      removeUserFromStorage();
+      clearAllStorage();
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
       return { user: null };
@@ -220,7 +244,7 @@ const authSlice = createSlice({
       state.error = null;
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
-      removeUserFromStorage();
+      clearAllStorage();
     },
     resetRegister(state) {
       state.registerStep = 'initial';

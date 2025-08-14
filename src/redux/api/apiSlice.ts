@@ -2,13 +2,19 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import Cookies from 'js-cookie';
 
+import {
+  clearAllStorage,
+  getRefreshTokenFromStorage,
+  getTokenFromStorage,
+  saveTokenToStorage,
+} from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: routes.API.BASE,
   credentials: 'include',
   prepareHeaders: (headers) => {
-    const token = Cookies.get('access_token');
+    const token = Cookies.get('access_token') || getTokenFromStorage();
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
@@ -24,7 +30,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    const refreshToken = Cookies.get('refresh_token');
+    const refreshToken = Cookies.get('refresh_token') || getRefreshTokenFromStorage();
     if (refreshToken) {
       const refreshResult = await baseQuery(
         {
@@ -38,17 +44,19 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 
       if (refreshResult.data) {
         const { access } = refreshResult.data as { access: string };
-        Cookies.set('access_token', access);
+        Cookies.set('access_token', access, { expires: 30 });
+        saveTokenToStorage(access);
         result = await baseQuery(args, api, extraOptions);
       } else {
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
-        localStorage.removeItem('autoRia_user');
+        clearAllStorage();
         window.location.href = '/login';
       }
     } else {
       Cookies.remove('access_token');
-      localStorage.removeItem('autoRia_user');
+      Cookies.remove('refresh_token');
+      clearAllStorage();
       window.location.href = '/login';
     }
   }
@@ -59,6 +67,6 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['USERS', 'VEHICLES', 'COMMENTS', 'FAVORITES', 'REPORTS'],
+  tagTypes: ['USERS', 'VEHICLES', 'COMMENTS', 'FAVORITES', 'REPORTS', 'CONVERSATIONS'],
   endpoints: () => ({}),
 });

@@ -87,7 +87,6 @@ export default function LoginPage() {
                 }
               }}
               onError={() => {}}
-              useOneTap
             />
           </GoogleOAuthProvider>
         </Box>
