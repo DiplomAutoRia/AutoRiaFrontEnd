@@ -79,8 +79,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
 
       setNewMessageText('');
       refetch();
-    } catch {
-    }
+    } catch {}
   };
 
   const formatMessageTime = (timestamp: string) => {

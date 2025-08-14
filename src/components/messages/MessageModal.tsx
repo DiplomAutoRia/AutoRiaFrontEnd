@@ -44,8 +44,7 @@ const MessageModal: React.FC<MessageModalProps> = ({ open, onClose, vehicle, rec
 
       setMessageText('');
       onClose();
-    } catch {
-    }
+    } catch {}
   };
 
   const handleClose = () => {
