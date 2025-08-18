@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { Box, Button, Fade, Typography } from '@mui/material';
 

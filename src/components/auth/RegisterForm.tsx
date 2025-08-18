@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { Box, Checkbox, FormControlLabel, Button as MuiButton, TextField, Typography } from '@mui/material';
 import { createSelector } from '@reduxjs/toolkit';
 
 import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
@@ -151,17 +152,16 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
             contact_info: formData.contact,
             code: confirmData.code,
           }),
-        ).then((res: any) => {
-          if (!res.error) {
+        ).then((res) => {
+          if (res.type.endsWith('/fulfilled')) {
             dispatch(
               completeRegister({
                 contact_info: formData.contact,
                 password: confirmData.password,
                 password_confirm: confirmData.repeatPassword,
               }),
-            ).then((res: any) => {
-              if (res.error) {
-                console.error('Registration error:', res.error);
+            ).then((res) => {
+              if (res.type.endsWith('/rejected')) {
               }
             });
           }
@@ -180,142 +180,129 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
 
   if (registerStep === 'initial') {
     return (
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <TextField
           name="firstName"
-          className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${errors.firstName && (touched.firstName || formData.firstName) ? 'border-red-500' : 'border-gray-300'}`}
           value={formData.firstName}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
           placeholder="Імʼя"
+          fullWidth
+          error={!!(errors.firstName && (touched.firstName || formData.firstName))}
+          helperText={errors.firstName && (touched.firstName || formData.firstName) ? errors.firstName : ''}
         />
-        {errors.firstName && (touched.firstName || formData.firstName) && (
-          <p className="text-red-600 text-sm mt-1 mb-4">{errors.firstName}</p>
-        )}
 
-        <input
-          type="text"
+        <TextField
           name="lastName"
-          className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${errors.lastName && (touched.lastName || formData.lastName) ? 'border-red-500' : 'border-gray-300'}`}
           value={formData.lastName}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
           placeholder="Прізвище"
+          fullWidth
+          error={!!(errors.lastName && (touched.lastName || formData.lastName))}
+          helperText={errors.lastName && (touched.lastName || formData.lastName) ? errors.lastName : ''}
         />
-        {errors.lastName && (touched.lastName || formData.lastName) && (
-          <p className="text-red-600 text-sm mt-1 mb-4">{errors.lastName}</p>
-        )}
 
-        <input
-          type="text"
+        <TextField
           name="contact"
-          className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${errors.contact && (touched.contact || formData.contact) ? 'border-red-500' : 'border-gray-300'}`}
           value={formData.contact}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
           placeholder="Пошта або номер телефону"
+          fullWidth
+          error={!!(errors.contact && (touched.contact || formData.contact))}
+          helperText={errors.contact && (touched.contact || formData.contact) ? errors.contact : ''}
         />
-        {errors.contact && (touched.contact || formData.contact) && (
-          <p className="text-red-600 text-sm mt-1 mb-4">{errors.contact}</p>
-        )}
 
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            id="acceptTerms"
-            name="acceptTerms"
-            checked={formData.acceptTerms}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label htmlFor="acceptTerms" className="text-gray-700 cursor-pointer">
-            Я приймаю умови
-          </label>
-        </div>
+        <FormControlLabel
+          control={<Checkbox name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} />}
+          label="Я приймаю умови"
+        />
 
         <Button type="submit" disabled={!formData.acceptTerms} className="w-full mb-2">
           Продовжити
         </Button>
 
-        <div className="flex justify-end">
-          <Link to={routes.LOGIN} className="text-indigo-600 hover:underline text-sm">
-            Вже зареєстровані?
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Link to={routes.LOGIN} style={{ color: '#1976d2', textDecoration: 'none' }}>
+            <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+              Вже зареєстровані?
+            </Typography>
           </Link>
-        </div>
-      </form>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <form onSubmit={handleConfirmSubmit}>
-      <input
-        type="text"
+    <Box component="form" onSubmit={handleConfirmSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <TextField
         name="code"
-        className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${confirmErrors.code && (confirmTouched.code || confirmData.code) ? 'border-red-500' : 'border-gray-300'}`}
         value={confirmData.code}
         onChange={handleConfirmChange}
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
         placeholder="Код підтвердження"
+        fullWidth
+        error={!!(confirmErrors.code && (confirmTouched.code || confirmData.code))}
+        helperText={confirmErrors.code && (confirmTouched.code || confirmData.code) ? confirmErrors.code : ''}
       />
-      {confirmErrors.code && (confirmTouched.code || confirmData.code) && (
-        <p className="text-red-600 text-sm mt-1 mb-4">{confirmErrors.code}</p>
-      )}
 
-      <input
+      <TextField
         type="password"
         name="password"
-        className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${confirmErrors.password && (confirmTouched.password || confirmData.password) ? 'border-red-500' : 'border-gray-300'}`}
         value={confirmData.password}
         onChange={handleConfirmChange}
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
         placeholder="Пароль"
+        fullWidth
+        error={!!(confirmErrors.password && (confirmTouched.password || confirmData.password))}
+        helperText={
+          confirmErrors.password && (confirmTouched.password || confirmData.password) ? confirmErrors.password : ''
+        }
       />
-      {confirmErrors.password && (confirmTouched.password || confirmData.password) && (
-        <p className="text-red-600 text-sm mt-1 mb-4">{confirmErrors.password}</p>
-      )}
 
-      <input
+      <TextField
         type="password"
         name="repeatPassword"
-        className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent mb-4 ${confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) ? 'border-red-500' : 'border-gray-300'}`}
         value={confirmData.repeatPassword}
         onChange={handleConfirmChange}
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
         placeholder="Повторіть пароль"
+        fullWidth
+        error={!!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))}
+        helperText={
+          confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword)
+            ? confirmErrors.repeatPassword
+            : ''
+        }
       />
-      {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && (
-        <p className="text-red-600 text-sm mt-1 mb-4">{confirmErrors.repeatPassword}</p>
-      )}
 
       <Button type="submit" className="w-full">
         Завершити реєстрацію
       </Button>
 
-      <div className="flex justify-between mt-4">
-        <Link to={routes.LOGIN} className="text-indigo-600 hover:underline text-sm">
-          Вже зареєстровані
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        <Link to={routes.LOGIN} style={{ color: '#1976d2', textDecoration: 'none' }}>
+          <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+            Вже зареєстровані
+          </Typography>
         </Link>
-        <button
-          type="button"
-          className="text-indigo-600 hover:underline text-sm bg-transparent border-none cursor-pointer"
-          onClick={handleBack}
-        >
+        <MuiButton variant="text" size="small" onClick={handleBack} sx={{ color: '#1976d2', textTransform: 'none' }}>
           Вказати інші дані
-        </button>
-      </div>
-    </form>
+        </MuiButton>
+      </Box>
+    </Box>
   );
 }

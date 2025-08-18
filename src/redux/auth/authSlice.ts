@@ -3,22 +3,16 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const authApi = axios.create();
-
-authApi.interceptors.request.use(
-  (config) => {
-    const accessToken = Cookies.get('access_token');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-import { getUserFromStorage, removeUserFromStorage, saveUserToStorage } from '../../common/utils/localStorage';
+import { getErrorMessage } from '../../common/utils/errorUtils';
+import {
+  clearAllStorage,
+  getRefreshTokenFromStorage,
+  getTokenFromStorage,
+  getUserFromStorage,
+  saveRefreshTokenToStorage,
+  saveTokenToStorage,
+  saveUserToStorage,
+} from '../../common/utils/localStorage';
 import { routes } from '../../routes';
 
 interface User {
@@ -77,8 +71,10 @@ export const loginUser = createAsyncThunk(
         throw new Error('Login failed. Please try again.');
       }
 
-      Cookies.set('access_token', response.data.access);
-      Cookies.set('refresh_token', response.data.refresh);
+      Cookies.set('access_token', response.data.access, { expires: 30 });
+      Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+      saveTokenToStorage(response.data.access);
+      saveRefreshTokenToStorage(response.data.refresh);
 
       return {
         user: {
@@ -89,13 +85,8 @@ export const loginUser = createAsyncThunk(
           is_verified: true,
         },
       };
-    } catch (err: any) {
-      if (err.response?.data?.non_field_errors) {
-        return rejectWithValue(err.response.data.non_field_errors.join(', '));
-      } else if (err.response?.data?.password) {
-        return rejectWithValue(err.response.data.password);
-      }
-      return rejectWithValue(err.message || 'Помилка входу. Перевірте введені дані');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -121,8 +112,8 @@ export const initialRegister = createAsyncThunk(
         contactInfo: data.contact_info,
         message: `Verification code sent to your ${data.contact_info.type}.`,
       };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Registration error');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -133,8 +124,8 @@ export const verifyRegister = createAsyncThunk(
     try {
       await axios.post(`${routes.API.BASE}/users/register/verify/`, data);
       return { message: 'Verification successful. Now you can set your password.' };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Verification error');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -146,8 +137,10 @@ export const completeRegister = createAsyncThunk(
       const response = await axios.post(`${routes.API.BASE}/users/register/complete/`, data);
 
       if (response.data.access) {
-        Cookies.set('access_token', response.data.access);
-        Cookies.set('refresh_token', response.data.refresh);
+        Cookies.set('access_token', response.data.access, { expires: 30 });
+        Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+        saveTokenToStorage(response.data.access);
+        saveRefreshTokenToStorage(response.data.refresh);
       }
 
       return {
@@ -161,8 +154,8 @@ export const completeRegister = createAsyncThunk(
           is_verified: true,
         },
       };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Completion error');
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
     }
   },
 );
@@ -173,8 +166,10 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
       token,
     });
 
-    Cookies.set('access_token', response.data.access);
-    Cookies.set('refresh_token', response.data.refresh);
+    Cookies.set('access_token', response.data.access, { expires: 30 });
+    Cookies.set('refresh_token', response.data.refresh, { expires: 30 });
+    saveTokenToStorage(response.data.access);
+    saveRefreshTokenToStorage(response.data.refresh);
 
     return {
       user: {
@@ -185,110 +180,61 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
         is_verified: true,
       },
     };
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data?.detail || 'Google authentication failed');
+  } catch (err: unknown) {
+    return rejectWithValue(getErrorMessage(err));
   }
 });
 
-import type { RootState } from '../../store';
+export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', async () => {
+  try {
+    let accessToken = Cookies.get('access_token') || getTokenFromStorage();
+    let refreshToken = Cookies.get('refresh_token') || getRefreshTokenFromStorage();
 
-export const updateProfile = createAsyncThunk(
-  'auth/updateProfile',
-  async (data: { 
-    first_name: string; 
-    last_name: string; 
-    email?: string; 
-    phone_number?: string;
-    location?: string;
-  }, { rejectWithValue, getState }) => {
+    if (!accessToken || !refreshToken) {
+      clearAllStorage();
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+      return { user: null };
+    }
+
+    if (accessToken && !Cookies.get('access_token')) {
+      Cookies.set('access_token', accessToken, { expires: 30 });
+    }
+    if (refreshToken && !Cookies.get('refresh_token')) {
+      Cookies.set('refresh_token', refreshToken, { expires: 30 });
+    }
+
+    await axios.post(`${routes.API.BASE}/users/token/verify/`, {
+      token: accessToken,
+    });
+
+    const user = getUserFromStorage();
+    return { user };
+  } catch {
     try {
-      const formattedData = {...data};
-      if (formattedData.phone_number) {
-        let cleaned = formattedData.phone_number.replace(/\D/g, '');
-
-        if (cleaned.startsWith('0')) {
-          cleaned = '38' + cleaned.substring(1);
-        }
-
-        formattedData.phone_number = '+' + cleaned;
+      const refreshToken = Cookies.get('refresh_token') || getRefreshTokenFromStorage();
+      if (!refreshToken) {
+        throw new Error('No refresh token');
       }
-      
-      const response = await authApi.put(`${routes.API.BASE}/users/profile/`, {
-        first_name: formattedData.first_name,
-        last_name: formattedData.last_name,
-        email: formattedData.email || null,
-        phone_number: formattedData.phone_number || null,
-        location: formattedData.location || null,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+
+      const refreshResponse = await axios.post(`${routes.API.BASE}/users/token/refresh/`, {
+        refresh: refreshToken,
       });
 
-      const state = getState() as RootState;
-      const currentUser = state.auth.user;
+      const newAccessToken = refreshResponse.data.access;
+      Cookies.set('access_token', newAccessToken, { expires: 30 });
+      saveTokenToStorage(newAccessToken);
 
-      const updatedUser = {
-        ...currentUser,
-        first_name: formattedData.first_name,
-        last_name: formattedData.last_name,
-        email: formattedData.email || currentUser?.email,
-        phone_number: formattedData.phone_number || currentUser?.phone_number,
-        location: formattedData.location || currentUser?.location
-      } as User;
-
-      return {
-        user: updatedUser,
-      };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Profile update failed');
+      const user = getUserFromStorage();
+      return { user };
+    } catch {
+      clearAllStorage();
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+      return { user: null };
     }
   }
-);
-
-export const deleteProfile = createAsyncThunk(
-  'auth/deleteProfile',
-  async (_, { rejectWithValue }) => {
-    try {
-      await authApi.delete(`${routes.API.BASE}/users/profile/delete/`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
-      return {};
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Profile deletion failed');
-    }
-  }
-);
-
-export const requestPasswordReset = createAsyncThunk(
-  'auth/requestPasswordReset',
-  async (contact_info: { type: string; value: string }, { rejectWithValue }) => {
-    try {
-      await axios.post(`${routes.API.BASE}/users/password-reset/request/`, {
-        contact_info: contact_info
-      });
-      return { message: 'Password reset code sent to your contact info' };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Password reset request failed');
-    }
-  }
-);
-
-export const confirmPasswordReset = createAsyncThunk(
-  'auth/confirmPasswordReset',
-  async (data: { contact_info: string; code: string; password: string }, { rejectWithValue }) => {
-    try {
-      await axios.post(`${routes.API.BASE}/users/password-reset/confirm/`, data);
-      return { message: 'Password reset successful. You can now login with your new password.' };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail || 'Password reset confirmation failed');
-    }
-  }
-);
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -299,7 +245,7 @@ const authSlice = createSlice({
       state.error = null;
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
-      removeUserFromStorage();
+      clearAllStorage();
     },
     resetRegister(state) {
       state.registerStep = 'initial';
@@ -390,65 +336,21 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      
-      .addCase(updateProfile.pending, (state) => {
+
+      .addCase(checkTokenValidity.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(updateProfile.fulfilled, (state, action) => {
+      .addCase(checkTokenValidity.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.error = null;
         saveUserToStorage(action.payload.user);
       })
-      .addCase(updateProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      .addCase(deleteProfile.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteProfile.fulfilled, (state) => {
+      .addCase(checkTokenValidity.rejected, (state) => {
         state.loading = false;
         state.user = null;
         state.error = null;
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
-        removeUserFromStorage();
-      })
-      .addCase(deleteProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-.addCase(requestPasswordReset.pending, (state) => {
-  state.loading = true;
-  state.error = null;
-})
-.addCase(requestPasswordReset.fulfilled, (state, action) => {
-  state.loading = false;
-  state.successMessage = action.payload.message;
-  state.error = null;
-})
-.addCase(requestPasswordReset.rejected, (state, action) => {
-  state.loading = false;
-  state.error = action.payload as string;
-})
-.addCase(confirmPasswordReset.pending, (state) => {
-  state.loading = true;
-  state.error = null;
-})
-.addCase(confirmPasswordReset.fulfilled, (state, action) => {
-  state.loading = false;
-  state.successMessage = action.payload.message;
-  state.error = null;
-})
-.addCase(confirmPasswordReset.rejected, (state, action) => {
-  state.loading = false;
-  state.error = action.payload as string;
-});
+      });
   },
 });
 

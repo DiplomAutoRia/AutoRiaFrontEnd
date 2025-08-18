@@ -3,8 +3,19 @@
     "allow": [
       "Bash(npx prettier:*)",
       "Bash(npm run lint)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(dir)",
+      "Bash(cat:*)",
+      "Bash(python manage.py:*)",
+      "Bash(curl:*)",
+      "Bash(python test:*)",
+      "Bash(npm run lint:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

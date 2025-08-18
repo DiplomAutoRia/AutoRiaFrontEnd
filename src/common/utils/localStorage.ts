@@ -1,44 +1,70 @@
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  phone_number?: string;
-  is_verified: boolean;
-}
-
 const USER_STORAGE_KEY = 'autoRia_user';
+const TOKEN_STORAGE_KEY = 'autoRia_token';
+const REFRESH_TOKEN_STORAGE_KEY = 'autoRia_refreshToken';
 
-export const saveUserToStorage = (user: User): void => {
+export const saveUserToStorage = (user: any) => {
   try {
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-  } catch (error) {
-    console.error('Failed to save user to localStorage:', error);
-  }
+  } catch {}
 };
 
-export const getUserFromStorage = (): User | null => {
+export const getUserFromStorage = () => {
   try {
-    const userStr = localStorage.getItem(USER_STORAGE_KEY);
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (error) {
-    console.error('Failed to get user from localStorage:', error);
+    const stored = localStorage.getItem(USER_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
     return null;
   }
 };
 
-export const removeUserFromStorage = (): void => {
+export const removeUserFromStorage = () => {
   try {
     localStorage.removeItem(USER_STORAGE_KEY);
-  } catch (error) {
-    console.error('Failed to remove user from localStorage:', error);
+  } catch {}
+};
+
+export const saveTokenToStorage = (token: string) => {
+  try {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } catch {}
+};
+
+export const getTokenFromStorage = () => {
+  try {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
   }
 };
 
-export const clearAllStorage = (): void => {
+export const removeTokenFromStorage = () => {
   try {
-    localStorage.clear();
-  } catch (error) {
-    console.error('Failed to clear localStorage:', error);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  } catch {}
+};
+
+export const saveRefreshTokenToStorage = (token: string) => {
+  try {
+    localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, token);
+  } catch {}
+};
+
+export const getRefreshTokenFromStorage = () => {
+  try {
+    return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
   }
+};
+
+export const removeRefreshTokenFromStorage = () => {
+  try {
+    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  } catch {}
+};
+
+export const clearAllStorage = () => {
+  removeUserFromStorage();
+  removeTokenFromStorage();
+  removeRefreshTokenFromStorage();
 };

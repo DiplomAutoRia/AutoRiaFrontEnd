@@ -23,7 +23,7 @@ export default function GoogleAuthButton({
   clientId,
   onSuccess,
   onError,
-  useOneTap = true,
+  useOneTap = false,
   className = 'mb-6 flex justify-center',
 }: GoogleAuthButtonProps) {
   const dispatch = useDispatch<AppDispatch>();

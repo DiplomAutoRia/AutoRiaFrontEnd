@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Box, Button, CircularProgress, Container, Divider, TextField, Typography } from '@mui/material';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useDebounce } from '../../hooks/useDebounce';
 
@@ -47,125 +48,141 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6">Вхід</h2>
+    <Container
+      maxWidth="sm"
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'grey.100',
+        py: 5,
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          backgroundColor: 'white',
+          p: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+        }}
+      >
+        <Typography
+          variant="h4"
+          component="h2"
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+            fontWeight: 'bold',
+          }}
+        >
+          Вхід
+        </Typography>
 
-        <div className="mb-6 flex justify-center">
-          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
             <GoogleLogin
               onSuccess={(credentialResponse: { credential?: string }) => {
                 if (credentialResponse.credential) {
                   dispatch(googleAuth(credentialResponse.credential));
                 }
               }}
-              onError={() => {
-                console.log('Login Failed');
-              }}
-              useOneTap
+              onError={() => {}}
             />
           </GoogleOAuthProvider>
-        </div>
+        </Box>
 
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">або</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-4">
-            <input
-              type="text"
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent ${contactError ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="Введіть email або телефон (+380XXXXXXXXX)"
-              {...register('contact')}
-            />
-            {contactError && <p className="text-red-600 text-sm mt-1">{contactError}</p>}
-          </div>
-
-          <div className="mb-4">
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent ${passwordError ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Введіть пароль"
-                {...register('password')}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
-              >
-                {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            {passwordError && <p className="text-red-600 text-sm mt-1">{passwordError}</p>}
-          </div>
-
-          <div className="flex justify-between mb-4">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                name="remember"
-                className="mr-2"
-              />
-              <label htmlFor="remember" className="text-gray-700 cursor-pointer">
-                Запамʼятати мене
-              </label>
-            </div>
-            <Link to={routes.FORGOT_PASSWORD} className="text-indigo-600 hover:underline">
-              Забули пароль?
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-2 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-700 transition disabled:bg-indigo-300 flex justify-center items-center"
-            disabled={loading}
+        <Box sx={{ position: 'relative', mb: 3 }}>
+          <Divider />
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'white',
+              px: 1,
+            }}
           >
-            {loading ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Завантаження...
-              </>
-            ) : 'Увійти'}
-          </button>
+            <Typography variant="body2" color="text.secondary">
+              або
+            </Typography>
+          </Box>
+        </Box>
 
-          {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              fullWidth
+              type="text"
+              placeholder="Введіть email або телефон (+380XXXXXXXXX)"
+              error={!!errors.contact}
+              helperText={errors.contact?.message}
+              {...register('contact')}
+              sx={{ mb: 1 }}
+            />
+          </Box>
 
-          <div className="mt-4 text-center">
-            <Link to={routes.REGISTER} className="text-indigo-600 hover:underline">
-              Немає акаунту? Зареєструватись
-            </Link>
-          </div>
-        </form>
-      </div>
-    </div>
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              fullWidth
+              type="password"
+              placeholder="Введіть пароль"
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              {...register('password')}
+              sx={{ mb: 1 }}
+            />
+          </Box>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={loading}
+            sx={{
+              py: 1.5,
+              mb: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {loading && (
+              <CircularProgress
+                size={20}
+                sx={{
+                  color: 'white',
+                  mr: 1,
+                }}
+              />
+            )}
+            {loading ? 'Завантаження...' : 'Увійти'}
+          </Button>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2">
+              <Link
+                to="/register"
+                style={{
+                  color: '#1976d2',
+                  textDecoration: 'none',
+                }}
+              >
+                Немає акаунту? Зареєструватись
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Container>
   );
 }
