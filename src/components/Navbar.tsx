@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AppBar, Avatar, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { AppBar, Avatar, Badge, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
+import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
 import type { RootState } from '../redux/store';
 import { routes } from '../routes';
@@ -14,6 +15,13 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    skip: !user,
+    pollingInterval: 10000,
+    skipPollingIfUnfocused: true,
+  });
+  const unreadCount = unreadData?.unread_count || 0;
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -60,6 +68,11 @@ const Navbar = () => {
               <Button color="inherit" component={Link} to={routes.FAVORITES}>
                 Обране
               </Button>
+              <Badge badgeContent={unreadCount} color="error">
+                <Button color="inherit" component={Link} to={routes.MESSAGES}>
+                  Повідомлення
+                </Button>
+              </Badge>
               <Button color="inherit" component={Link} to={routes.VEHICLE_CREATE}>
                 Додати оголошення
               </Button>

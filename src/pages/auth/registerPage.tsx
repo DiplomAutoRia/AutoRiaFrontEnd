@@ -74,6 +74,12 @@ export default function RegisterPage() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (registerStep === 'done') {
+      navigate(routes.HOME);
+    }
+  }, [registerStep, navigate]);
+
   const validate = (fieldValues = formData) => {
     const result = registerSchema.safeParse(fieldValues);
     if (result.success) return {};
@@ -166,7 +172,7 @@ export default function RegisterPage() {
               password_confirm: confirmData.repeatPassword,
             }),
           ).then((res) => {
-            if (res.type.endsWith('/rejected')) {
+            if (res.type.endsWith('/fulfilled')) {
             }
           });
         }
@@ -213,7 +219,6 @@ export default function RegisterPage() {
                 }
               }}
               onError={() => {}}
-              useOneTap
             />
           </GoogleOAuthProvider>
         </Box>

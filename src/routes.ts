@@ -9,6 +9,8 @@ export const routes = {
   VEHICLE_EDIT: '/vehicles/:id/edit',
   MY_VEHICLES: '/my-vehicles',
   FAVORITES: '/favorites',
+  MESSAGES: '/messages',
+  MESSAGE_CONVERSATION: '/messages/:conversationId',
   NOT_FOUND: '*',
   API: {
     BASE: import.meta.env.VITE_BASE_API_URL,
