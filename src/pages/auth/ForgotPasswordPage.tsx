@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { requestPasswordReset } from '../../redux/auth/authSlice';
 import type { RootState, AppDispatch } from '../../redux/store';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { routes } from '../../routes';
 
 const forgotPasswordSchema = z.object({
   contact_info: z.string().min(1, 'Будь ласка, введіть ваш email або номер телефону'),
@@ -29,7 +31,7 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      const contactType = data.contact_info.includes('@') ? 'email' : 'phone';
+      const contactType: 'email' | 'phone' = data.contact_info.includes('@') ? 'email' : 'phone';
 
       const contactInfo = {
         type: contactType,
@@ -37,84 +39,98 @@ export default function ForgotPasswordPage() {
       };
       
       await dispatch(requestPasswordReset(contactInfo)).unwrap();
-      setSuccessMessage('Код для відновлення паролю надіслано на вашу контактну інформацію.');
-      setTimeout(() => navigate('/reset-password', { state: { contact_info: contactInfo.value } }), 2000);
+      
+      
+      navigate(routes.RESET_PASSWORD, { state: { contactInfo } });
     } catch (err) {
       console.error('Failed to request password reset:', err);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Відновлення паролю
-          </h2>
-        </div>
+    <div className="min-h-screen flex flex-col md:flex-row">
+
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
+        <img 
+          src="/locales/images/Logo2.png" 
+          alt="Logo" 
+          className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
+          onClick={() => navigate(routes.HOME)}
+        />
         
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
+        <div className="w-full max-w-md mx-auto">
+          <h1 className="text-3xl font-bold text-black text-center mb-2">
+            Відновлення пароля
+          </h1>
+          
+          <p className="text-gray-600 text-center mb-6">
+            Для відновлення пароля, введіть Ваш телефон чи e-mail, які Ви вказували при реєстрації.
+          </p>
+
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md mb-4">
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
-          </div>
-        )}
-        
-        {successMessage && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-green-700">{successMessage}</p>
-              </div>
+          )}
+          
+          {successMessage && (
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-md mb-4">
+              <p className="text-green-700 text-sm">{successMessage}</p>
             </div>
-          </div>
-        )}
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
+          )}
+          
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700">
-                Email або номер телефону
-              </label>
               <input
-                id="contact_info"
                 type="text"
-                className={`mt-1 block w-full px-3 py-2 border ${
+                placeholder="Телефон або e-mail"
+                className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.contact_info ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                }`}
                 {...register('contact_info')}
               />
               {errors.contact_info && (
                 <p className="mt-1 text-sm text-red-600">{errors.contact_info.message}</p>
               )}
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              {loading ? 'Відправка...' : 'Надіслати код'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Відправка...
+                </>
+              ) : (
+                'Продовжити'
+              )}
             </button>
-          </div>
-          
-          <div className="text-center">
+          </form>
+
+          <div className="mt-6 text-center">
             <button
-              type="button"
               onClick={() => navigate(-1)}
-              className="text-sm text-indigo-600 hover:text-indigo-900"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors text-sm"
             >
+              <ArrowLeft size={16} className="mr-2" />
               Повернутися назад
             </button>
           </div>
-        </form>
+        </div>
+      </div>
+
+      <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
+        <img
+          src="/locales/images/Password.png"
+          alt="Password Recovery"
+          className="w-full h-full object-cover"
+        />
       </div>
     </div>
   );

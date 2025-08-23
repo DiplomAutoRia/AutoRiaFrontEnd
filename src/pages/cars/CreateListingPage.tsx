@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../redux/store';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../routes';
-import { createVehicle, addVehicleImage } from '../../redux/vehicles/vehiclesSlice';
+import { useCreateVehicleMutation, useAddVehicleImageMutation } from '../../redux/api/vehiclesApi';
 import {
   Box,
   Button,
@@ -30,8 +28,9 @@ const bodyTypes = ['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Minivan
 const driveTypes = ['FWD', 'RWD', 'AWD', '4WD'];
 
 const CreateListingPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [createVehicle] = useCreateVehicleMutation();
+  const [addVehicleImage] = useAddVehicleImageMutation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { control, handleSubmit, formState: { errors } } = useForm({
@@ -67,39 +66,40 @@ const CreateListingPage = () => {
     }
   };
 
-  const onSubmit = (data: any) => {
-    const newVehicle = {
-      vehicle_type: 'car',
-      brand: data.brand,
-      model: data.model,
-      year: data.year,
-      price: data.price,
-      currency: data.currency,
-      description: data.description,
-      location: data.location,
-      mileage: data.mileage,
-      fuel_type: data.fuel_type,
-      transmission: data.transmission,
-      body_type: data.body_type,
-      drive_type: data.drive_type,
-    };
-    
-    dispatch(createVehicle(newVehicle))
-      .unwrap()
-      .then((vehicle) => {
-        console.log('Оголошення створено:', vehicle);
+  const onSubmit = async (data: any) => {
+    try {
+      const newVehicle = {
+        vehicle_type: 'car' as const,
+        brand: data.brand,
+        model: data.model,
+        year: data.year,
+        price: data.price,
+        currency: data.currency,
+        description: data.description,
+        location: data.location,
+        mileage: data.mileage,
+        fuel_type: data.fuel_type,
+        transmission: data.transmission,
+        body_type: data.body_type,
+        drive_type: data.drive_type,
+      };
+      
+      const vehicle = await createVehicle(newVehicle).unwrap();
+      console.log('Оголошення створено:', vehicle);
 
-        if (imageFile && vehicle.id) {
-          dispatch(addVehicleImage({ id: vehicle.id, image: imageFile }))
-            .then(() => console.log('Image uploaded successfully'))
-            .catch((error: any) => console.error('Error uploading image:', error));
+      if (imageFile && vehicle.id) {
+        try {
+          await addVehicleImage({ vehicleId: vehicle.id, image: imageFile }).unwrap();
+          console.log('Image uploaded successfully');
+        } catch (imageError) {
+          console.error('Error uploading image:', imageError);
         }
-        
-        navigate(routes.HOME);
-      })
-      .catch((error: any) => {
-        console.error('Помилка при створенні оголошення:', error);
-      });
+      }
+      
+      navigate(routes.HOME);
+    } catch (error: any) {
+      console.error('Помилка при створенні оголошення:', error);
+    }
   };
 
   return (

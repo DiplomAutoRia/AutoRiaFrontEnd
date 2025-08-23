@@ -3,6 +3,8 @@ export const routes = {
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
+  EMAIL_CONFIRMATION: '/email-confirmation',
+  PHONE_CONFIRMATION: '/phone-confirmation',
   RESET_PASSWORD: '/reset-password',
   PROFILE: '/profile',
   VEHICLES: '/vehicles',

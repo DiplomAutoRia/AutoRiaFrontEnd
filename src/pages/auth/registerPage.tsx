@@ -2,17 +2,6 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  Divider,
-  FormControlLabel,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useDebounce } from '../../hooks/useDebounce';
 import { createSelector } from '@reduxjs/toolkit';
@@ -55,9 +44,11 @@ export default function RegisterPage() {
   const [firstNameIsTyping, setFirstNameIsTyping] = useState(false);
   const [lastNameIsTyping, setLastNameIsTyping] = useState(false);
   const [contactIsTyping, setContactIsTyping] = useState(false);
-  const [codeIsTyping, setCodeIsTyping] = useState(false);
   const [passwordIsTyping, setPasswordIsTyping] = useState(false);
   const [repeatPasswordIsTyping, setRepeatPasswordIsTyping] = useState(false);
+
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -78,7 +69,7 @@ export default function RegisterPage() {
   const firstNameError = useDebounce(firstNameIsTyping ? '' : errors.firstName || '', 2000);
   const lastNameError = useDebounce(lastNameIsTyping ? '' : errors.lastName || '', 2000);
   const contactError = useDebounce(contactIsTyping ? '' : errors.contact || '', 2000);
-  const codeError = useDebounce(codeIsTyping ? '' : confirmErrors.code || '', 2000);
+  const codeError = useDebounce(confirmErrors.code || '', 2000);
   const passwordError = useDebounce(passwordIsTyping ? '' : confirmErrors.password || '', 2000);
   const repeatPasswordError = useDebounce(repeatPasswordIsTyping ? '' : confirmErrors.repeatPassword || '', 2000);
 
@@ -124,6 +115,16 @@ export default function RegisterPage() {
       setErrors(validate(updated));
       return updated;
     });
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+  };
+
+  const handleConfirmFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setConfirmTouched(prev => ({ ...prev, [name]: true }));
   };
 
   const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,212 +186,231 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'grey.100',
-        py: 5,
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 400,
-          bgcolor: 'white',
-          p: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-        }}
-      >
-        <Typography variant="h4" component="h2" textAlign="center" mb={3} fontWeight="bold">
-          Реєстрація
-        </Typography>
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Column - Form */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
+        <img 
+          src="/locales/images/Logo2.png" 
+          alt="Logo" 
+          className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
+          onClick={() => navigate(routes.HOME)}
+        />
+        
+        <div className="w-full max-w-md mx-auto">
+          <h1 className="text-3xl font-bold text-black text-center mb-2">
+            Зареєструватись в TurboSell
+          </h1>
+          
+          <p className="text-gray-600 text-center mb-6">
+            Купуйте й продавайте авто онлайн
+          </p>
 
-        <Box display="flex" justifyContent="center" mb={3}>
-          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-            <GoogleLogin
-              onSuccess={(credentialResponse: CredentialResponse) => {
-                if (credentialResponse.credential) {
-                  dispatch(googleAuth(credentialResponse.credential));
-                }
-              }}
-              onError={() => {}}
-            />
-          </GoogleOAuthProvider>
-        </Box>
-
-        <Box position="relative" mb={3}>
-          <Divider>
-            <Typography variant="body2" color="text.secondary">
-              або
-            </Typography>
-          </Divider>
-        </Box>
-        {registerStep === 'initial' ? (
-          <Box component="form" onSubmit={handleSubmit}>
-            <Stack spacing={2}>
-              <TextField
-                type="text"
-                name="firstName"
-                placeholder="Імʼя"
-                value={formData.firstName}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleFocus}
-                autoComplete="off"
-                error={!!(errors.firstName && (touched.firstName || formData.firstName))}
-                helperText={errors.firstName && (touched.firstName || formData.firstName) && errors.firstName}
-                fullWidth
-                variant="outlined"
+          <div className="mb-6 flex flex-col gap-3">
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+              <GoogleLogin
+                onSuccess={(credentialResponse: CredentialResponse) => {
+                  if (credentialResponse.credential) {
+                    dispatch(googleAuth(credentialResponse.credential));
+                  }
+                }}
+                onError={() => {}}
+                render={(renderProps: { onClick: () => void; disabled: boolean }) => (
+                  <button
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                    Вхід через Google
+                  </button>
+                )}
               />
+            </GoogleOAuthProvider>
+          </div>
 
-              <TextField
-                type="text"
-                name="lastName"
-                placeholder="Прізвище"
-                value={formData.lastName}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleFocus}
-                autoComplete="off"
-                error={!!(errors.lastName && (touched.lastName || formData.lastName))}
-                helperText={errors.lastName && (touched.lastName || formData.lastName) && errors.lastName}
-                fullWidth
-                variant="outlined"
-              />
-              <TextField
-                type="text"
-                name="contact"
-                placeholder="Пошта або номер телефону"
-                value={formData.contact}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleFocus}
-                autoComplete="off"
-                error={!!(errors.contact && (touched.contact || formData.contact))}
-                helperText={errors.contact && (touched.contact || formData.contact) && errors.contact}
-                fullWidth
-                variant="outlined"
-              />
+          <div className="flex items-center mb-6">
+            <div className="flex-1 border-t border-gray-300"></div>
+            <span className="px-3 text-gray-500">або</span>
+            <div className="flex-1 border-t border-gray-300"></div>
+          </div>
 
-              <FormControlLabel
-                control={<Checkbox name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} />}
-                label={
-                  <Typography variant="body2" color="text.primary">
-                    Я приймаю умови
-                  </Typography>
-                }
-              />
+          {registerStep === 'initial' ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Імʼя"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  onBlur={handleFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.firstName && (touched.firstName || formData.firstName) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.firstName && (touched.firstName || formData.firstName) && (
+                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                )}
+              </div>
 
-              <Button
+              <div>
+                <input
+                  type="text"
+                  placeholder="Прізвище"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  onBlur={handleFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.lastName && (touched.lastName || formData.lastName) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.lastName && (touched.lastName || formData.lastName) && (
+                  <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="Пошта або номер телефону"
+                  name="contact"
+                  value={formData.contact}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  onBlur={handleFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.contact && (touched.contact || formData.contact) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.contact && (touched.contact || formData.contact) && (
+                  <p className="mt-1 text-sm text-red-600">{errors.contact}</p>
+                )}
+              </div>
+
+              <label className="flex items-center gap-2 text-sm text-gray-700 mb-4">
+                <input
+                  type="checkbox"
+                  name="acceptTerms"
+                  checked={formData.acceptTerms}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                Я приймаю умови використання та Політику конфіденційності
+              </label>
+
+              <button
                 type="submit"
-                variant="contained"
-                color="primary"
                 disabled={!formData.acceptTerms}
-                fullWidth
-                sx={{ py: 1.5, mb: 1 }}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Продовжити
-              </Button>
+              </button>
 
-              <Box display="flex" justifyContent="flex-end">
-                <Link to="/login" style={{ textDecoration: 'none' }}>
-                  <Typography variant="body2" color="primary" sx={{ '&:hover': { textDecoration: 'underline' } }}>
-                    Вже зареєстровані?
-                  </Typography>
-                </Link>
-              </Box>
-            </Stack>
-          </Box>
-        ) : (
-          <Box component="form" onSubmit={handleConfirmSubmit}>
-            <Stack spacing={2}>
-              <TextField
-                type="text"
-                name="code"
-                placeholder="Код підтвердження"
-                value={confirmData.code}
-                onChange={handleConfirmChange}
-                onFocus={handleConfirmFocus}
-                onBlur={handleConfirmFocus}
-                autoComplete="off"
-                error={!!(confirmErrors.code && (confirmTouched.code || confirmData.code))}
-                helperText={confirmErrors.code && (confirmTouched.code || confirmData.code) && confirmErrors.code}
-                fullWidth
-                variant="outlined"
-              />
-
-              <TextField
-                type="password"
-                name="password"
-                placeholder="Пароль"
-                value={confirmData.password}
-                onChange={handleConfirmChange}
-                onFocus={handleConfirmFocus}
-                onBlur={handleConfirmFocus}
-                autoComplete="off"
-                error={!!(confirmErrors.password && (confirmTouched.password || confirmData.password))}
-                helperText={
-                  confirmErrors.password && (confirmTouched.password || confirmData.password) && confirmErrors.password
-                }
-                fullWidth
-                variant="outlined"
-              />
-
-              <TextField
-                type="password"
-                name="repeatPassword"
-                placeholder="Повторіть пароль"
-                value={confirmData.repeatPassword}
-                onChange={handleConfirmChange}
-                onFocus={handleConfirmFocus}
-                onBlur={handleConfirmFocus}
-                autoComplete="off"
-                error={
-                  !!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))
-                }
-                helperText={
-                  confirmErrors.repeatPassword &&
-                  (confirmTouched.repeatPassword || confirmData.repeatPassword) &&
-                  confirmErrors.repeatPassword
-                }
-                fullWidth
-                variant="outlined"
-              />
-
-              <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5 }}>
-                Завершити реєстрацію
-              </Button>
-
-              <Stack direction="row" justifyContent="space-between" mt={2}>
-                <Link to="/login" style={{ textDecoration: 'none' }}>
-                  <Typography variant="body2" color="primary" sx={{ '&:hover': { textDecoration: 'underline' } }}>
-                    Вже зареєстровані
-                  </Typography>
-                </Link>
-                <Button
-                  type="button"
-                  variant="text"
-                  color="primary"
-                  onClick={handleBack}
-                  sx={{
-                    textTransform: 'none',
-                    p: 0,
-                    minWidth: 'auto',
-                    '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' },
-                  }}
+              <div className="text-center">
+                <Link
+                  to="/login"
+                  className="text-blue-600 font-medium hover:underline"
                 >
-                  <Typography variant="body2">Вказати інші дані</Typography>
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
-        )}
-      </Box>
-    </Container>
+                  Вже зареєстровані?
+                </Link>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleConfirmSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Код підтвердження"
+                  name="code"
+                  value={confirmData.code}
+                  onChange={handleConfirmChange}
+                  onFocus={handleConfirmFocus}
+                  onBlur={handleConfirmFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    confirmErrors.code && (confirmTouched.code || confirmData.code) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {confirmErrors.code && (confirmTouched.code || confirmData.code) && (
+                  <p className="mt-1 text-sm text-red-600">{confirmErrors.code}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Пароль"
+                  name="password"
+                  value={confirmData.password}
+                  onChange={handleConfirmChange}
+                  onFocus={handleConfirmFocus}
+                  onBlur={handleConfirmFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    confirmErrors.password && (confirmTouched.password || confirmData.password) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {confirmErrors.password && (confirmTouched.password || confirmData.password) && (
+                  <p className="mt-1 text-sm text-red-600">{confirmErrors.password}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Повторіть пароль"
+                  name="repeatPassword"
+                  value={confirmData.repeatPassword}
+                  onChange={handleConfirmChange}
+                  onFocus={handleConfirmFocus}
+                  onBlur={handleConfirmFocus}
+                  autoComplete="off"
+                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && (
+                  <p className="mt-1 text-sm text-red-600">{confirmErrors.repeatPassword}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Завершити реєстрацію
+              </button>
+
+              <div className="flex justify-between items-center mt-2">
+                <Link to="/login" className="text-blue-600 text-sm hover:underline">
+                  Вже зареєстровані
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  Вказати інші дані
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+
+      <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
+        <img
+          src="/locales/images/Register.png"
+          alt="Register"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
   );
 }
