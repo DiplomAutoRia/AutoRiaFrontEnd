@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
@@ -15,6 +16,7 @@ import { useGetVehiclesQuery, useSearchVehiclesQuery } from '../../redux/api/veh
 import type { RootState } from '../../redux/store';
 
 const VehiclesPage: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'));
@@ -100,14 +102,14 @@ const VehiclesPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Пошук транспорту
+        {t('vehicles.title')}
       </Typography>
 
       <Paper sx={{ p: 3, mb: 3 }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             fullWidth
-            placeholder="Пошук за маркою, моделлю, описом..."
+            placeholder={t('vehicles.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -116,7 +118,7 @@ const VehiclesPage: React.FC = () => {
             }}
           />
           <Button variant="contained" onClick={handleSearch} startIcon={<Search />} sx={{ minWidth: 120 }}>
-            Пошук
+            {t('common.search')}
           </Button>
         </Stack>
       </Paper>

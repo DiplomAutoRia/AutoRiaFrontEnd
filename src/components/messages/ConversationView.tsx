@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +31,7 @@ interface ConversationViewProps {
 }
 
 const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const [newMessageText, setNewMessageText] = useState('');
@@ -244,7 +246,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
             maxRows={3}
             value={newMessageText}
             onChange={(e) => setNewMessageText(e.target.value)}
-            placeholder="Напишіть повідомлення..."
+            placeholder={t('messages.typeMessage')}
             disabled={isSending}
             size="small"
           />

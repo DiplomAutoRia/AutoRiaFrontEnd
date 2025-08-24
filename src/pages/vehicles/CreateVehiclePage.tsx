@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { Alert, Container } from '@mui/material';
@@ -8,6 +9,7 @@ import type { VehicleCreateRequest } from '../../models/vehicle';
 import { useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
 
 const CreateVehiclePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [createVehicle, { isLoading, error }] = useCreateVehicleMutation();
 
@@ -26,7 +28,7 @@ const CreateVehiclePage: React.FC = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          Помилка створення оголошення. Спробуйте ще раз.
+          {t('vehicles.createListingError')}
         </Alert>
       )}
 

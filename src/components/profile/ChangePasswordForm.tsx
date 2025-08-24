@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
@@ -7,24 +8,11 @@ import { z } from 'zod';
 
 import { useChangePasswordMutation } from '../../redux/api/authApi';
 
-const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Поточний пароль обов'язковий"),
-    newPassword: z
-      .string()
-      .min(8, 'Новий пароль повинен містити принаймні 8 символів')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Пароль повинен містити принаймні одну велику літеру, одну малу літеру та одну цифру',
-      ),
-    confirmPassword: z.string().min(1, "Підтвердження пароля обов'язкове"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Паролі не співпадають',
-    path: ['confirmPassword'],
-  });
-
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+type ChangePasswordFormData = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
 
 interface ChangePasswordFormProps {
   onSuccess?: () => void;
@@ -32,7 +20,22 @@ interface ChangePasswordFormProps {
 }
 
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const [changePassword, { isLoading, error }] = useChangePasswordMutation();
+
+  const changePasswordSchema = z
+    .object({
+      currentPassword: z.string().min(1, t('profile.validation.currentPasswordRequired')),
+      newPassword: z
+        .string()
+        .min(8, t('profile.validation.newPasswordMin'))
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, t('profile.validation.passwordComplexity')),
+      confirmPassword: z.string().min(1, t('profile.validation.confirmPasswordRequired')),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('profile.validation.passwordsDontMatch'),
+      path: ['confirmPassword'],
+    });
 
   const {
     register,
@@ -58,14 +61,14 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
       <Typography variant="h6" component="h2" gutterBottom>
-        Змінити пароль
+        {t('profile.changePassword')}
       </Typography>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {'data' in error && typeof error.data === 'object' && error.data && 'message' in error.data
             ? String(error.data.message)
-            : 'Помилка при зміні пароля'}
+            : t('profile.errors.changePasswordFailed')}
         </Alert>
       )}
 
@@ -74,7 +77,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
         margin="normal"
         required
         fullWidth
-        label="Поточний пароль"
+        label={t('profile.currentPassword')}
         type="password"
         autoComplete="current-password"
         error={!!errors.currentPassword}
@@ -86,7 +89,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
         margin="normal"
         required
         fullWidth
-        label="Новий пароль"
+        label={t('profile.newPassword')}
         type="password"
         autoComplete="new-password"
         error={!!errors.newPassword}
@@ -98,7 +101,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
         margin="normal"
         required
         fullWidth
-        label="Підтвердити новий пароль"
+        label={t('profile.confirmNewPassword')}
         type="password"
         autoComplete="new-password"
         error={!!errors.confirmPassword}
@@ -107,10 +110,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
 
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button onClick={onCancel} disabled={isLoading}>
-          Скасувати
+          {t('common.cancel')}
         </Button>
         <Button type="submit" variant="contained" disabled={isLoading}>
-          {isLoading ? 'Змінюємо...' : 'Змінити пароль'}
+          {isLoading ? t('common.loading') : t('profile.updatePassword')}
         </Button>
       </Box>
     </Box>
