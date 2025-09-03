@@ -48,13 +48,20 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       <Input
         type="text"
         placeholder="Введіть email або телефон (+380XXXXXXXXX)"
-        error={errors.contact?.message}
+        error={!!errors.contact?.message}
+        helperText={errors.contact?.message}
         {...register('contact')}
       />
 
-      <Input type="password" placeholder="Введіть пароль" error={errors.password?.message} {...register('password')} />
+      <Input
+        type="password"
+        placeholder="Введіть пароль"
+        error={!!errors.password?.message}
+        helperText={errors.password?.message}
+        {...register('password')}
+      />
 
-      <Button type="submit" isLoading={loading} className="w-full">
+      <Button type="submit" loading={loading} className="w-full">
         Увійти
       </Button>
 
