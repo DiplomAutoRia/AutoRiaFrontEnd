@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Message as MessageIcon } from '@mui/icons-material';
 import { Badge, Fab, useTheme } from '@mui/material';
 
+import { useWebSocket } from '../../hooks/useWebSocket';
 import { useGetConversationsQuery } from '../../redux/api/messagesApi';
 
 const MessageFloatingButton: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { data: conversations } = useGetConversationsQuery(undefined, {
-    pollingInterval: 3000,
-    skipPollingIfUnfocused: true,
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const { data: conversations, refetch } = useGetConversationsQuery(undefined, {});
+
+  const { isConnected } = useWebSocket({
+    onNewMessage: () => {
+      refetch();
+    },
+    onMessagesRead: () => {
+      refetch();
+    },
   });
 
-  const unreadCount = conversations?.reduce((total, conv) => total + conv.unread_count, 0) || 0;
+  useEffect(() => {
+    const count = conversations?.reduce((total, conv) => total + conv.unread_count, 0) || 0;
+    setUnreadCount(count);
+  }, [conversations]);
 
   const handleClick = () => {
     navigate('/messages');
@@ -30,6 +42,7 @@ const MessageFloatingButton: React.FC = () => {
         bottom: theme.spacing(2),
         right: theme.spacing(2),
         zIndex: 1000,
+        border: isConnected ? '2px solid #4caf50' : '2px solid #f44336',
       }}
     >
       <Badge badgeContent={unreadCount} color="error" max={99}>

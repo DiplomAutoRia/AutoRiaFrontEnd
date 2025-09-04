@@ -67,3 +67,26 @@ export const confirmSchema = z
     message: 'Паролі не співпадають',
     path: ['repeatPassword'],
   });
+
+export const carListingSchema = z.object({
+  brand: z.string().min(1, 'Оберіть марку'),
+  model: z.string().min(1, 'Введіть модель'),
+  price: z.coerce.number().positive('Ціна має бути більше нуля'),
+  currency: z.enum(['USD', 'EUR', 'UAH']),
+  year: z.coerce
+    .number()
+    .min(1900, 'Рік випуску має бути не менше 1900')
+    .max(new Date().getFullYear() + 1, 'Рік випуску не може бути в майбутньому'),
+  mileage: z.coerce.number().nonnegative('Пробіг не може бути відʼємним'),
+  fuel_type: z.string().min(1, 'Оберіть тип палива'),
+  transmission: z.string().min(1, 'Оберіть коробку передач'),
+  body_type: z.enum(['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Minivan'], {
+    message: 'Оберіть тип кузова зі списку'
+  }),
+  drive_type: z.enum(['FWD', 'RWD', 'AWD', '4WD'], {
+    message: 'Оберіть тип приводу зі списку'
+  }),
+  location: z.string().min(1, 'Введіть місцезнаходження'),
+  description: z.string().min(1, 'Введіть опис'),
+  image: z.any(), 
+});
