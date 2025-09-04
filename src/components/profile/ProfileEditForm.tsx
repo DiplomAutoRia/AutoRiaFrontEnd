@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, TextField } from '@mui/material';
@@ -7,14 +8,12 @@ import { z } from 'zod';
 
 import type { User } from '../../models/auth';
 
-const profileEditSchema = z.object({
-  first_name: z.string().min(2, "Ім'я повинно містити щонайменше 2 символи"),
-  last_name: z.string().min(2, 'Прізвище повинно містити щонайменше 2 символи'),
-  email: z.string().email('Невірний формат email').optional().or(z.literal('')),
-  phone_number: z.string().optional().or(z.literal('')),
-});
-
-type ProfileEditFormData = z.infer<typeof profileEditSchema>;
+type ProfileEditFormData = {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone_number?: string;
+};
 
 interface ProfileEditFormProps {
   user?: User | null;
@@ -24,9 +23,17 @@ interface ProfileEditFormProps {
 }
 
 const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCancel, onSuccess }) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const profileEditSchema = z.object({
+    first_name: z.string().min(2, t('profile.validation.firstNameMin')),
+    last_name: z.string().min(2, t('profile.validation.lastNameMin')),
+    email: z.string().email(t('profile.validation.invalidEmail')).optional().or(z.literal('')),
+    phone_number: z.string().optional().or(z.literal('')),
+  });
 
   const {
     register,
@@ -58,7 +65,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
         onSuccess?.();
       }, 1500);
     } catch {
-      setError('Помилка при оновленні профілю. Спробуйте ще раз.');
+      setError(t('profile.errors.updateFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -81,7 +88,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
 
       {success && (
         <Alert severity="success" sx={{ mb: 2 }}>
-          Профіль успішно оновлено!
+          {t('profile.success.profileUpdated')}
         </Alert>
       )}
 
@@ -90,7 +97,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
         margin="normal"
         required
         fullWidth
-        label="Ім'я"
+        label={t('profile.firstName')}
         error={!!errors.first_name}
         helperText={errors.first_name?.message}
         disabled={isSubmitting}
@@ -101,7 +108,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
         margin="normal"
         required
         fullWidth
-        label="Прізвище"
+        label={t('profile.lastName')}
         error={!!errors.last_name}
         helperText={errors.last_name?.message}
         disabled={isSubmitting}
@@ -122,7 +129,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
         {...register('phone_number')}
         margin="normal"
         fullWidth
-        label="Номер телефону"
+        label={t('profile.phone')}
         type="tel"
         error={!!errors.phone_number}
         helperText={errors.phone_number?.message}
@@ -131,10 +138,10 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
 
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button onClick={handleCancel} disabled={isSubmitting}>
-          Скасувати
+          {t('common.cancel')}
         </Button>
         <Button type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? 'Збереження...' : 'Зберегти зміни'}
+          {isSubmitting ? t('common.loading') : t('profile.saveChanges')}
         </Button>
       </Box>
     </Box>

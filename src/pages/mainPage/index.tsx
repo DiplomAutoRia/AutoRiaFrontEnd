@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,6 +28,7 @@ import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 
 const MainPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [brand, setBrand] = React.useState('');
@@ -69,10 +71,10 @@ const MainPage = () => {
       >
         <Container maxWidth="lg">
           <Typography variant="h2" component="h1" gutterBottom align="center">
-            AutoRia
+            {t('mainPage.title')}
           </Typography>
           <Typography variant="h5" component="p" gutterBottom align="center" sx={{ mb: 4 }}>
-            Найкращі автомобілі України
+            {t('mainPage.subtitle')}
           </Typography>
 
           <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
@@ -80,7 +82,7 @@ const MainPage = () => {
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
-                  label="Пошук автомобіля"
+                  label={t('vehicles.searchVehicle')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   InputProps={{
@@ -90,7 +92,7 @@ const MainPage = () => {
               </Grid>
               <Grid item xs={12} md={2}>
                 <FormControl fullWidth>
-                  <InputLabel>Марка</InputLabel>
+                  <InputLabel>{t('vehicles.selectMake')}</InputLabel>
                   <Select value={brand} onChange={(e) => setBrand(e.target.value)}>
                     {POPULAR_BRANDS.map((brandName) => (
                       <MenuItem key={brandName} value={brandName}>
@@ -103,7 +105,7 @@ const MainPage = () => {
               <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
-                  label="Ціна від"
+                  label={t('vehicles.filters.priceFrom')}
                   type="number"
                   value={priceFrom}
                   onChange={(e) => setPriceFrom(e.target.value)}
@@ -112,7 +114,7 @@ const MainPage = () => {
               <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
-                  label="Ціна до"
+                  label={t('vehicles.filters.priceTo')}
                   type="number"
                   value={priceTo}
                   onChange={(e) => setPriceTo(e.target.value)}
@@ -127,7 +129,7 @@ const MainPage = () => {
                   sx={{ py: 1.5 }}
                   onClick={handleSearch}
                 >
-                  Пошук
+                  {t('common.search')}
                 </Button>
               </Grid>
               <Grid item xs={12} md={2}>
@@ -149,7 +151,7 @@ const MainPage = () => {
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Популярні марки
+          {t('mainPage.popularBrands')}
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {POPULAR_BRANDS.map((brandName) => (
@@ -168,10 +170,10 @@ const MainPage = () => {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4" gutterBottom>
-            Рекомендовані автомобілі
+            {t('mainPage.recommendedCars')}
           </Typography>
           <Button variant="outlined" onClick={() => navigate('/vehicles')}>
-            Переглянути всі
+            {t('mainPage.viewAll')}
           </Button>
         </Box>
 
@@ -190,7 +192,7 @@ const MainPage = () => {
         {!vehiclesData?.results?.length && (
           <Box textAlign="center" py={8}>
             <Typography variant="h6" color="text.secondary">
-              Завантаження оголошень...
+              {t('mainPage.loadingListings')}
             </Typography>
           </Box>
         )}
@@ -203,25 +205,25 @@ const MainPage = () => {
               <Typography variant="h3" color="primary">
                 10,000+
               </Typography>
-              <Typography variant="h6">Автомобілів</Typography>
+              <Typography variant="h6">{t('mainPage.statistics.vehicles')}</Typography>
             </Grid>
             <Grid item xs={12} md={3}>
               <Typography variant="h3" color="primary">
                 5,000+
               </Typography>
-              <Typography variant="h6">Довірених продавців</Typography>
+              <Typography variant="h6">{t('mainPage.statistics.sellers')}</Typography>
             </Grid>
             <Grid item xs={12} md={3}>
               <Typography variant="h3" color="primary">
                 15,000+
               </Typography>
-              <Typography variant="h6">Задоволених клієнтів</Typography>
+              <Typography variant="h6">{t('mainPage.statistics.clients')}</Typography>
             </Grid>
             <Grid item xs={12} md={3}>
               <Typography variant="h3" color="primary">
                 24/7
               </Typography>
-              <Typography variant="h6">Підтримка</Typography>
+              <Typography variant="h6">{t('mainPage.statistics.support')}</Typography>
             </Grid>
           </Grid>
         </Container>

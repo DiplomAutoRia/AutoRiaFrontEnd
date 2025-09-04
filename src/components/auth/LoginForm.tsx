@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -15,6 +16,7 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onSubmit }: LoginFormProps) {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -47,29 +49,27 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <Input
         type="text"
-        placeholder="Введіть email або телефон (+380XXXXXXXXX)"
-        error={!!errors.contact?.message}
-        helperText={errors.contact?.message}
+        placeholder={t('auth.login.emailOrPhone')}
+        error={errors.contact?.message}
         {...register('contact')}
       />
 
       <Input
         type="password"
-        placeholder="Введіть пароль"
-        error={!!errors.password?.message}
-        helperText={errors.password?.message}
+        placeholder={t('auth.login.password')}
+        error={errors.password?.message}
         {...register('password')}
       />
 
-      <Button type="submit" loading={loading} className="w-full">
-        Увійти
+      <Button type="submit" isLoading={loading} className="w-full">
+        {t('auth.login.loginButton')}
       </Button>
 
       {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
 
       <div className="mt-4 text-center">
         <Link to={routes.REGISTER} className="text-indigo-600 hover:underline">
-          Немає акаунту? Зареєструватись
+          {t('auth.login.noAccount')}
         </Link>
       </div>
     </form>

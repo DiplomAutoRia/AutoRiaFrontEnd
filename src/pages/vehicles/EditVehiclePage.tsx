@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Alert, Box, CircularProgress, Container } from '@mui/material';
@@ -8,6 +9,7 @@ import type { VehicleCreateRequest } from '../../models/vehicle';
 import { useGetVehicleQuery, useUpdateVehicleMutation } from '../../redux/api/vehiclesApi';
 
 const EditVehiclePage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -38,7 +40,7 @@ const EditVehiclePage: React.FC = () => {
   if (loadError || !vehicle) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert severity="error">Помилка завантаження оголошення або оголошення не знайдено.</Alert>
+        <Alert severity="error">{t('vehicles.loadingError')}</Alert>
       </Container>
     );
   }
@@ -47,7 +49,7 @@ const EditVehiclePage: React.FC = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       {updateError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          Помилка оновлення оголошення. Спробуйте ще раз.
+          {t('vehicles.updateListingError')}
         </Alert>
       )}
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Close, Send } from '@mui/icons-material';
 import {
@@ -25,6 +26,7 @@ interface MessageModalProps {
 }
 
 const MessageModal: React.FC<MessageModalProps> = ({ open, onClose, vehicle, receiverId }) => {
+  const { t } = useTranslation();
   const [messageText, setMessageText] = useState('');
   const [createMessage, { isLoading, error }] = useCreateMessageMutation();
 
@@ -81,10 +83,10 @@ const MessageModal: React.FC<MessageModalProps> = ({ open, onClose, vehicle, rec
             fullWidth
             multiline
             rows={4}
-            label="Ваше повідомлення"
+            label={t('messages.sendMessage')}
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Напишіть своє повідомлення продавцю..."
+            placeholder={t('messages.typeMessageToSeller')}
             disabled={isLoading}
             autoFocus
           />

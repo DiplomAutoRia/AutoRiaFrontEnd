@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ExpandMore } from '@mui/icons-material';
 import {
@@ -31,6 +32,7 @@ interface VehicleFiltersProps {
 }
 
 const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFiltersChange, onReset }) => {
+  const { t } = useTranslation();
   const handleFilterChange = (key: keyof VehicleFilters, value: string | number | string[] | undefined) => {
     onFiltersChange({
       ...filters,
@@ -48,21 +50,21 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
   return (
     <Paper sx={{ p: 2, mb: 3 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">Фільтри</Typography>
+        <Typography variant="h6">{t('common.filter')}</Typography>
         <Button onClick={onReset} size="small">
-          Скинути
+          {t('vehicles.filters.resetFilters')}
         </Button>
       </Box>
 
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={3}>
           <FormControl fullWidth size="small">
-            <InputLabel>Тип транспорту</InputLabel>
+            <InputLabel>{t('vehicles.vehicleType')}</InputLabel>
             <Select
               value={filters.vehicle_type || ''}
               onChange={(e) => handleFilterChange('vehicle_type', e.target.value || undefined)}
             >
-              <MenuItem value="">Всі типи</MenuItem>
+              <MenuItem value="">{t('vehicles.filters.allTypes')}</MenuItem>
               {VEHICLE_TYPES.map((type) => (
                 <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>
                   {type}
@@ -74,12 +76,12 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
 
         <Grid item xs={12} sm={6} md={3}>
           <FormControl fullWidth size="small">
-            <InputLabel>Марка</InputLabel>
+            <InputLabel>{t('vehicles.make')}</InputLabel>
             <Select
               value={filters.brand || ''}
               onChange={(e) => handleFilterChange('brand', e.target.value || undefined)}
             >
-              <MenuItem value="">Всі марки</MenuItem>
+              <MenuItem value="">{t('vehicles.filters.allMakes')}</MenuItem>
               {POPULAR_BRANDS.map((brand) => (
                 <MenuItem key={brand} value={brand}>
                   {brand}
@@ -94,7 +96,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
             fullWidth
             size="small"
             type="number"
-            label="Рік від"
+            label={t('vehicles.filters.yearFrom')}
             value={filters.year_min || ''}
             onChange={(e) => handleFilterChange('year_min', e.target.value ? parseInt(e.target.value) : undefined)}
           />
@@ -105,7 +107,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
             fullWidth
             size="small"
             type="number"
-            label="Рік до"
+            label={t('vehicles.filters.yearTo')}
             value={filters.year_max || ''}
             onChange={(e) => handleFilterChange('year_max', e.target.value ? parseInt(e.target.value) : undefined)}
           />
@@ -115,13 +117,13 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
       <Box mt={2}>
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMore />}>
-            <Typography>Розширені фільтри</Typography>
+            <Typography>{t('vehicles.filters.advancedFilters')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Тип палива
+                  {t('vehicles.fuelType')}
                 </Typography>
                 <FormGroup>
                   {FUEL_TYPES.map((fuel) => (
@@ -146,7 +148,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
 
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Коробка передач
+                  {t('vehicles.transmission')}
                 </Typography>
                 <FormGroup>
                   {TRANSMISSION_TYPES.map((transmission) => (
@@ -171,7 +173,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
 
               <Grid item xs={12} md={4}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Колір
+                  {t('vehicles.color')}
                 </Typography>
                 <FormGroup>
                   {COLOR_TYPES.map((color) => (

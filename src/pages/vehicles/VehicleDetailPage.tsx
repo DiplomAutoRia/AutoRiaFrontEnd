@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -32,6 +33,7 @@ import { useGetVehicleQuery } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 
 const VehicleDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -161,7 +163,7 @@ const VehicleDetailPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Поділитися">
+            <Tooltip title={t('vehicles.share')}>
               <IconButton onClick={handleShare}>
                 <Share />
               </IconButton>

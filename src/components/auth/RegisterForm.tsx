@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -22,6 +23,7 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack }: RegisterFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -188,7 +190,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
-          placeholder="Імʼя"
+          placeholder={t('auth.register.firstName')}
           fullWidth
           error={!!(errors.firstName && (touched.firstName || formData.firstName))}
           helperText={errors.firstName && (touched.firstName || formData.firstName) ? errors.firstName : ''}
@@ -201,7 +203,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
-          placeholder="Прізвище"
+          placeholder={t('auth.register.lastName')}
           fullWidth
           error={!!(errors.lastName && (touched.lastName || formData.lastName))}
           helperText={errors.lastName && (touched.lastName || formData.lastName) ? errors.lastName : ''}
@@ -214,7 +216,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
           onFocus={handleFocus}
           onBlur={handleFocus}
           autoComplete="off"
-          placeholder="Пошта або номер телефону"
+          placeholder={t('auth.register.emailOrPhone')}
           fullWidth
           error={!!(errors.contact && (touched.contact || formData.contact))}
           helperText={errors.contact && (touched.contact || formData.contact) ? errors.contact : ''}
@@ -222,17 +224,17 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
 
         <FormControlLabel
           control={<Checkbox name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} />}
-          label="Я приймаю умови"
+          label={t('auth.register.acceptTerms')}
         />
 
         <Button type="submit" disabled={!formData.acceptTerms} className="w-full mb-2">
-          Продовжити
+          {t('auth.register.continue')}
         </Button>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Link to={routes.LOGIN} style={{ color: '#1976d2', textDecoration: 'none' }}>
             <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
-              Вже зареєстровані?
+              {t('auth.register.alreadyRegistered')}
             </Typography>
           </Link>
         </Box>
@@ -249,7 +251,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
-        placeholder="Код підтвердження"
+        placeholder={t('auth.register.confirmationCode')}
         fullWidth
         error={!!(confirmErrors.code && (confirmTouched.code || confirmData.code))}
         helperText={confirmErrors.code && (confirmTouched.code || confirmData.code) ? confirmErrors.code : ''}
@@ -263,7 +265,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
-        placeholder="Пароль"
+        placeholder={t('auth.register.password')}
         fullWidth
         error={!!(confirmErrors.password && (confirmTouched.password || confirmData.password))}
         helperText={
@@ -279,7 +281,7 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         onFocus={handleConfirmFocus}
         onBlur={handleConfirmFocus}
         autoComplete="off"
-        placeholder="Повторіть пароль"
+        placeholder={t('auth.register.confirmPassword')}
         fullWidth
         error={!!(confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword))}
         helperText={
@@ -290,17 +292,17 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
       />
 
       <Button type="submit" className="w-full">
-        Завершити реєстрацію
+        {t('auth.register.completeRegistration')}
       </Button>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
         <Link to={routes.LOGIN} style={{ color: '#1976d2', textDecoration: 'none' }}>
           <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
-            Вже зареєстровані
+            {t('auth.register.alreadyRegistered')}
           </Typography>
         </Link>
         <MuiButton variant="text" size="small" onClick={handleBack} sx={{ color: '#1976d2', textTransform: 'none' }}>
-          Вказати інші дані
+          {t('auth.register.enterOtherData')}
         </MuiButton>
       </Box>
     </Box>
