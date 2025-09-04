@@ -21,6 +21,7 @@ interface User {
   last_name: string;
   email?: string;
   phone_number?: string;
+  location?: string;
   is_verified: boolean;
 }
 
@@ -235,6 +236,74 @@ export const checkTokenValidity = createAsyncThunk('auth/checkTokenValidity', as
   }
 });
 
+export const requestPasswordReset = createAsyncThunk(
+  'auth/requestPasswordReset',
+  async (contactInfo: { type: 'email' | 'phone'; value: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${routes.API.BASE}/users/password-reset/request/`,
+        {
+          contact_info: contactInfo.value,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          validateStatus: (status) => status < 500,
+        }
+      );
+
+      if (response.status >= 400) {
+        if (response.data?.error) {
+          throw new Error(response.data.error);
+        } else if (response.data?.contact_info) {
+          throw new Error(response.data.contact_info);
+        }
+        throw new Error('Password reset request failed. Please try again.');
+      }
+
+      return { message: 'Password reset code sent successfully' };
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  }
+);
+
+export const confirmPasswordReset = createAsyncThunk(
+  'auth/confirmPasswordReset',
+  async (data: { contact_info: string; code: string; password: string; password_confirm: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${routes.API.BASE}/users/password-reset/confirm/`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          validateStatus: (status) => status < 500,
+        }
+      );
+
+      if (response.status >= 400) {
+        if (response.data?.error) {
+          throw new Error(response.data.error);
+        } else if (response.data?.code) {
+          throw new Error(response.data.code);
+        } else if (response.data?.password) {
+          throw new Error(response.data.password);
+        }
+        throw new Error('Password reset confirmation failed. Please try again.');
+      }
+
+      return { message: 'Password has been successfully reset' };
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -349,6 +418,38 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.error = null;
+      })
+
+      .addCase(requestPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(requestPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        state.error = null;
+      })
+      .addCase(requestPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.successMessage = null;
+      })
+
+      .addCase(confirmPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(confirmPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        state.error = null;
+      })
+      .addCase(confirmPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.successMessage = null;
       });
   },
 });

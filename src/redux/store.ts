@@ -5,8 +5,10 @@ import type { Middleware } from '@reduxjs/toolkit';
 
 import { apiSlice } from './api/apiSlice';
 import authReducer from './auth/authSlice';
+import vehiclesReducer from './vehicles/vehiclesSlice';
 
 const rootReducer = combineReducers({
+  vehicles: vehiclesReducer,
   [apiSlice.reducerPath]: apiSlice.reducer,
   auth: authReducer,
 });

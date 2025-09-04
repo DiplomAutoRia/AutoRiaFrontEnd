@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Container,
   FormControl,
   Grid,
@@ -127,6 +128,18 @@ const MainPage = () => {
                   onClick={handleSearch}
                 >
                   Пошук
+                </Button>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Button 
+                  variant="outlined" 
+                  fullWidth 
+                  size="large" 
+                  component={Link} 
+                  to="/create"
+                  sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+                >
+                  Додати авто
                 </Button>
               </Grid>
             </Grid>
