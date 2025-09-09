@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '../../routes';
-import { useCreateVehicleMutation, useAddVehicleImageMutation } from '../../redux/api/vehiclesApi';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import {
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
 } from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { useForm, Controller } from 'react-hook-form';
+
 import { carListingSchema } from '../../common/utils/zod-validation';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useAddVehicleImageMutation, useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
+import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
 const fuels = ['petrol', 'diesel', 'gas', 'electric'];
@@ -33,7 +35,11 @@ const CreateListingPage = () => {
   const [addVehicleImage] = useAddVehicleImageMutation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(carListingSchema),
     defaultValues: {
       brand: '',
@@ -46,8 +52,8 @@ const CreateListingPage = () => {
       mileage: 0,
       fuel_type: '',
       transmission: '',
-    body_type: 'Sedan' as 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Convertible' | 'Minivan',
-    drive_type: 'FWD' as 'FWD' | 'RWD' | 'AWD' | '4WD',
+      body_type: 'Sedan' as 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Convertible' | 'Minivan',
+      drive_type: 'FWD' as 'FWD' | 'RWD' | 'AWD' | '4WD',
     },
   });
 
@@ -83,7 +89,7 @@ const CreateListingPage = () => {
         body_type: data.body_type,
         drive_type: data.drive_type,
       };
-      
+
       const vehicle = await createVehicle(newVehicle).unwrap();
       console.log('Оголошення створено:', vehicle);
 
@@ -95,7 +101,7 @@ const CreateListingPage = () => {
           console.error('Error uploading image:', imageError);
         }
       }
-      
+
       navigate(routes.HOME);
     } catch (error: any) {
       console.error('Помилка при створенні оголошення:', error);
@@ -109,7 +115,7 @@ const CreateListingPage = () => {
           <Typography variant="h2" gutterBottom align="center">
             Створити оголошення
           </Typography>
-          
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
@@ -140,69 +146,69 @@ const CreateListingPage = () => {
                   name="model"
                   control={control}
                   render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Модель"
-                        placeholder="Наприклад: X5"
-                        error={!!errors.model}
-                        helperText={errors.model?.message}
-                      />
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Модель"
+                      placeholder="Наприклад: X5"
+                      error={!!errors.model}
+                      helperText={errors.model?.message}
+                    />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="price"
                   control={control}
                   render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Ціна ($)"
-                        type="number"
-                        error={!!errors.price}
-                        helperText={errors.price?.message}
-                      />
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Ціна ($)"
+                      type="number"
+                      error={!!errors.price}
+                      helperText={errors.price?.message}
+                    />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="year"
                   control={control}
                   render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Рік випуску"
-                        type="number"
-                        error={!!errors.year}
-                        helperText={errors.year?.message}
-                      />
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Рік випуску"
+                      type="number"
+                      error={!!errors.year}
+                      helperText={errors.year?.message}
+                    />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="mileage"
                   control={control}
                   render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Пробіг (км)"
-                        type="number"
-                        error={!!errors.mileage}
-                        helperText={errors.mileage?.message}
-                      />
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Пробіг (км)"
+                      type="number"
+                      error={!!errors.mileage}
+                      helperText={errors.mileage?.message}
+                    />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="currency"
@@ -219,23 +225,15 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Controller
                   name="description"
                   control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Опис"
-                      multiline
-                      rows={4}
-                    />
-                  )}
+                  render={({ field }) => <TextField {...field} fullWidth label="Опис" multiline rows={4} />}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="fuel_type"
@@ -259,7 +257,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="transmission"
@@ -283,7 +281,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="body_type"
@@ -302,7 +300,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="drive_type"
@@ -321,23 +319,23 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Controller
                   name="location"
                   control={control}
                   render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Місцезнаходження"
-                        error={!!errors.location}
-                        helperText={errors.location?.message}
-                      />
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Місцезнаходження"
+                      error={!!errors.location}
+                      helperText={errors.location?.message}
+                    />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Box>
                   <input
@@ -348,12 +346,7 @@ const CreateListingPage = () => {
                     id="image-upload"
                   />
                   <label htmlFor="image-upload">
-                    <Button
-                      variant="outlined"
-                      component="span"
-                      startIcon={<PhotoCamera />}
-                      sx={{ mb: 1 }}
-                    >
+                    <Button variant="outlined" component="span" startIcon={<PhotoCamera />} sx={{ mb: 1 }}>
                       Вибрати фото
                     </Button>
                   </label>
@@ -364,7 +357,7 @@ const CreateListingPage = () => {
                   )}
                 </Box>
               </Grid>
-              
+
               {previewImage && (
                 <Grid item xs={12}>
                   <Box sx={{ mt: 2 }}>

@@ -20,7 +20,7 @@ export const favoritesApi = apiSlice.injectEndpoints({
 
     removeFromFavorites: builder.mutation<void, number>({
       query: (favoriteId) => ({
-        url: `${routes.API.FAVORITES}/${favoriteId}/`,
+        url: `${routes.API.FAVORITES}${favoriteId}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['FAVORITES'],

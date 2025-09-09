@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { useDebounce } from '../../hooks/useDebounce';
 import { createSelector } from '@reduxjs/toolkit';
 
 import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
@@ -37,15 +36,6 @@ export default function RegisterPage() {
     password: '',
     repeatPassword: '',
   });
-  
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-  
-  const [firstNameIsTyping, setFirstNameIsTyping] = useState(false);
-  const [lastNameIsTyping, setLastNameIsTyping] = useState(false);
-  const [contactIsTyping, setContactIsTyping] = useState(false);
-  const [passwordIsTyping, setPasswordIsTyping] = useState(false);
-  const [repeatPasswordIsTyping, setRepeatPasswordIsTyping] = useState(false);
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
@@ -65,13 +55,6 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
-
-  const firstNameError = useDebounce(firstNameIsTyping ? '' : errors.firstName || '', 2000);
-  const lastNameError = useDebounce(lastNameIsTyping ? '' : errors.lastName || '', 2000);
-  const contactError = useDebounce(contactIsTyping ? '' : errors.contact || '', 2000);
-  const codeError = useDebounce(confirmErrors.code || '', 2000);
-  const passwordError = useDebounce(passwordIsTyping ? '' : confirmErrors.password || '', 2000);
-  const repeatPasswordError = useDebounce(repeatPasswordIsTyping ? '' : confirmErrors.repeatPassword || '', 2000);
 
   useEffect(() => {
     if (user) {
@@ -119,12 +102,12 @@ export default function RegisterPage() {
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleConfirmFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setConfirmTouched(prev => ({ ...prev, [name]: true }));
+    setConfirmTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,21 +172,17 @@ export default function RegisterPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Column - Form */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
-        <img 
-          src="/locales/images/Logo2.png" 
-          alt="Logo" 
+        <img
+          src="/locales/images/Logo2.png"
+          alt="Logo"
           className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
           onClick={() => navigate(routes.HOME)}
         />
-        
+
         <div className="w-full max-w-md mx-auto">
-          <h1 className="text-3xl font-bold text-black text-center mb-2">
-            Зареєструватись в TurboSell
-          </h1>
-          
-          <p className="text-gray-600 text-center mb-6">
-            Купуйте й продавайте авто онлайн
-          </p>
+          <h1 className="text-3xl font-bold text-black text-center mb-2">Зареєструватись в TurboSell</h1>
+
+          <p className="text-gray-600 text-center mb-6">Купуйте й продавайте авто онлайн</p>
 
           <div className="mb-6 flex flex-col gap-3">
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
@@ -220,7 +199,11 @@ export default function RegisterPage() {
                     disabled={renderProps.disabled}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
                   >
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                    <img
+                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                      alt="Google"
+                      className="w-5 h-5"
+                    />
                     Вхід через Google
                   </button>
                 )}
@@ -313,10 +296,7 @@ export default function RegisterPage() {
               </button>
 
               <div className="text-center">
-                <Link
-                  to="/login"
-                  className="text-blue-600 font-medium hover:underline"
-                >
+                <Link to="/login" className="text-blue-600 font-medium hover:underline">
                   Вже зареєстровані?
                 </Link>
               </div>
@@ -334,7 +314,9 @@ export default function RegisterPage() {
                   onBlur={handleConfirmFocus}
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.code && (confirmTouched.code || confirmData.code) ? 'border-red-500' : 'border-gray-300'
+                    confirmErrors.code && (confirmTouched.code || confirmData.code)
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   }`}
                 />
                 {confirmErrors.code && (confirmTouched.code || confirmData.code) && (
@@ -353,7 +335,9 @@ export default function RegisterPage() {
                   onBlur={handleConfirmFocus}
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.password && (confirmTouched.password || confirmData.password) ? 'border-red-500' : 'border-gray-300'
+                    confirmErrors.password && (confirmTouched.password || confirmData.password)
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   }`}
                 />
                 {confirmErrors.password && (confirmTouched.password || confirmData.password) && (
@@ -372,7 +356,9 @@ export default function RegisterPage() {
                   onBlur={handleConfirmFocus}
                   autoComplete="off"
                   className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) ? 'border-red-500' : 'border-gray-300'
+                    confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword)
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   }`}
                 />
                 {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && (
@@ -391,11 +377,7 @@ export default function RegisterPage() {
                 <Link to="/login" className="text-blue-600 text-sm hover:underline">
                   Вже зареєстровані
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="text-blue-600 text-sm hover:underline"
-                >
+                <button type="button" onClick={handleBack} className="text-blue-600 text-sm hover:underline">
                   Вказати інші дані
                 </button>
               </div>
@@ -405,11 +387,7 @@ export default function RegisterPage() {
       </div>
 
       <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
-        <img
-          src="/locales/images/Register.png"
-          alt="Register"
-          className="w-full h-full object-cover"
-        />
+        <img src="/locales/images/Register.png" alt="Register" className="w-full h-full object-cover" />
       </div>
     </div>
   );

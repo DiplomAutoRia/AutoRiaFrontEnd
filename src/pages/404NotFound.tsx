@@ -56,7 +56,7 @@ const NotFound = () => {
             {t('toMain')}
           </Button>
         </Box>
-      </Fade> 
+      </Fade>
     </>
   );
 };

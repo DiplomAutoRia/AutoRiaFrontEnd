@@ -343,6 +343,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
             maxRows={3}
             value={newMessageText}
             onChange={(e) => setNewMessageText(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={t('messages.typeMessage')}
             disabled={isSending}
             size="small"

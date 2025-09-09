@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserVehicles, deleteVehicle } from '../../redux/vehicles/vehiclesSlice';
-import type { RootState, AppDispatch } from '../../redux/store';
-import { Button, Container, Grid, Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
+
 import { ArrowBack } from '@mui/icons-material';
+import { Box, Button, Card, CardContent, CardMedia, Container, Grid, Typography } from '@mui/material';
+
 import ConfirmDialog from '../../componetns/ConfirmDialog';
+import type { AppDispatch, RootState } from '../../redux/store';
+import { deleteVehicle, fetchUserVehicles } from '../../redux/vehicles/vehiclesSlice';
 import { routes } from '../../routes';
 
 const MyListingsPage = () => {
@@ -56,28 +58,20 @@ const MyListingsPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Button
-        variant="outlined"
-        startIcon={<ArrowBack />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
+      <Button variant="outlined" startIcon={<ArrowBack />} onClick={() => navigate(-1)} sx={{ mb: 3 }}>
         Назад
       </Button>
-      
+
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
         Мої оголошення
       </Typography>
-      
+
       {userVehicles.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 4 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             У вас ще немає оголошень
           </Typography>
-          <Button 
-            variant="contained" 
-            onClick={() => navigate(routes.CREATE)}
-          >
+          <Button variant="contained" onClick={() => navigate(routes.CREATE)}>
             Створити оголошення
           </Button>
         </Box>
@@ -94,7 +88,15 @@ const MyListingsPage = () => {
                     alt={`${vehicle.brand} ${vehicle.model}`}
                   />
                 ) : (
-                  <Box sx={{ height: 200, bgcolor: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Box
+                    sx={{
+                      height: 200,
+                      bgcolor: '#e0e0e0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
                     <Typography variant="body2" color="textSecondary">
                       Зображення відсутнє
                     </Typography>
@@ -111,25 +113,20 @@ const MyListingsPage = () => {
                     Пробіг: {vehicle.mileage.toLocaleString()} км
                   </Typography>
                   <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-                    {vehicle.currency === 'USD' ? '$' : 
-                     vehicle.currency === 'EUR' ? '€' : 
-                     vehicle.currency === 'UAH' ? '₴' : ''}
+                    {vehicle.currency === 'USD'
+                      ? '$'
+                      : vehicle.currency === 'EUR'
+                        ? '€'
+                        : vehicle.currency === 'UAH'
+                          ? '₴'
+                          : ''}
                     {vehicle.price.toLocaleString()}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                    <Button 
-                      variant="outlined" 
-                      fullWidth 
-                      onClick={() => handleEdit(vehicle.id)}
-                    >
+                    <Button variant="outlined" fullWidth onClick={() => handleEdit(vehicle.id)}>
                       Редагувати
                     </Button>
-                    <Button 
-                      variant="outlined" 
-                      color="error" 
-                      fullWidth 
-                      onClick={() => handleDelete(vehicle.id)}
-                    >
+                    <Button variant="outlined" color="error" fullWidth onClick={() => handleDelete(vehicle.id)}>
                       Видалити
                     </Button>
                   </Box>

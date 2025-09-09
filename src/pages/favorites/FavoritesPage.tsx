@@ -28,9 +28,13 @@ const FavoritesPage: React.FC = () => {
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
 
   const handleRemoveFavorite = async (favoriteId: number) => {
+    console.log('Trying to remove favorite with ID:', favoriteId);
     try {
       await removeFromFavorites(favoriteId).unwrap();
-    } catch {}
+      console.log('Successfully removed favorite');
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
   };
 
   const formatPrice = (price: number, currency: string) => {

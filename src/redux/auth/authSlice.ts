@@ -251,7 +251,7 @@ export const requestPasswordReset = createAsyncThunk(
             Accept: 'application/json',
           },
           validateStatus: (status) => status < 500,
-        }
+        },
       );
 
       if (response.status >= 400) {
@@ -267,24 +267,23 @@ export const requestPasswordReset = createAsyncThunk(
     } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err));
     }
-  }
+  },
 );
 
 export const confirmPasswordReset = createAsyncThunk(
   'auth/confirmPasswordReset',
-  async (data: { contact_info: string; code: string; password: string; password_confirm: string }, { rejectWithValue }) => {
+  async (
+    data: { contact_info: string; code: string; password: string; password_confirm: string },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await axios.post(
-        `${routes.API.BASE}/users/password-reset/confirm/`,
-        data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          validateStatus: (status) => status < 500,
-        }
-      );
+      const response = await axios.post(`${routes.API.BASE}/users/password-reset/confirm/`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        validateStatus: (status) => status < 500,
+      });
 
       if (response.status >= 400) {
         if (response.data?.error) {
@@ -301,7 +300,7 @@ export const confirmPasswordReset = createAsyncThunk(
     } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err));
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
