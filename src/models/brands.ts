@@ -11,7 +11,7 @@ export const POPULAR_BRANDS = [
   'Hyundai',
   'Kia',
   'Mazda',
-  'Subaru',
+  'Infinity',
   'Volvo',
   'Peugeot',
   'Renault',
@@ -19,6 +19,10 @@ export const POPULAR_BRANDS = [
   'Opel',
   'Mitsubishi',
   'Lexus',
+  'Jeep',
+  'Porsche',
+  'Land Rover', 
+  'More',
 ] as const;
 
 export type Brand = (typeof POPULAR_BRANDS)[number];

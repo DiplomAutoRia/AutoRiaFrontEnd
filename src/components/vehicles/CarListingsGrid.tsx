@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Vehicle } from '../../models/vehicle';
+import { useNavigate } from 'react-router-dom';
 
 interface CarListingsGridProps {
   cars: Vehicle[];
@@ -13,6 +14,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('uk-UA').format(price) + ' $';
   };
+  const navigate = useNavigate();
 
   const formatMileage = (mileage: number | undefined): string => {
     return mileage ? new Intl.NumberFormat('uk-UA').format(mileage) + ' км' : 'N/A';
@@ -51,7 +53,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
             {firstRowCars.map((car) => {
               const imageUrl = getFirstImage(car.images);
               return (
-                <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div key={car.id} className="bg-white overflow-hidden">
                   {imageUrl && (
                     <img 
                       src={imageUrl} 
@@ -59,7 +61,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
                       className="w-full h-48 object-cover"
                     />
                   )}
-                  <div className="p-4">
+                  <div className="p-4 pl-0">
                     <h3 className="text-lg font-bold text-gray-900">
                       {car.brand} {car.model}
                     </h3>
@@ -80,7 +82,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
               {secondRowCars[0] && (() => {
                 const imageUrl = getFirstImage(secondRowCars[0].images);
                 return (
-                  <div className="col-span-2 row-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+                  <div className="col-span-2 row-span-2 bg-white overflow-hidden">
                     {imageUrl && (
                       <img 
                         src={imageUrl} 
@@ -88,7 +90,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
                         className="w-full h-64 object-cover"
                       />
                     )}
-                    <div className="p-4">
+                    <div className="p-4 pl-0">
                       <h3 className="text-xl font-bold text-gray-900">
                         {secondRowCars[0].brand} {secondRowCars[0].model}
                       </h3>
@@ -106,7 +108,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
               {secondRowCars.slice(1, 5).map((car) => {
                 const imageUrl = getFirstImage(car.images);
                 return (
-                  <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div key={car.id} className="bg-white overflow-hidden">
                     {imageUrl && (
                       <img 
                         src={imageUrl} 
@@ -114,7 +116,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
                         className="w-full h-32 object-cover"
                       />
                     )}
-                    <div className="p-3">
+                    <div className="p-3 pl-0">
                       <h3 className="text-md font-bold text-gray-900">
                         {car.brand} {car.model}
                       </h3>
@@ -131,11 +133,14 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
             </div>
           )}
 
-          <div className="mt-8 text-center">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-              Показати ще
-            </button>
-          </div>
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => navigate('/vehicles')}
+            className="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 px-9 py-2 text-sm font-medium transition-colors"
+          >
+            Дивитись більше
+          </button>
+        </div>
         </>
       )}
     </div>

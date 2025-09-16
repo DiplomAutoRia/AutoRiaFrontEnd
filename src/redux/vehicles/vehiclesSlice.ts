@@ -12,6 +12,7 @@ interface VehicleState {
   imageStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   deleteImageStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   userVehicles: any[];
+  ownerVehicles: any[];
 }
 
 const initialState: VehicleState = {
@@ -24,6 +25,7 @@ const initialState: VehicleState = {
   imageStatus: 'idle',
   deleteImageStatus: 'idle',
   userVehicles: [],
+  ownerVehicles: [],
 };
 
 
@@ -59,6 +61,11 @@ export const addVehicleImage = createAsyncThunk('vehicles/addVehicleImage', asyn
 
 export const fetchUserVehicles = createAsyncThunk('vehicles/fetchUserVehicles', async () => {
   const response = await vehiclesAPI.getUserVehicles();
+  return Array.isArray(response.data) ? response.data : response.data.results;
+});
+
+export const fetchVehiclesByUserId = createAsyncThunk('vehicles/fetchVehiclesByUserId', async (userId: string) => {
+  const response = await vehiclesAPI.getVehiclesByUserId(userId);
   return Array.isArray(response.data) ? response.data : response.data.results;
 });
 
@@ -212,6 +219,18 @@ const vehiclesSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch user vehicles';
       })
 
+      .addCase(fetchVehiclesByUserId.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchVehiclesByUserId.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.ownerVehicles = action.payload;
+      })
+      .addCase(fetchVehiclesByUserId.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch owner vehicles';
+      })
+
       .addCase(deleteVehicleImage.pending, (state) => {
         state.deleteImageStatus = 'loading';
       })
@@ -260,6 +279,7 @@ export const {
 export const selectAllVehicles = (state: RootState) => state.vehicles.vehicles;
 export const selectCurrentVehicle = (state: RootState) => state.vehicles.currentVehicle;
 export const selectUserVehicles = (state: RootState) => state.vehicles.userVehicles;
+export const selectOwnerVehicles = (state: RootState) => state.vehicles.ownerVehicles;
 export const selectVehicleStatus = (state: RootState) => state.vehicles.status;
 export const selectCreateStatus = (state: RootState) => state.vehicles.createStatus;
 export const selectUpdateStatus = (state: RootState) => state.vehicles.updateStatus;

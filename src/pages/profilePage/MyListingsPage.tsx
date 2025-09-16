@@ -76,7 +76,7 @@ const MyListingsPage = () => {
           </Typography>
           <Button 
             variant="contained" 
-            onClick={() => navigate(routes.CREATE)}
+            onClick={() => navigate(routes.VEHICLE_CREATE)}
           >
             Створити оголошення
           </Button>

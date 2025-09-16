@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface Car {
   id: number;
@@ -21,6 +22,7 @@ const CarListings: React.FC<CarListingsProps> = ({
   cars, 
   title = "Переглянуте раніше" 
 }) => {
+  const navigate = useNavigate();
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('uk-UA').format(price) + ' $';
   };
@@ -78,11 +80,12 @@ const CarListings: React.FC<CarListingsProps> = ({
             ))}
           </div>
 
-          <div className="mt-8 text-center">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-              Показати ще
-            </button>
-          </div>
+        <div className="flex justify-center mt-6">
+          <button
+          >
+            Дивитись більше
+          </button>
+        </div>
         </>
       )}
     </div>

@@ -55,8 +55,10 @@ const EditListingPage = () => {
       mileage: 0,
       fuel_type: '',
       transmission: '',
-    body_type: 'Sedan' as 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Convertible' | 'Minivan',
-    drive_type: 'FWD' as 'FWD' | 'RWD' | 'AWD' | '4WD',
+      body_type: 'Sedan' as 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Convertible' | 'Minivan',
+      drive_type: 'FWD' as 'FWD' | 'RWD' | 'AWD' | '4WD',
+      is_new: true,
+      plate_number: '',
       location: '',
       description: '',
     },
@@ -81,6 +83,8 @@ const EditListingPage = () => {
         transmission: currentVehicle.transmission,
         body_type: currentVehicle.body_type || '',
         drive_type: currentVehicle.drive_type || '',
+        is_new: currentVehicle.is_new ?? true,
+        plate_number: currentVehicle.plate_number || '',
         location: currentVehicle.location,
         description: currentVehicle.description || '',
       });
@@ -118,6 +122,8 @@ const EditListingPage = () => {
       transmission: data.transmission,
       body_type: data.body_type,
       drive_type: data.drive_type,
+      is_new: data.is_new === 'true' ? true : false,
+      plate_number: data.plate_number || undefined,
       location: data.location,
       description: data.description,
     };
@@ -380,6 +386,37 @@ const EditListingPage = () => {
                         <MenuItem value="4WD">4WD</MenuItem>
                       </Select>
                     </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <Controller
+                  name="is_new"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Стан автомобіля</InputLabel>
+                      <Select {...field} label="Стан автомобіля">
+                        <MenuItem value="true">Нова</MenuItem>
+                        <MenuItem value="false">Б/У</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <Controller
+                  name="plate_number"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Номерний знак"
+                      placeholder="АА1234ВВ"
+                    />
                   )}
                 />
               </Grid>

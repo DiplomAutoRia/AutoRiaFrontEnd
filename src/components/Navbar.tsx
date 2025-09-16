@@ -19,9 +19,7 @@ const Navbar = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const open = Boolean(anchorEl);
 
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
     skip: !user,
@@ -30,23 +28,13 @@ const Navbar = () => {
   });
   const unreadCount = unreadData?.unread_count || 0;
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleProfile = () => {
     navigate(routes.PROFILE);
-    handleClose();
   };
 
   const handleLogout = () => {
     dispatch(logout());
     navigate(routes.HOME);
-    handleClose();
   };
 
   const getUserInitials = () => {
@@ -74,13 +62,22 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-6">
-          <Link to={routes.VEHICLES} className="hover:text-gray-200 transition-colors">
+          <Link to={`${routes.VEHICLES}?is_new=false`} className="hover:text-gray-200 transition-colors">
             Вживані авто
           </Link>
-          <Link to="#" className="hover:text-gray-200 transition-colors">
+          <Link to={`${routes.VEHICLES}?is_new=true`} className="hover:text-gray-200 transition-colors">
             Нові авто
           </Link>
-          <Link to={routes.VEHICLE_CREATE} className="hover:text-gray-200 transition-colors">
+          <Link 
+            to={routes.VEHICLE_CREATE} 
+            className="hover:text-gray-200 transition-colors"
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                navigate(routes.LOGIN);
+              }
+            }}
+          >
             Продати авто
           </Link>
           <Link to="#" className="hover:text-gray-200 transition-colors">
@@ -109,7 +106,7 @@ const Navbar = () => {
               </button>
               
               <button
-                onClick={handleClick}
+                onClick={handleProfile}
                 className="flex items-center space-x-2 px-3 py-2 hover:bg-blue-700 rounded-full transition-colors"
               >
                 <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold">
@@ -167,14 +164,14 @@ const Navbar = () => {
         <div className="md:hidden mt-4 bg-blue-700 rounded-lg p-4">
           <div className="space-y-3">
             <Link 
-              to={routes.VEHICLES} 
+              to={`${routes.VEHICLES}?is_new=false`} 
               className="block py-2 hover:bg-blue-600 rounded px-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Вживані авто
             </Link>
             <Link 
-              to="#" 
+              to={`${routes.VEHICLES}?is_new=true`} 
               className="block py-2 hover:bg-blue-600 rounded px-2"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -183,7 +180,15 @@ const Navbar = () => {
             <Link 
               to={routes.VEHICLE_CREATE} 
               className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  navigate(routes.LOGIN);
+                } else {
+                  setMobileMenuOpen(false);
+                }
+              }}
             >
               Продати авто
             </Link>
@@ -222,7 +227,10 @@ const Navbar = () => {
                 </button>
                 <button 
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                  onClick={handleProfile}
+                  onClick={() => {
+                    handleProfile();
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   <div className="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold text-xs">
                     {getUserInitials()}
@@ -231,7 +239,10 @@ const Navbar = () => {
                 </button>
                 <button 
                   className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   Вийти
                 </button>
@@ -250,22 +261,6 @@ const Navbar = () => {
         </div>
       )}
 
-      {open && (
-        <div className="hidden md:block absolute right-4 top-16 bg-white text-gray-800 rounded-lg shadow-lg py-2 z-50">
-          <button
-            onClick={handleProfile}
-            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-          >
-            Профіль
-          </button>
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-          >
-            Вийти
-          </button>
-        </div>
-      )}
     </nav>
   );
 };
