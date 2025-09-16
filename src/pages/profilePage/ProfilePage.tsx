@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,10 +8,12 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MarkAsReadIcon from '@mui/icons-material/MarkEmailRead';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import {
   Avatar,
   Box,
   Button,
+  Card,
   Checkbox,
   Chip,
   Grid,
@@ -29,6 +31,170 @@ import UserListingCard from '../../components/vehicles/UserListingCard';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
 import type { RootState } from '../../redux/store';
 import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
+import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
+
+interface FavoriteVehicleCardProps {
+  favorite: any;
+  onRemove: (favoriteId: number) => void;
+  onNavigate: (vehicleId: number) => void;
+}
+
+const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onRemove, onNavigate }) => {
+  // The favorite object already contains the full vehicle data
+  const vehicle = favorite.vehicle;
+
+  if (!vehicle) {
+    return (
+      <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              Помилка завантаження оголошення
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ID: {favorite.id}
+            </Typography>
+          </Box>
+          <IconButton 
+            size="small" 
+            onClick={() => onRemove(favorite.id)}
+            color="error"
+          >
+            <FavoriteIcon />
+          </IconButton>
+        </Box>
+      </Paper>
+    );
+  }
+
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('uk-UA', {
+      style: 'currency',
+      currency: currency === 'USD' ? 'USD' : 'UAH',
+    }).format(price);
+  };
+
+  return (
+    <Card 
+      sx={{ 
+        display: 'flex',
+        position: 'relative',
+        borderRadius: 0,
+        transition: 'all 0.3s ease',
+        cursor: 'pointer',
+        height: 200,
+        '&:hover': {
+          boxShadow: 3,
+          transform: 'translateY(-2px)'
+        }
+      }}
+      onClick={() => onNavigate(vehicle.id)}
+    >
+      {/* Remove from favorites icon */}
+      <IconButton
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          zIndex: 2,
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          '&:hover': {
+            backgroundColor: 'white'
+          }
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(favorite.id);
+        }}
+        size="small"
+      >
+        <FavoriteIcon fontSize="small" />
+      </IconButton>
+
+      {/* Image */}
+      <Box
+        component="img"
+        sx={{
+          width: 280,
+          height: '100%',
+          objectFit: 'cover',
+          backgroundColor: '#f5f5f5',
+          flexShrink: 0
+        }}
+        src={vehicle.images && vehicle.images.length > 0 
+          ? vehicle.images[0].image 
+          : '/locales/images/car.png'}
+        alt={`${vehicle.brand} ${vehicle.model}`}
+      />
+
+      {/* Content */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
+        {/* Brand, model and year in one line */}
+        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
+          <Typography 
+            variant="h6" 
+            component="h3"
+            sx={{ 
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              lineHeight: 1.2
+            }}
+          >
+            {vehicle.brand} {vehicle.model}
+          </Typography>
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ fontSize: '1rem' }}
+          >
+            {vehicle.year} рік
+          </Typography>
+        </Box>
+
+        {/* Price */}
+        {vehicle.price && (
+          <Typography 
+            variant="h6" 
+            color="primary"
+            sx={{ 
+              fontSize: '1.3rem',
+              fontWeight: 'bold'
+            }}
+          >
+            {formatPrice(vehicle.price, vehicle.currency)}
+          </Typography>
+        )}
+
+        {/* Details in column */}
+        <Stack spacing={0.5}>
+          {vehicle.mileage && (
+            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
+              Пробіг: {vehicle.mileage.toLocaleString()} км
+            </Typography>
+          )}
+
+          {vehicle.fuel_type && (
+            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
+              Паливо: {vehicle.fuel_type}
+            </Typography>
+          )}
+
+          {vehicle.transmission && (
+            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
+              КПП: {vehicle.transmission}
+            </Typography>
+          )}
+
+          {vehicle.location && (
+            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
+              Місто: {vehicle.location}
+            </Typography>
+          )}
+        </Stack>
+      </Box>
+    </Card>
+  );
+};
 
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -67,8 +233,32 @@ export default function ProfilePage() {
     limit: 3,
   });
 
+  const { data: favorites = [], isLoading: favoritesLoading } = useGetFavoritesQuery(undefined, { skip: !user });
+  
+  // Debug: log favorites structure to understand the API response
+  React.useEffect(() => {
+    if (favorites && favorites.length > 0) {
+      console.log('Favorites data:', favorites);
+      console.log('First favorite structure:', favorites[0]);
+      console.log('First favorite vehicle type:', typeof favorites[0].vehicle, favorites[0].vehicle);
+    }
+  }, [favorites]);
+  const [removeFromFavorites] = useRemoveFromFavoritesMutation();
+
   const handleSettingsClick = (vehicleId: number) => {
     navigate(`/vehicles/${vehicleId}/edit`);
+  };
+
+  const handleRemoveFavorite = async (favoriteId: number) => {
+    try {
+      await removeFromFavorites(favoriteId).unwrap();
+    } catch (error) {
+      console.error('Failed to remove from favorites:', error);
+    }
+  };
+
+  const handleViewAllFavorites = () => {
+    setActiveSection('favorites');
   };
 
   if (!user) {
@@ -191,17 +381,40 @@ export default function ProfilePage() {
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                   Обране
                 </Typography>
-                <Button variant="outlined" sx={{ borderRadius: 0 }}>
+                <Button 
+                  variant="outlined" 
+                  sx={{ borderRadius: 0 }}
+                  onClick={handleViewAllFavorites}
+                >
                   Переглянути всі
                 </Button>
               </Box>
 
-              {/* Sample favorite - empty state */}
-              <Box sx={{ minHeight: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Улюблених оголошень поки немає
-                </Typography>
-              </Box>
+              {/* Real favorites */}
+              {favoritesLoading ? (
+                <Box sx={{ minHeight: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Завантаження...
+                  </Typography>
+                </Box>
+              ) : favorites.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {favorites.slice(0, 3).map((favorite) => (
+                    <FavoriteVehicleCard
+                      key={favorite.id}
+                      favorite={favorite}
+                      onRemove={handleRemoveFavorite}
+                      onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
+                    />
+                  ))}
+                </Box>
+              ) : (
+                <Box sx={{ minHeight: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Улюблених оголошень поки немає
+                  </Typography>
+                </Box>
+              )}
             </Paper>
           </>
         );
@@ -397,9 +610,31 @@ export default function ProfilePage() {
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
               Обране
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              Функціонал обраного буде доступний незабаром
-            </Typography>
+            
+            {favoritesLoading ? (
+              <Box sx={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Завантаження улюблених оголошень...
+                </Typography>
+              </Box>
+            ) : favorites.length > 0 ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {favorites.map((favorite) => (
+                  <FavoriteVehicleCard
+                    key={favorite.id}
+                    favorite={favorite}
+                    onRemove={handleRemoveFavorite}
+                    onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Улюблених оголошень поки немає
+                </Typography>
+              </Box>
+            )}
           </Paper>
         );
 

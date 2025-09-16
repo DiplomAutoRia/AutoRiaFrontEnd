@@ -661,7 +661,15 @@ const VehicleDetailPage: React.FC = () => {
           <Stack direction="row" spacing={1}>
             {user && (
               <Tooltip title={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'}>
-                <IconButton onClick={handleFavoriteToggle} color={isFavorite ? 'error' : 'default'}>
+                <IconButton 
+                  onClick={handleFavoriteToggle} 
+                  sx={{ 
+                    color: isFavorite ? '#156ff5' : 'default',
+                    '&:hover': {
+                      color: isFavorite ? '#1158d4' : '#156ff5'
+                    }
+                  }}
+                >
                   {isFavorite ? <Favorite /> : <FavoriteBorder />}
                 </IconButton>
               </Tooltip>
