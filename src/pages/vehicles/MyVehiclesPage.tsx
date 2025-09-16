@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { Add } from '@mui/icons-material';
@@ -10,6 +11,7 @@ import type { Vehicle } from '../../models/vehicle';
 import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
 
 const MyVehiclesPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -50,7 +52,7 @@ const MyVehiclesPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" component="h1">
-          Мої оголошення
+          {t('vehicles.myVehicles')}
         </Typography>
 
         <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create')}>
@@ -61,10 +63,10 @@ const MyVehiclesPage: React.FC = () => {
       {data?.results && data.results.length === 0 && !isLoading ? (
         <Box textAlign="center" py={8}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            У вас поки немає оголошень
+            {t('vehicles.noListingsYet')}
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            Створіть своє перше оголошення про продаж транспортного засобу
+            {t('vehicles.createFirstListing')}
           </Typography>
           <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create')} sx={{ mt: 2 }}>
             Створити оголошення
@@ -86,16 +88,16 @@ const MyVehiclesPage: React.FC = () => {
       )}
 
       <Dialog open={deleteConfirmOpen} onClose={handleDeleteCancel} maxWidth="sm" fullWidth>
-        <DialogTitle>Підтвердження видалення</DialogTitle>
+        <DialogTitle>{t('vehicles.deleteConfirmTitle')}</DialogTitle>
         <DialogContent>
-          <Typography>Ви впевнені, що хочете видалити це оголошення? Цю дію неможливо скасувати.</Typography>
+          <Typography>{t('vehicles.deleteConfirmMessage')}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel} disabled={isDeleting}>
-            Скасувати
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={isDeleting}>
-            Видалити
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

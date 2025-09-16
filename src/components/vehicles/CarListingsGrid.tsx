@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { Vehicle } from '../../models/vehicle';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,10 +8,7 @@ interface CarListingsGridProps {
   title?: string;
 }
 
-const CarListingsGrid: React.FC<CarListingsGridProps> = ({ 
-  cars, 
-  title = "Переглянуте раніше" 
-}) => {
+const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Переглянуте раніше' }) => {
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('uk-UA').format(price) + ' $';
   };
@@ -22,12 +20,12 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
 
   const getFuelTypeLabel = (fuelType: string | undefined): string => {
     const fuelTypeMap: Record<string, string> = {
-      'petrol': 'Бензин',
-      'diesel': 'Дизель',
-      'electric': 'Електрика',
-      'hybrid': 'Гібрид',
-      'gas': 'Газ',
-      'other': 'Інше'
+      petrol: 'Бензин',
+      diesel: 'Дизель',
+      electric: 'Електрика',
+      hybrid: 'Гібрид',
+      gas: 'Газ',
+      other: 'Інше',
     };
     return fuelType ? fuelTypeMap[fuelType] || fuelType : 'N/A';
   };
@@ -42,7 +40,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
   return (
     <div className="container mx-auto px-4 max-w-7xl py-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
-      
+
       {cars.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-gray-600">Оголошень не знайдено</p>
@@ -55,19 +53,13 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
               return (
                 <div key={car.id} className="bg-white overflow-hidden">
                   {imageUrl && (
-                    <img 
-                      src={imageUrl} 
-                      alt={`${car.brand} ${car.model}`}
-                      className="w-full h-48 object-cover"
-                    />
+                    <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-48 object-cover" />
                   )}
                   <div className="p-4 pl-0">
                     <h3 className="text-lg font-bold text-gray-900">
                       {car.brand} {car.model}
                     </h3>
-                    <p className="text-green-600 text-xl font-bold mt-2">
-                      {formatPrice(car.price)}
-                    </p>
+                    <p className="text-green-600 text-xl font-bold mt-2">{formatPrice(car.price)}</p>
                     <p className="text-gray-600 text-sm mt-2">
                       {formatMileage(car.mileage)} | {getFuelTypeLabel(car.fuel_type)}
                     </p>
@@ -110,19 +102,13 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
                 return (
                   <div key={car.id} className="bg-white overflow-hidden">
                     {imageUrl && (
-                      <img 
-                        src={imageUrl} 
-                        alt={`${car.brand} ${car.model}`}
-                        className="w-full h-32 object-cover"
-                      />
+                      <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-32 object-cover" />
                     )}
                     <div className="p-3 pl-0">
                       <h3 className="text-md font-bold text-gray-900">
                         {car.brand} {car.model}
                       </h3>
-                      <p className="text-green-600 text-lg font-bold mt-1">
-                        {formatPrice(car.price)}
-                      </p>
+                      <p className="text-green-600 text-lg font-bold mt-1">{formatPrice(car.price)}</p>
                       <p className="text-gray-600 text-xs mt-1">
                         {formatMileage(car.mileage)} | {getFuelTypeLabel(car.fuel_type)}
                       </p>

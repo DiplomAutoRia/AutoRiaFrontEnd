@@ -1,33 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { routes } from '../../routes';
-import { updateVehicle, fetchVehicleById, addVehicleImage } from '../../redux/vehicles/vehiclesSlice';
-import type { RootState, AppDispatch } from '../../redux/store';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import {
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
 } from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import { carListingSchema } from '../../common/utils/zod-validation';
+import type { AppDispatch, RootState } from '../../redux/store';
+import { addVehicleImage, fetchVehicleById, updateVehicle } from '../../redux/vehicles/vehiclesSlice';
+import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
-const fuels = ['petrol', 'diesel', 'gas', 'electric'];
-const transmissions = ['automatic', 'manual'];
-const bodyTypes = ['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Minivan'];
-const driveTypes = ['FWD', 'RWD', 'AWD', '4WD'];
 
 const EditListingPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +34,7 @@ const EditListingPage = () => {
   const currentVehicle = useSelector((state: RootState) => state.vehicles.currentVehicle);
   const status = useSelector((state: RootState) => state.vehicles.status);
   const error = useSelector((state: RootState) => state.vehicles.error);
-  
+
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const {
@@ -109,7 +107,7 @@ const EditListingPage = () => {
 
   const onSubmit = (data: any) => {
     if (!vehicleId) return;
-    
+
     const updatedVehicle = {
       id: vehicleId,
       brand: data.brand,
@@ -127,7 +125,7 @@ const EditListingPage = () => {
       location: data.location,
       description: data.description,
     };
-    
+
     dispatch(updateVehicle({ id: vehicleId, data: updatedVehicle }))
       .unwrap()
       .then((vehicle) => {
@@ -138,7 +136,7 @@ const EditListingPage = () => {
             .then(() => console.log('Image uploaded successfully'))
             .catch((error: any) => console.error('Error uploading image:', error));
         }
-        
+
         navigate(routes.MY_LISTINGS);
       })
       .catch((error: any) => {
@@ -179,7 +177,7 @@ const EditListingPage = () => {
           <Typography variant="h2" gutterBottom align="center">
             Редагувати оголошення
           </Typography>
-          
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
@@ -221,7 +219,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="price"
@@ -238,7 +236,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="year"
@@ -255,7 +253,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="mileage"
@@ -272,7 +270,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="currency"
@@ -289,7 +287,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Controller
                   name="description"
@@ -307,7 +305,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="fuel_type"
@@ -330,7 +328,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="transmission"
@@ -351,7 +349,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="body_type"
@@ -371,7 +369,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={6}>
                 <Controller
                   name="drive_type"
@@ -436,7 +434,7 @@ const EditListingPage = () => {
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Box>
                   <input
@@ -447,12 +445,7 @@ const EditListingPage = () => {
                     id="image-upload"
                   />
                   <label htmlFor="image-upload">
-                    <Button
-                      variant="outlined"
-                      component="span"
-                      startIcon={<PhotoCamera />}
-                      sx={{ mb: 1 }}
-                    >
+                    <Button variant="outlined" component="span" startIcon={<PhotoCamera />} sx={{ mb: 1 }}>
                       Змінити фото
                     </Button>
                   </label>
@@ -463,7 +456,7 @@ const EditListingPage = () => {
                   )}
                 </Box>
               </Grid>
-              
+
               {previewImage && (
                 <Grid item xs={12}>
                   <Box sx={{ mt: 2 }}>
@@ -479,11 +472,7 @@ const EditListingPage = () => {
             </Grid>
 
             <Stack direction="row" justifyContent="center" mt={4} spacing={2}>
-              <Button 
-                variant="outlined" 
-                size="large"
-                onClick={() => navigate(routes.MY_LISTINGS)}
-              >
+              <Button variant="outlined" size="large" onClick={() => navigate(routes.MY_LISTINGS)}>
                 Скасувати
               </Button>
               <Button type="submit" variant="contained" size="large">

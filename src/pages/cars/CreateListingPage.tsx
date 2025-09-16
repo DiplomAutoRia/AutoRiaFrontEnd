@@ -8,9 +8,12 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -20,10 +23,10 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { useForm, Controller } from 'react-hook-form';
+
 import { carListingSchema } from '../../common/utils/zod-validation';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useAddVehicleImageMutation, useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
+import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
 const fuels = ['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'];
@@ -409,7 +412,7 @@ const CreateListingPage = () => {
       } catch (imageError) {
         console.error('Помилка при завантаженні зображень:', imageError);
       }
-      
+
       navigate(routes.HOME);
     } catch (error: any) {
       console.error('Помилка при створенні оголошення:', error);
@@ -700,6 +703,27 @@ const CreateListingPage = () => {
               </Grid>
               {/* Стан */}
               <Grid item xs={4}>
+                <Controller
+                  name="is_new"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small">
+                      <InputLabel sx={labelSx}>Стан</InputLabel>
+                      <Select {...field} label="Стан" sx={inputSx}>
+                        <MenuItem value="true">Нова</MenuItem>
+                        <MenuItem value="false">Б/У</MenuItem>
+                      </Select>
+                      {errors.drive_type && (
+                        <Typography variant="caption" color="error">
+                          {errors.drive_type.message}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              
+              <Grid item xs={6}>
                 <Controller
                   name="is_new"
                   control={control}

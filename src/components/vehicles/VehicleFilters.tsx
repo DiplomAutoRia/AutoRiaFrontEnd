@@ -67,7 +67,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
             Тип транспорту
           </Typography>
           <FormControl fullWidth size="small">
-            <InputLabel>Тип транспорту</InputLabel>
+            <InputLabel>{t('vehicles.vehicleType')}</InputLabel>
             <Select
               value={filters.vehicle_type || ''}
               onChange={(e) => handleFilterChange('vehicle_type', e.target.value || undefined)}
@@ -75,7 +75,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
                 backgroundColor: 'transparent'
               }}
             >
-              <MenuItem value="">Всі типи</MenuItem>
+              <MenuItem value="">{t('vehicles.filters.allTypes')}</MenuItem>
               {VEHICLE_TYPES.map((type) => (
                 <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>
                   {type}
@@ -135,7 +135,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
             Марка
           </Typography>
           <FormControl fullWidth size="small">
-            <InputLabel>Марка</InputLabel>
+            <InputLabel>{t('vehicles.make')}</InputLabel>
             <Select
               value={filters.brand || ''}
               onChange={(e) => handleFilterChange('brand', e.target.value || undefined)}
@@ -143,7 +143,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
                 backgroundColor: 'transparent'
               }}
             >
-              <MenuItem value="">Всі марки</MenuItem>
+              <MenuItem value="">{t('vehicles.filters.allMakes')}</MenuItem>
               {POPULAR_BRANDS.map((brand) => (
                 <MenuItem key={brand} value={brand}>
                   {brand}

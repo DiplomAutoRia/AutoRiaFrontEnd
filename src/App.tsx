@@ -3,14 +3,15 @@ import { useSelector } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import './App.css';
-import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 import { MessageFloatingButton } from './components/messages';
 import NotFound from './pages/404NotFound';
-import LoginPage from './pages/auth/loginPage';
-import RegisterPage from './pages/auth/registerPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import PasswordResetConfirmPage from './pages/auth/PasswordResetConfirmPage';
+import LoginPage from './pages/auth/loginPage';
+import RegisterPage from './pages/auth/registerPage';
+import CarDetailsPage from './pages/cars/CarDetailsPage';
 import FavoritesPage from './pages/favorites/FavoritesPage';
 import MainPage from './pages/mainPage';
 import { MessagesPage } from './pages/messages';
@@ -23,7 +24,6 @@ import CreateListingPage from './pages/cars/CreateListingPage';
 import { checkTokenValidity } from './redux/auth/authSlice';
 import { type RootState, useAppDispatch } from './redux/store';
 import { routes } from './routes';
-import CarDetailsPage from './pages/cars/CarDetailsPage';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -40,9 +40,9 @@ function App() {
     !location.pathname.includes('/register') &&
     !location.pathname.includes('/messages');
 
-  const hideNavbar = 
-    location.pathname.includes('/login') || 
-    location.pathname.includes('/register') || 
+  const hideNavbar =
+    location.pathname.includes('/login') ||
+    location.pathname.includes('/register') ||
     location.pathname.includes('/forgot-password') ||
     location.pathname.includes('/reset-password');
 
@@ -56,7 +56,6 @@ function App() {
         <Route path={routes.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
         <Route path={routes.RESET_PASSWORD} element={<PasswordResetConfirmPage />} />
         <Route path={routes.CAR_DETAILS} element={<CarDetailsPage />} />
-        
 
         <Route path={routes.PROFILE} element={<ProfilePage />} />
         <Route path={routes.VEHICLES} element={<VehiclesPage />} />
@@ -69,10 +68,9 @@ function App() {
         <Route path={routes.MESSAGE_CONVERSATION} element={<MessagesPage />} />
         <Route path={routes.NOT_FOUND} element={<NotFound />} />
       </Routes>
-      {!hideNavbar && < Footer/>}
+      {!hideNavbar && <Footer />}
       {showFloatingButton && <MessageFloatingButton />}
     </>
-    
   );
 }
 

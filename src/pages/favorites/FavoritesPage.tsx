@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { Delete, Visibility } from '@mui/icons-material';
@@ -21,14 +22,19 @@ import {
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
 
 const FavoritesPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: favorites = [], isLoading, error } = useGetFavoritesQuery();
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
 
   const handleRemoveFavorite = async (favoriteId: number) => {
+    console.log('Trying to remove favorite with ID:', favoriteId);
     try {
       await removeFromFavorites(favoriteId).unwrap();
-    } catch {}
+      console.log('Successfully removed favorite');
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
   };
 
   const formatPrice = (price: number, currency: string) => {
@@ -51,7 +57,7 @@ const FavoritesPage: React.FC = () => {
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert severity="error">Помилка завантаження обраних оголошень</Alert>
+        <Alert severity="error">{t('errors.networkError')}</Alert>
       </Container>
     );
   }
@@ -59,19 +65,19 @@ const FavoritesPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Обрані оголошення
+        {t('favorites.title')}
       </Typography>
 
       {favorites.length === 0 ? (
         <Box textAlign="center" py={8}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            У вас поки немає обраних оголошень
+            {t('favorites.empty')}
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            Додайте оголошення до обраного, щоб легко знаходити їх пізніше
+            {t('favorites.addToFindEasily')}
           </Typography>
           <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
-            Переглянути оголошення
+            {t('favorites.browseListings')}
           </Button>
         </Box>
       ) : (
@@ -105,7 +111,7 @@ const FavoritesPage: React.FC = () => {
                   </Typography>
 
                   <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-                    Додано до обраного: {new Date(favorite.created_at).toLocaleDateString('uk-UA')}
+                    {t('favorites.addedToFavorites')}: {new Date(favorite.created_at).toLocaleDateString('uk-UA')}
                   </Typography>
                 </CardContent>
 
@@ -117,10 +123,10 @@ const FavoritesPage: React.FC = () => {
                       startIcon={<Visibility />}
                       onClick={() => navigate(`/vehicles/${favorite.vehicle}`)}
                     >
-                      Переглянути
+                      {t('common.view')}
                     </Button>
 
-                    <Tooltip title="Видалити з обраного">
+                    <Tooltip title={t('vehicles.removeFromFavorites')}>
                       <IconButton size="small" color="error" onClick={() => handleRemoveFavorite(favorite.id)}>
                         <Delete />
                       </IconButton>
@@ -136,7 +142,7 @@ const FavoritesPage: React.FC = () => {
       {favorites.length > 0 && (
         <Box mt={4} textAlign="center">
           <Typography variant="body2" color="text.secondary">
-            Всього обраних оголошень: {favorites.length}
+            {t('favorites.totalFavorites')}: {favorites.length}
           </Typography>
         </Box>
       )}

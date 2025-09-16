@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,6 +37,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const [addToFavorites] = useAddToFavoritesMutation();
@@ -212,7 +214,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
                     </IconButton>
                   </Tooltip>
                 )}
-                <Tooltip title="Поділитися">
+                <Tooltip title={t('vehicles.share')}>
                   <IconButton size="small" onClick={handleShare}>
                     <Share />
                   </IconButton>

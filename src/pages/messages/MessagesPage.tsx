@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 
 import { Box, Grid, Typography } from '@mui/material';
@@ -9,6 +10,7 @@ import NotificationsForm from '../../components/notifications/NotificationsForm'
 import ProfileLayout from '../../components/profile/ProfileLayout';
 
 const MessagesPage: React.FC = () => {
+  const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId?: string }>();
 
   return (
@@ -37,7 +39,7 @@ const MessagesPage: React.FC = () => {
               }}
             >
               <Typography variant="h6" color="text.secondary">
-                Оберіть розмову для перегляду
+                {t('messages.selectConversation')}
               </Typography>
             </Box>
           </Grid>

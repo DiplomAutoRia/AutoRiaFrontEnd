@@ -13,7 +13,15 @@
       "Bash(python manage.py:*)",
       "Bash(curl:*)",
       "Bash(python test:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Read(/D:\\ДИПЛОМНА ШАГ/**)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(daphne:*)",
+      "Bash(set DJANGO_SETTINGS_MODULE=AutoRiaBackEnd.settings)",
+      "Bash(uvicorn:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

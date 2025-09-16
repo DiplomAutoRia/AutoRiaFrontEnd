@@ -11,6 +11,7 @@ import type { RootState } from '../../redux/store';
 import type { VehicleFilters } from '../../models/vehicle';
 
 const MainPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const [filters, setFilters] = useState<VehicleFilters>({ limit: 9 });

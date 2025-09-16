@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Add, Delete } from '@mui/icons-material';
@@ -28,31 +29,32 @@ import { POPULAR_BRANDS } from '../../models/brands';
 import { COLOR_TYPES, CURRENCY_TYPES, FUEL_TYPES, TRANSMISSION_TYPES, VEHICLE_TYPES } from '../../models/vehicle';
 import type { Vehicle, VehicleCreateRequest, VehicleType } from '../../models/vehicle';
 
-const vehicleSchema = z.object({
-  vehicle_type: z.enum(VEHICLE_TYPES, { required_error: 'Виберіть тип транспорту' }),
-  brand: z.string().min(1, "Марка обов'язкова"),
-  model: z.string().min(1, "Модель обов'язкова"),
-  year: z
-    .number()
-    .min(1900, 'Рік не може бути менше 1900')
-    .max(new Date().getFullYear() + 1, 'Недійсний рік'),
-  price: z.number().min(0, "Ціна не може бути від'ємною"),
-  currency: z.enum(CURRENCY_TYPES, { required_error: "Валюта обов'язкова" }),
-  description: z.string().min(10, 'Опис повинен містити принаймні 10 символів'),
-  location: z.string().optional(),
-  mileage: z.number().optional(),
-  color: z.union([z.enum(COLOR_TYPES), z.literal('')]).optional(),
-  engine_volume: z.number().optional(),
-  engine_power: z.number().optional(),
-  fuel_type: z.union([z.enum(FUEL_TYPES), z.literal('')]).optional(),
-  transmission: z.union([z.enum(TRANSMISSION_TYPES), z.literal('')]).optional(),
-  registration_country: z.string().optional(),
-  is_custom_cleared: z.boolean().optional(),
-  vin_code: z.string().optional(),
-  number_of_owners: z.number().optional(),
-});
+const getVehicleSchema = (t: any) =>
+  z.object({
+    vehicle_type: z.enum(VEHICLE_TYPES, { required_error: t('vehicles.validation.vehicleTypeRequired') }),
+    brand: z.string().min(1, t('vehicles.validation.makeRequired')),
+    model: z.string().min(1, t('vehicles.validation.modelRequired')),
+    year: z
+      .number()
+      .min(1900, t('vehicles.validation.yearMin'))
+      .max(new Date().getFullYear() + 1, t('vehicles.validation.yearInvalid')),
+    price: z.number().min(0, t('vehicles.validation.priceNegative')),
+    currency: z.enum(CURRENCY_TYPES, { required_error: t('vehicles.validation.currencyRequired') }),
+    description: z.string().min(10, t('vehicles.validation.descriptionMin')),
+    location: z.string().optional(),
+    mileage: z.number().optional(),
+    color: z.union([z.enum(COLOR_TYPES), z.literal('')]).optional(),
+    engine_volume: z.number().optional(),
+    engine_power: z.number().optional(),
+    fuel_type: z.union([z.enum(FUEL_TYPES), z.literal('')]).optional(),
+    transmission: z.union([z.enum(TRANSMISSION_TYPES), z.literal('')]).optional(),
+    registration_country: z.string().optional(),
+    is_custom_cleared: z.boolean().optional(),
+    vin_code: z.string().optional(),
+    number_of_owners: z.number().optional(),
+  });
 
-type VehicleFormData = z.infer<typeof vehicleSchema>;
+type VehicleFormData = z.infer<ReturnType<typeof getVehicleSchema>>;
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
@@ -61,10 +63,12 @@ interface VehicleFormProps {
   isLoading?: boolean;
 }
 
-const steps = ['Основна інформація', 'Технічні характеристики', 'Додаткова інформація'];
-
 const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, isLoading = false }) => {
+  const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState(0);
+
+  const steps = [t('vehicles.form.basicInfo'), t('vehicles.form.specifications'), t('vehicles.form.additionalInfo')];
+  const vehicleSchema = getVehicleSchema(t);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [formKey] = useState(Date.now());
@@ -184,15 +188,15 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
   const onFormSubmit = (data: VehicleFormData) => {
     const transformedData = {
       ...data,
-      year: data.year === '' ? new Date().getFullYear() : data.year,
-      price: data.price === '' ? 0 : data.price,
-      color: data.color === '' ? undefined : data.color,
-      fuel_type: data.fuel_type === '' ? undefined : data.fuel_type,
-      transmission: data.transmission === '' ? undefined : data.transmission,
-      mileage: data.mileage === '' ? undefined : data.mileage,
-      engine_volume: data.engine_volume === '' ? undefined : data.engine_volume,
-      engine_power: data.engine_power === '' ? undefined : data.engine_power,
-      number_of_owners: data.number_of_owners === '' ? undefined : data.number_of_owners,
+      year: data.year || new Date().getFullYear(),
+      price: data.price || 0,
+      color: data.color || undefined,
+      fuel_type: data.fuel_type || undefined,
+      transmission: data.transmission || undefined,
+      mileage: data.mileage || undefined,
+      engine_volume: data.engine_volume || undefined,
+      engine_power: data.engine_power || undefined,
+      number_of_owners: data.number_of_owners || undefined,
       uploaded_images: uploadedImages,
     };
     onSubmit(transformedData);
@@ -209,7 +213,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.vehicle_type}>
-                    <InputLabel>Тип транспорту *</InputLabel>
+                    <InputLabel>{t('vehicles.vehicleType')} *</InputLabel>
                     <Select {...field}>
                       {VEHICLE_TYPES.map((type) => (
                         <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>
@@ -228,7 +232,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.brand}>
-                    <InputLabel>Марка *</InputLabel>
+                    <InputLabel>{t('vehicles.make')} *</InputLabel>
                     <Select {...field}>
                       {POPULAR_BRANDS.map((brandName) => (
                         <MenuItem key={brandName} value={brandName}>
@@ -248,7 +252,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Модель *"
+                    label={`${t('vehicles.model')} *`}
                     fullWidth
                     error={!!errors.model}
                     helperText={errors.model?.message}
@@ -266,7 +270,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name="vehicle-year"
                     value={field.value || ''}
-                    label="Рік випуску *"
+                    label={`${t('vehicles.yearOfManufacture')} *`}
                     type="number"
                     fullWidth
                     error={!!errors.year}
@@ -289,7 +293,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name={field.name}
                     value={field.value || ''}
-                    label="Ціна *"
+                    label={`${t('vehicles.price')} *`}
                     type="number"
                     fullWidth
                     error={!!errors.price}
@@ -310,7 +314,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth>
-                    <InputLabel>Валюта *</InputLabel>
+                    <InputLabel>{t('vehicles.currency')} *</InputLabel>
                     <Select {...field}>
                       {CURRENCY_TYPES.map((currency) => (
                         <MenuItem key={currency} value={currency}>
@@ -330,7 +334,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Опис *"
+                    label={`${t('vehicles.description')} *`}
                     multiline
                     rows={4}
                     fullWidth
@@ -345,7 +349,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
               <Controller
                 name="location"
                 control={control}
-                render={({ field }) => <TextField {...field} label="Місцезнаходження" fullWidth />}
+                render={({ field }) => <TextField {...field} label={t('vehicles.location')} fullWidth />}
               />
             </Grid>
           </Grid>
@@ -362,7 +366,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name={field.name}
                     value={field.value || ''}
-                    label="Пробіг (км)"
+                    label={t('vehicles.mileageKm')}
                     type="number"
                     fullWidth
                     onChange={(e) => {
@@ -381,9 +385,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth>
-                    <InputLabel>Колір</InputLabel>
+                    <InputLabel>{t('vehicles.color')}</InputLabel>
                     <Select {...field}>
-                      <MenuItem value="">Не вказано</MenuItem>
+                      <MenuItem value="">{t('common.notSpecified')}</MenuItem>
                       {COLOR_TYPES.map((color) => (
                         <MenuItem key={color} value={color} sx={{ textTransform: 'capitalize' }}>
                           {color}
@@ -403,7 +407,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name={field.name}
                     value={field.value || ''}
-                    label="Об'єм двигуна (л)"
+                    label={t('vehicles.engineVolumeL')}
                     type="number"
                     inputProps={{ step: '0.1' }}
                     fullWidth
@@ -426,7 +430,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name="vehicle-engine-power"
                     value={field.value || ''}
-                    label="Потужність двигуна (к.с.)"
+                    label={t('vehicles.enginePower')}
                     type="number"
                     fullWidth
                     onChange={(e) => {
@@ -445,9 +449,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth>
-                    <InputLabel>Тип палива</InputLabel>
+                    <InputLabel>{t('vehicles.fuelType')}</InputLabel>
                     <Select {...field}>
-                      <MenuItem value="">Не вказано</MenuItem>
+                      <MenuItem value="">{t('common.notSpecified')}</MenuItem>
                       {FUEL_TYPES.map((fuel) => (
                         <MenuItem key={fuel} value={fuel} sx={{ textTransform: 'capitalize' }}>
                           {fuel}
@@ -465,9 +469,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth>
-                    <InputLabel>Коробка передач</InputLabel>
+                    <InputLabel>{t('vehicles.transmission')}</InputLabel>
                     <Select {...field}>
-                      <MenuItem value="">Не вказано</MenuItem>
+                      <MenuItem value="">{t('common.notSpecified')}</MenuItem>
                       {TRANSMISSION_TYPES.map((transmission) => (
                         <MenuItem key={transmission} value={transmission} sx={{ textTransform: 'capitalize' }}>
                           {transmission}
@@ -488,7 +492,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
               <Controller
                 name="registration_country"
                 control={control}
-                render={({ field }) => <TextField {...field} label="Країна реєстрації" fullWidth />}
+                render={({ field }) => <TextField {...field} label={t('vehicles.registrationCountry')} fullWidth />}
               />
             </Grid>
 
@@ -500,7 +504,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                   <TextField
                     name={field.name}
                     value={field.value || ''}
-                    label="Кількість власників"
+                    label={t('vehicles.ownersCount')}
                     type="number"
                     fullWidth
                     onChange={(e) => {
@@ -518,7 +522,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 name="vin_code"
                 control={control}
                 render={({ field }) => (
-                  <TextField {...field} label="VIN код" fullWidth inputProps={{ style: { fontFamily: 'monospace' } }} />
+                  <TextField
+                    {...field}
+                    label={t('vehicles.vinCode')}
+                    fullWidth
+                    inputProps={{ style: { fontFamily: 'monospace' } }}
+                  />
                 )}
               />
             </Grid>
@@ -528,14 +537,17 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 name="is_custom_cleared"
                 control={control}
                 render={({ field }) => (
-                  <FormControlLabel control={<Checkbox {...field} checked={field.value} />} label="Розмитнений" />
+                  <FormControlLabel
+                    control={<Checkbox {...field} checked={field.value} />}
+                    label={t('vehicles.customCleared')}
+                  />
                 )}
               />
             </Grid>
 
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Фотографії
+                {t('vehicles.photos')}
               </Typography>
 
               <input
@@ -548,7 +560,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
               />
               <label htmlFor="image-upload">
                 <Button variant="outlined" component="span" startIcon={<Add />} sx={{ mb: 2 }}>
-                  Додати фото
+                  {t('vehicles.addPhoto')}
                 </Button>
               </label>
 
@@ -597,7 +609,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
     <Card>
       <CardContent>
         <Typography variant="h5" gutterBottom>
-          {vehicle ? 'Редагувати оголошення' : 'Створити оголошення'}
+          {vehicle ? t('vehicles.editListing') : t('vehicles.createListing')}
         </Typography>
 
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
@@ -613,17 +625,17 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button onClick={activeStep === 0 ? onCancel : handleBack} disabled={isLoading}>
-              {activeStep === 0 ? 'Скасувати' : 'Назад'}
+              {activeStep === 0 ? t('common.cancel') : t('common.back')}
             </Button>
 
             <Box>
               {activeStep < steps.length - 1 ? (
                 <Button variant="contained" onClick={handleNext} disabled={isLoading}>
-                  Далі
+                  {t('common.next')}
                 </Button>
               ) : (
                 <Button type="submit" variant="contained" disabled={isLoading}>
-                  {vehicle ? 'Оновити' : 'Створити'}
+                  {vehicle ? t('common.update') : t('common.create')}
                 </Button>
               )}
             </Box>

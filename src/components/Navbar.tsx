@@ -1,21 +1,18 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  MessageCircle, 
-  Heart, 
-  Bell, 
-  User, 
-  Menu,
-  X
-} from 'lucide-react';
+
+import { AppBar, Avatar, Badge, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
 import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
 import type { RootState } from '../redux/store';
 import { routes } from '../routes';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -42,24 +39,14 @@ const Navbar = () => {
     return `${user.first_name?.[0]?.toUpperCase() || ''}${user.last_name?.[0]?.toUpperCase() || ''}`;
   };
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
   return (
-    <nav className="bg-[#0066cc] text-white px-4 py-3">
-
-      <div className="hidden md:flex items-center justify-between max-w-7xl mx-auto">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link to={routes.HOME} className="flex items-center">
-            <img 
-              src="/locales/images/logo.png" 
-              alt="AutoRia Logo" 
-              className="h-8 w-auto mr-4"
-            />
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ mr: 4 }}>
+          <Link to={routes.HOME} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {t('navbar.home')}
           </Link>
-        </div>
+        </Typography>
 
         <div className="flex items-center space-x-6">
           <Link to={`${routes.VEHICLES}?is_new=false`} className="hover:text-gray-200 transition-colors">

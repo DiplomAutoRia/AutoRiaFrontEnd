@@ -34,7 +34,7 @@ const CarListings: React.FC<CarListingsProps> = ({
   return (
     <div className="container mx-auto px-4 max-w-7xl py-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
-      
+
       {cars.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-gray-600">Оголошень не знайдено</p>
@@ -54,7 +54,7 @@ const CarListings: React.FC<CarListingsProps> = ({
                     </span>
                   </div>
                 )}
-                
+
                 <div className="flex flex-col space-y-3">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">
@@ -63,14 +63,10 @@ const CarListings: React.FC<CarListingsProps> = ({
                     <p className="text-gray-600 text-sm">{car.year} рік</p>
                   </div>
 
-                  <p className="text-2xl font-bold text-gray-900">
-                    {formatPrice(car.price)}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">{formatPrice(car.price)}</p>
 
                   <div className="space-y-1">
-                    <p className="text-gray-600 text-sm">
-                      Пробіг: {formatMileage(car.mileage)}
-                    </p>
+                    <p className="text-gray-600 text-sm">Пробіг: {formatMileage(car.mileage)}</p>
                     <p className="text-gray-600 text-sm">
                       Двигун: {car.fuelType}, {car.engineSize}
                     </p>

@@ -459,6 +459,7 @@ const SellerOtherListings: React.FC<SellerOtherListingsProps> = ({ listings = []
 };
 
 const VehicleDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -664,7 +665,7 @@ const VehicleDetailPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Поділитися">
+            <Tooltip title={t('vehicles.share')}>
               <IconButton onClick={handleShare}>
                 <Share />
               </IconButton>
