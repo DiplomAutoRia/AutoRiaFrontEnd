@@ -3,11 +3,9 @@ import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'http://localhost:8000/api/vehicles/';
 
-
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
-
 
 api.interceptors.request.use(
   (config) => {
@@ -19,7 +17,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 const vehiclesAPI = {
@@ -39,8 +37,7 @@ const vehiclesAPI = {
     });
   },
   getUserVehicles: () => api.get('my-vehicles/'),
-  deleteImage: (vehicleId: string, imageId: string) => 
-    api.delete(`${vehicleId}/delete-image/${imageId}/`),
+  deleteImage: (vehicleId: string, imageId: string) => api.delete(`${vehicleId}/delete-image/${imageId}/`),
 };
 
 export default vehiclesAPI;

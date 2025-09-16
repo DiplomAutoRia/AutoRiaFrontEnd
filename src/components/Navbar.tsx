@@ -2,14 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  MessageCircle, 
-  Heart, 
-  Bell, 
-  User, 
-  Menu,
-  X
-} from 'lucide-react';
+
+import { AppBar, Avatar, Badge, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
 import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
@@ -23,7 +17,6 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
@@ -57,10 +50,6 @@ const Navbar = () => {
     return `${user.first_name?.[0]?.toUpperCase() || ''}${user.last_name?.[0]?.toUpperCase() || ''}`;
   };
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
   return (
     <AppBar position="static">
       <Toolbar>
@@ -68,7 +57,7 @@ const Navbar = () => {
           <Link to={routes.HOME} style={{ color: 'inherit', textDecoration: 'none' }}>
             {t('navbar.home')}
           </Link>
-        </div>
+        </Typography>
 
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
           <Button color="inherit" component={Link} to={routes.VEHICLES}>
@@ -108,13 +97,9 @@ const Navbar = () => {
                 fontSize: '1rem',
               }}
             >
-              Вживані авто
-            </Link>
-            <Link 
-              to="#" 
-              className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+              {getUserInitials()}
+            </Avatar>
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
               <MenuItem onClick={handleProfile}>{t('navbar.profile')}</MenuItem>
               <MenuItem
                 onClick={() => {

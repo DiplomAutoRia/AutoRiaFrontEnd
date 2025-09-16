@@ -81,12 +81,12 @@ export const carListingSchema = z.object({
   fuel_type: z.string().min(1, 'Оберіть тип палива'),
   transmission: z.string().min(1, 'Оберіть коробку передач'),
   body_type: z.enum(['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Minivan'], {
-    message: 'Оберіть тип кузова зі списку'
+    message: 'Оберіть тип кузова зі списку',
   }),
   drive_type: z.enum(['FWD', 'RWD', 'AWD', '4WD'], {
-    message: 'Оберіть тип приводу зі списку'
+    message: 'Оберіть тип приводу зі списку',
   }),
   location: z.string().min(1, 'Введіть місцезнаходження'),
   description: z.string().min(1, 'Введіть опис'),
-  image: z.any(), 
+  image: z.any(),
 });

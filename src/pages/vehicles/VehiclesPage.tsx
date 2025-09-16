@@ -55,7 +55,9 @@ const VehiclesPage: React.FC = () => {
 
   const favoriteIds = favorites.reduce(
     (acc, fav) => {
-      acc[fav.vehicle] = fav.id;
+      if (fav.vehicle_details?.id) {
+        acc[fav.vehicle_details.id] = fav.id;
+      }
       return acc;
     },
     {} as Record<number, number>,

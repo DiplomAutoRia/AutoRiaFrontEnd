@@ -1,14 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Search } from '@mui/icons-material';
 import {
   Box,
   Button,
   Chip,
-  CircularProgress,
   Container,
   FormControl,
   Grid,
@@ -41,7 +40,9 @@ const MainPage = () => {
 
   const favoriteIds = favorites.reduce(
     (acc, fav) => {
-      acc[fav.vehicle] = fav.id;
+      if (fav.vehicle_details?.id) {
+        acc[fav.vehicle_details.id] = fav.id;
+      }
       return acc;
     },
     {} as Record<number, number>,
@@ -133,11 +134,11 @@ const MainPage = () => {
                 </Button>
               </Grid>
               <Grid item xs={12} md={2}>
-                <Button 
-                  variant="outlined" 
-                  fullWidth 
-                  size="large" 
-                  component={Link} 
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  size="large"
+                  component={Link}
                   to="/create"
                   sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
                 >

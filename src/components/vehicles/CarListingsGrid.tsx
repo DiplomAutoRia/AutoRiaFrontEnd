@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { Vehicle } from '../../models/vehicle';
 
 interface CarListingsGridProps {
@@ -6,10 +7,7 @@ interface CarListingsGridProps {
   title?: string;
 }
 
-const CarListingsGrid: React.FC<CarListingsGridProps> = ({ 
-  cars, 
-  title = "Переглянуте раніше" 
-}) => {
+const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Переглянуте раніше' }) => {
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('uk-UA').format(price) + ' $';
   };
@@ -20,12 +18,12 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
 
   const getFuelTypeLabel = (fuelType: string | undefined): string => {
     const fuelTypeMap: Record<string, string> = {
-      'petrol': 'Бензин',
-      'diesel': 'Дизель',
-      'electric': 'Електрика',
-      'hybrid': 'Гібрид',
-      'gas': 'Газ',
-      'other': 'Інше'
+      petrol: 'Бензин',
+      diesel: 'Дизель',
+      electric: 'Електрика',
+      hybrid: 'Гібрид',
+      gas: 'Газ',
+      other: 'Інше',
     };
     return fuelType ? fuelTypeMap[fuelType] || fuelType : 'N/A';
   };
@@ -40,7 +38,7 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
   return (
     <div className="container mx-auto px-4 max-w-7xl py-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
-      
+
       {cars.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-gray-600">Оголошень не знайдено</p>
@@ -53,19 +51,13 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
               return (
                 <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                   {imageUrl && (
-                    <img 
-                      src={imageUrl} 
-                      alt={`${car.brand} ${car.model}`}
-                      className="w-full h-48 object-cover"
-                    />
+                    <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-48 object-cover" />
                   )}
                   <div className="p-4">
                     <h3 className="text-lg font-bold text-gray-900">
                       {car.brand} {car.model}
                     </h3>
-                    <p className="text-green-600 text-xl font-bold mt-2">
-                      {formatPrice(car.price)}
-                    </p>
+                    <p className="text-green-600 text-xl font-bold mt-2">{formatPrice(car.price)}</p>
                     <p className="text-gray-600 text-sm mt-2">
                       {formatMileage(car.mileage)} | {getFuelTypeLabel(car.fuel_type)}
                     </p>
@@ -77,50 +69,43 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({
 
           {secondRowCars.length > 0 && (
             <div className="grid grid-cols-4 grid-rows-2 gap-6">
-              {secondRowCars[0] && (() => {
-                const imageUrl = getFirstImage(secondRowCars[0].images);
-                return (
-                  <div className="col-span-2 row-span-2 bg-white rounded-lg shadow-md overflow-hidden">
-                    {imageUrl && (
-                      <img 
-                        src={imageUrl} 
-                        alt={`${secondRowCars[0].brand} ${secondRowCars[0].model}`}
-                        className="w-full h-64 object-cover"
-                      />
-                    )}
-                    <div className="p-4">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {secondRowCars[0].brand} {secondRowCars[0].model}
-                      </h3>
-                      <p className="text-green-600 text-2xl font-bold mt-2">
-                        {formatPrice(secondRowCars[0].price)}
-                      </p>
-                      <p className="text-gray-600 text-sm mt-2">
-                        {formatMileage(secondRowCars[0].mileage)} | {getFuelTypeLabel(secondRowCars[0].fuel_type)}
-                      </p>
+              {secondRowCars[0] &&
+                (() => {
+                  const imageUrl = getFirstImage(secondRowCars[0].images);
+                  return (
+                    <div className="col-span-2 row-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+                      {imageUrl && (
+                        <img
+                          src={imageUrl}
+                          alt={`${secondRowCars[0].brand} ${secondRowCars[0].model}`}
+                          className="w-full h-64 object-cover"
+                        />
+                      )}
+                      <div className="p-4">
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {secondRowCars[0].brand} {secondRowCars[0].model}
+                        </h3>
+                        <p className="text-green-600 text-2xl font-bold mt-2">{formatPrice(secondRowCars[0].price)}</p>
+                        <p className="text-gray-600 text-sm mt-2">
+                          {formatMileage(secondRowCars[0].mileage)} | {getFuelTypeLabel(secondRowCars[0].fuel_type)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
 
               {secondRowCars.slice(1, 5).map((car) => {
                 const imageUrl = getFirstImage(car.images);
                 return (
                   <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                     {imageUrl && (
-                      <img 
-                        src={imageUrl} 
-                        alt={`${car.brand} ${car.model}`}
-                        className="w-full h-32 object-cover"
-                      />
+                      <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-32 object-cover" />
                     )}
                     <div className="p-3">
                       <h3 className="text-md font-bold text-gray-900">
                         {car.brand} {car.model}
                       </h3>
-                      <p className="text-green-600 text-lg font-bold mt-1">
-                        {formatPrice(car.price)}
-                      </p>
+                      <p className="text-green-600 text-lg font-bold mt-1">{formatPrice(car.price)}</p>
                       <p className="text-gray-600 text-xs mt-1">
                         {formatMileage(car.mileage)} | {getFuelTypeLabel(car.fuel_type)}
                       </p>
