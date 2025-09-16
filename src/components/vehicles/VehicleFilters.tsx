@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Box,
@@ -36,6 +37,7 @@ interface VehicleFiltersProps {
 }
 
 const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFiltersChange, onReset, resultsCount = 0 }) => {
+  const { t } = useTranslation();
   const [showAllBodyTypes, setShowAllBodyTypes] = useState(false);
 
   const handleFilterChange = (key: keyof VehicleFilters, value: string | number | string[] | boolean | undefined) => {

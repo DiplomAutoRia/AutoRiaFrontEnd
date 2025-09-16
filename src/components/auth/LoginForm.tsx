@@ -50,18 +50,20 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       <Input
         type="text"
         placeholder={t('auth.login.emailOrPhone')}
-        error={errors.contact?.message}
+        error={!!errors.contact}
+        helperText={errors.contact?.message}
         {...register('contact')}
       />
 
       <Input
         type="password"
         placeholder={t('auth.login.password')}
-        error={errors.password?.message}
+        error={!!errors.password}
+        helperText={errors.password?.message}
         {...register('password')}
       />
 
-      <Button type="submit" isLoading={loading} className="w-full">
+      <Button type="submit" loading={loading} className="w-full">
         {t('auth.login.loginButton')}
       </Button>
 

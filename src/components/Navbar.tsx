@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AppBar, Avatar, Badge, Box, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { AppBar, Toolbar, Typography } from '@mui/material';
+import { MessageCircle, Heart, Bell, User, X, Menu as MenuIcon } from 'lucide-react';
 
 import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
 import type { RootState } from '../redux/store';
 import { routes } from '../routes';
-import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -34,6 +34,10 @@ const Navbar = () => {
     navigate(routes.HOME);
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   const getUserInitials = () => {
     if (!user) return '';
     return `${user.first_name?.[0]?.toUpperCase() || ''}${user.last_name?.[0]?.toUpperCase() || ''}`;
@@ -41,12 +45,14 @@ const Navbar = () => {
 
   return (
     <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ mr: 4 }}>
-          <Link to={routes.HOME} style={{ color: 'inherit', textDecoration: 'none' }}>
-            {t('navbar.home')}
-          </Link>
-        </Typography>
+      <Toolbar className="container mx-auto px-4 max-w-7xl justify-between">
+        <Link to={routes.HOME} className="flex items-center">
+          <img 
+            src="/locales/images/logo.png" 
+            alt="AutoRia Logo" 
+            className="h-8 w-auto"
+          />
+        </Link>
 
         <div className="flex items-center space-x-6">
           <Link to={`${routes.VEHICLES}?is_new=false`} className="hover:text-gray-200 transition-colors">
@@ -125,14 +131,14 @@ const Navbar = () => {
             </>
           )}
         </div>
-      </div>
+      </Toolbar>
 
-      <div className="md:hidden flex items-center justify-between">
+      <div className="md:hidden flex items-center justify-between px-4">
 
         <div className="flex items-center">
           <Link to={routes.HOME} className="flex items-center">
             <img 
-              src="/locales/images/Logo_White.jpg" 
+              src="/locales/images/logo.png" 
               alt="AutoRia Logo" 
               className="h-8 w-auto mr-4"
             />
@@ -143,7 +149,7 @@ const Navbar = () => {
           onClick={toggleMobileMenu}
           className="p-2 hover:bg-blue-700 rounded-full transition-colors"
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
         </button>
       </div>
 
@@ -248,7 +254,7 @@ const Navbar = () => {
         </div>
       )}
 
-    </nav>
+    </AppBar>
   );
 };
 

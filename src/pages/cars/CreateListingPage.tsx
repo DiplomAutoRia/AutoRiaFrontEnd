@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { routes } from '../../routes';
 import { useCreateVehicleMutation, useAddVehicleImageMutation } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
@@ -17,16 +19,12 @@ import {
   Stack,
   TextField,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
+import { PhotoCamera } from '@mui/icons-material';
 
 import { carListingSchema } from '../../common/utils/zod-validation';
-import { useAddVehicleImageMutation, useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
-import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
 const fuels = ['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'];

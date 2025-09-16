@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/store';
 import { getUserById } from '../../redux/auth/authSlice';
 import { fetchVehiclesByUserId, selectOwnerVehicles } from '../../redux/vehicles/vehiclesSlice';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import {
   ArrowBack,

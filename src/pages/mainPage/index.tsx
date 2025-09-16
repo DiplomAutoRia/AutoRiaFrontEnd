@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import CarListingsGrid from '../../components/vehicles/CarListingsGrid';
 import Filter from '../../components/ui/filter';
