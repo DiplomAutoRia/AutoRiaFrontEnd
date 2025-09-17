@@ -51,15 +51,24 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ mr: 4 }}>
-          <Link to={routes.HOME} style={{ color: 'inherit', textDecoration: 'none' }}>
+    <AppBar position="static" component="header" role="banner">
+      <Toolbar component="nav" role="navigation" aria-label="Головна навігація">
+        <Typography variant="h6" sx={{ mr: 4 }} component="h1">
+          <Link
+            to={routes.HOME}
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            aria-label="AutoRia головна сторінка"
+          >
             {t('navbar.home')}
           </Link>
         </Typography>
 
-        <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+        <Box
+          sx={{ flexGrow: 1, display: 'flex', gap: 2 }}
+          component="ul"
+          role="menubar"
+          style={{ listStyle: 'none', margin: 0, padding: 0 }}
+        >
           <Button color="inherit" component={Link} to={routes.VEHICLES}>
             {t('navbar.catalog')}
           </Button>
