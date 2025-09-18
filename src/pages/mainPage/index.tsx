@@ -36,7 +36,7 @@ const MainPage = () => {
       <div className="bg-white py-8">
         <div className="container mx-auto px-4 max-w-7xl">
           <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
-            Turbosell
+            TurboSell - купівля та продаж авто в Україні
           </h1>
           <p className="text-xl text-center text-gray-600 mb-8">
             Купуйте й продавайте авто онлайн

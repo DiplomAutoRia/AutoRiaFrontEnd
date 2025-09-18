@@ -13,6 +13,8 @@ import {
   Share,
   Speed,
   Visibility,
+  Directions,
+  ConfirmationNumber,
 } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, CardMedia, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 
@@ -69,9 +71,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   };
 
   const formatPrice = (price: number, currency: string) => {
+    if (currency === 'UAH') {
+      return new Intl.NumberFormat('uk-UA').format(price);
+    }
     return new Intl.NumberFormat('uk-UA', {
       style: 'currency',
-      currency: currency === 'USD' ? 'USD' : 'UAH',
+      currency: currency === 'USD' ? 'USD' : 'EUR',
     }).format(price);
   };
 
@@ -115,63 +120,143 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         />
       </Box>
 
-      <CardMedia
-        component="img"
-        height="200"
-        image={mainImage}
-        alt={`${vehicle.brand} ${vehicle.model}`}
-        sx={{
-          backgroundColor: '#e0e0e0',
-          cursor: 'pointer',
-        }}
-        onClick={() => navigate(`/vehicles/${vehicle.id}`)}
-      />
+      <Box sx={{ position: 'relative' }}>
+        {vehicle.is_new && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 2,
+              backgroundColor: '#1976d2',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: 1,
+            }}
+          >
+            Нова
+          </Box>
+        )}
+        <CardMedia
+          component="img"
+          height="200"
+          image={mainImage}
+          alt={`${vehicle.brand} ${vehicle.model}`}
+          sx={{
+            backgroundColor: '#e0e0e0',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+        />
+        {vehicle.vin_code && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '4px 8px',
+              textAlign: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            {vehicle.vin_code}
+          </Box>
+        )}
+      </Box>
 
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6" component="h3" gutterBottom>
           {vehicle.brand} {vehicle.model} {vehicle.year}
         </Typography>
 
-        <Typography variant="h5" color="primary" gutterBottom>
-          {formatPrice(vehicle.price, vehicle.currency)}
-        </Typography>
-
-        <Stack spacing={1}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <CalendarToday fontSize="small" color="action" />
-            <Typography variant="body2">{vehicle.year}</Typography>
-          </Stack>
-
-          {vehicle.mileage && (
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Speed fontSize="small" color="action" />
-              <Typography variant="body2">{vehicle.mileage.toLocaleString()} км</Typography>
-            </Stack>
-          )}
-
-          {vehicle.fuel_type && (
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <LocalGasStation fontSize="small" color="action" />
-              <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+        {/* Engine specifications under title */}
+        {(vehicle.engine_volume || vehicle.engine_power || vehicle.fuel_type) && (
+          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+            {vehicle.engine_volume && (
+              <Typography variant="body2" color="text.secondary">
+                {vehicle.engine_volume} л
+              </Typography>
+            )}
+            {vehicle.engine_power && (
+              <Typography variant="body2" color="text.secondary">
+                {vehicle.engine_power} к.с.
+              </Typography>
+            )}
+            {vehicle.fuel_type && (
+              <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
                 {vehicle.fuel_type}
               </Typography>
-            </Stack>
-          )}
-
-          {vehicle.transmission && (
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <DirectionsCar fontSize="small" color="action" />
-              <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                {vehicle.transmission}
-              </Typography>
-            </Stack>
-          )}
-
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <LocationOn fontSize="small" color="action" />
-            <Typography variant="body2">{vehicle.location}</Typography>
+            )}
           </Stack>
-        </Stack>
+        )}
+
+        {/* Price display with UAH conversion */}
+        <Box sx={{ mb: 1, mt: 0.5, textAlign: 'left' }}>
+          <Typography variant="h5" color="primary" component="span">
+            {formatPrice(vehicle.price, vehicle.currency)}
+          </Typography>
+          {vehicle.currency !== 'UAH' && (
+            <>
+              <Typography variant="body2" color="text.secondary" component="span" sx={{ mx: 0.5 }}>
+                |
+              </Typography>
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                component="span"
+                sx={{ fontSize: '0.9rem' }}
+              >
+                {formatPrice(vehicle.price * (vehicle.currency === 'USD' ? 40 : 43), 'UAH')} грн
+              </Typography>
+            </>
+          )}
+        </Box>
+
+        {/* Information in columns */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
+          {/* First column */}
+          <Stack spacing={0.5}>
+            {vehicle.mileage && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <Speed fontSize="small" color="action" />
+                <Typography variant="body2">{vehicle.mileage.toLocaleString()} км</Typography>
+              </Stack>
+            )}
+            {vehicle.transmission && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <DirectionsCar fontSize="small" color="action" />
+                <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                  {vehicle.transmission}
+                </Typography>
+              </Stack>
+            )}
+            {vehicle.plate_number && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <ConfirmationNumber fontSize="small" color="action" />
+                <Typography variant="body2">{vehicle.plate_number}</Typography>
+              </Stack>
+            )}
+          </Stack>
+
+          {/* Second column */}
+          <Stack spacing={0.5}>
+            {vehicle.location && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <LocationOn fontSize="small" color="action" />
+                <Typography variant="body2">
+                  {vehicle.location.split(',').map(part => part.trim()).slice(0, 2).join(', ')}
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
+        </Box>
 
         <Typography
           variant="body2"

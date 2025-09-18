@@ -63,6 +63,35 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {/* Б/У/Нова */}
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black', mb: 1 }}>
+            Стан
+          </Typography>
+          <FormControl fullWidth size="small">
+            <InputLabel>Б/У/Нова</InputLabel>
+            <Select
+              value={filters.is_new !== undefined ? (filters.is_new ? 'new' : 'used') : ''}
+              onChange={(e) => {
+                if (e.target.value === 'new') {
+                  handleFilterChange('is_new', true);
+                } else if (e.target.value === 'used') {
+                  handleFilterChange('is_new', false);
+                } else {
+                  handleFilterChange('is_new', undefined);
+                }
+              }}
+              sx={{
+                backgroundColor: 'transparent'
+              }}
+            >
+              <MenuItem value="">Всі</MenuItem>
+              <MenuItem value="new">Нова</MenuItem>
+              <MenuItem value="used">Б/У</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
         {/* Тип транспорту */}
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black', mb: 1 }}>

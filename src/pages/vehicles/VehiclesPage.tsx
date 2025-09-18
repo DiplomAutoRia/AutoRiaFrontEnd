@@ -30,10 +30,14 @@ const VehiclesPage: React.FC = () => {
     const brand = searchParams.get('brand');
     const priceFrom = searchParams.get('price_from');
     const priceTo = searchParams.get('price_to');
+    const isNew = searchParams.get('is_new');
 
     if (brand) initialFilters.brand = brand;
     if (priceFrom) initialFilters.price_min = parseInt(priceFrom);
     if (priceTo) initialFilters.price_max = parseInt(priceTo);
+    if (isNew !== null) {
+      initialFilters.is_new = isNew === 'true';
+    }
 
     return initialFilters;
   });
@@ -78,11 +82,39 @@ const VehiclesPage: React.FC = () => {
     if (filters.price_max) {
       params.set('price_to', filters.price_max.toString());
     }
+    if (filters.is_new !== undefined) {
+      params.set('is_new', filters.is_new.toString());
+    }
     if (currentPage > 1) {
       params.set('page', currentPage.toString());
     }
     setSearchParams(params);
-  }, [searchQuery, currentPage, filters.brand, filters.price_min, filters.price_max, setSearchParams]);
+  }, [searchQuery, currentPage, filters.brand, filters.price_min, filters.price_max, filters.is_new, setSearchParams]);
+
+  // Effect to handle URL parameter changes when navigating between new/used vehicles
+  useEffect(() => {
+    const isNewParam = searchParams.get('is_new');
+    
+    if (isNewParam !== null) {
+      const isNewValue = isNewParam === 'true';
+      if (filters.is_new !== isNewValue) {
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          is_new: isNewValue,
+          page: 1 // Reset to first page when changing filter
+        }));
+        setCurrentPage(1);
+      }
+    } else if (filters.is_new !== undefined) {
+      // If is_new parameter is removed from URL, remove the filter
+      setFilters(prevFilters => {
+        const newFilters = { ...prevFilters };
+        delete newFilters.is_new;
+        return { ...newFilters, page: 1 };
+      });
+      setCurrentPage(1);
+    }
+  }, [searchParams.get('is_new')]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -125,7 +157,7 @@ const VehiclesPage: React.FC = () => {
             newFilters[key] = filteredArray as any;
           }
         }
-      } else if (key === 'is_custom_cleared') {
+      } else if (key === 'is_custom_cleared' || key === 'is_new') {
         delete newFilters[key];
       }
       

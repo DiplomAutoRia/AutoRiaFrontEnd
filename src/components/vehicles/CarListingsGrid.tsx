@@ -51,7 +51,11 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Пер
             {firstRowCars.map((car) => {
               const imageUrl = getFirstImage(car.images);
               return (
-                <div key={car.id} className="bg-white overflow-hidden">
+                <div 
+                  key={car.id} 
+                  className="bg-white overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/vehicles/${car.id}`)}
+                >
                   {imageUrl && (
                     <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-48 object-cover" />
                   )}
@@ -74,12 +78,15 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Пер
               {secondRowCars[0] && (() => {
                 const imageUrl = getFirstImage(secondRowCars[0].images);
                 return (
-                  <div className="col-span-2 row-span-2 bg-white overflow-hidden">
+                  <div 
+                    className="col-span-2 row-span-2 bg-white overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => navigate(`/vehicles/${secondRowCars[0].id}`)}
+                  >
                     {imageUrl && (
                       <img 
                         src={imageUrl} 
                         alt={`${secondRowCars[0].brand} ${secondRowCars[0].model}`}
-                        className="w-full h-64 object-cover"
+                        className="w-full h-80 object-cover"
                       />
                     )}
                     <div className="p-4 pl-0">
@@ -100,7 +107,11 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Пер
               {secondRowCars.slice(1, 5).map((car) => {
                 const imageUrl = getFirstImage(car.images);
                 return (
-                  <div key={car.id} className="bg-white overflow-hidden">
+                  <div 
+                    key={car.id} 
+                    className="bg-white overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => navigate(`/vehicles/${car.id}`)}
+                  >
                     {imageUrl && (
                       <img src={imageUrl} alt={`${car.brand} ${car.model}`} className="w-full h-32 object-cover" />
                     )}

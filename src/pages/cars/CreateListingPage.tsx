@@ -202,161 +202,8 @@ const CreateListingPage = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Збираємо додаткові характеристики, яких немає в моделях
-      const form = document.getElementById('create-listing-form') as HTMLFormElement;
-      const additionalCharacteristics: string[] = [];
-
-      // Список полів, яких немає в моделях
-      const nonModelFields = [
-        'fuel_consumption_city',
-        'fuel_consumption_highway',
-        'eco_standard',
-        'doors',
-        'imported_from',
-        'seats',
-        'paint',
-        'accident',
-        'interior_material',
-        'interior_color',
-        'steering_wheel_heater',
-        'seat_adjustment',
-        'seat_ventilation',
-        'seat_heating',
-        'seat_memory',
-        'steering_adjustment',
-        'headlights',
-        'air_conditioning',
-        'power_windows',
-        'spare_wheel',
-        'onboard_computer',
-        'mirror_heating',
-        'cruise_control',
-        'power_mirrors',
-        'tinted_windows',
-        'fog_lights',
-        'light_sensors',
-        'daytime_lights',
-        'headlight_washers',
-        'adaptive_lighting',
-        'engine_protection',
-        'trailer_hitch',
-        'gearbox_protection',
-        'sill_plates',
-        'long_wheelbase',
-        'euro6',
-        'rear_parking_sensors',
-        'rear_camera',
-        'front_parking_sensors',
-        'front_camera',
-        'camera_360',
-        'abs',
-        'central_locking',
-        'rear_door_locks',
-        'traction_control',
-        'esp',
-        'driver_airbag',
-        'passenger_airbag',
-        'side_front_airbags',
-        'side_rear_airbags',
-        'window_curtains',
-        'aux',
-        'usb',
-        'bluetooth',
-        'audio_system',
-        'navigation_system',
-        'garage_storage',
-        'service_book',
-        'first_owner',
-        'first_registration',
-        'car_on_loan',
-        'lpg',
-        'webasto',
-        'air_suspension',
-        'hand_controls',
-        'ramp'
-      ];
-
-      // Додаткові опції з чекбоксів
-      const checkboxOptions = [
-        'uncleared',
-        'possible_trade',
-        'possible_exchange',
-        'installment_payment',
-        'onboard_computer',
-        'mirror_heating',
-        'cruise_control',
-        'power_mirrors',
-        'tinted_windows',
-        'fog_lights',
-        'light_sensors',
-        'daytime_lights',
-        'headlight_washers',
-        'adaptive_lighting',
-        'engine_protection',
-        'trailer_hitch',
-        'gearbox_protection',
-        'sill_plates',
-        'long_wheelbase',
-        'euro6',
-        'rear_parking_sensors',
-        'rear_camera',
-        'front_parking_sensors',
-        'front_camera',
-        'camera_360',
-        'abs',
-        'central_locking',
-        'rear_door_locks',
-        'traction_control',
-        'esp',
-        'driver_airbag',
-        'passenger_airbag',
-        'side_front_airbags',
-        'side_rear_airbags',
-        'window_curtains',
-        'aux',
-        'usb',
-        'bluetooth',
-        'audio_system',
-        'navigation_system',
-        'garage_storage',
-        'service_book',
-        'first_owner',
-        'first_registration',
-        'car_on_loan',
-        'lpg',
-        'webasto',
-        'air_suspension',
-        'hand_controls',
-        'ramp'
-      ];
-
-      if (form) {
-        const formData = new FormData(form);
-        
-        // Обробка полів вводу та селектів
-        nonModelFields.forEach(field => {
-          const value = formData.get(field);
-          if (value && value !== '' && value !== 'Оберіть') {
-            additionalCharacteristics.push(`${field}: ${value}`);
-          }
-        });
-
-        // Обробка чекбоксів
-        checkboxOptions.forEach(field => {
-          const checkbox = form.elements.namedItem(field) as HTMLInputElement;
-          if (checkbox && checkbox.checked) {
-            additionalCharacteristics.push(checkbox.labels?.[0]?.textContent || field);
-          }
-        });
-      }
-
-      // Додаємо додаткові характеристики до опису
-      let updatedDescription = data.description;
-      if (additionalCharacteristics.length > 0) {
-        updatedDescription += '\n\nДодаткові характеристики:\n' + additionalCharacteristics.join('\n');
-      }
-
       // Отримуємо тип транспорту з форми
+      const form = document.getElementById('create-listing-form') as HTMLFormElement;
       const vehicleTypeSelect = form.elements.namedItem('vehicle_type') as HTMLSelectElement;
       const vehicle_type = vehicleTypeSelect?.value || 'Легковий автомобіль';
 
@@ -377,20 +224,22 @@ const CreateListingPage = () => {
         year: parseInt(data.year),
         price: parseFloat(data.price),
         currency: data.currency,
-        description: updatedDescription,
+        description: data.description,
         location: data.location || undefined,
         mileage: data.mileage ? parseInt(data.mileage) : undefined,
         fuel_type: data.fuel_type || undefined,
         transmission: data.transmission || undefined,
         body_type: data.body_type || undefined,
         drive_type: data.drive_type || undefined,
-        is_new: data.is_new === 'true' ? true : data.is_new === 'false' ? false : data.is_new,
+        is_new: data.is_new === 'true' ? true : data.is_new === 'false' ? false : Boolean(data.is_new),
         plate_number: data.plate_number || undefined,
         color: data.color || undefined,
         engine_volume: data.engine_volume ? parseFloat(data.engine_volume) : undefined,
         engine_power: data.engine_power ? parseInt(data.engine_power) : undefined,
         vin_code: data.vin_code || undefined,
       };
+      
+      console.log('Відправляємо дані на сервер:', newVehicle);
       const vehicle = await createVehicle(newVehicle).unwrap();
       console.log('Оголошення створено:', vehicle);
 
@@ -720,22 +569,6 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              
-              <Grid item xs={6}>
-                <Controller
-                  name="is_new"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small">
-                      <InputLabel sx={labelSx}>Стан</InputLabel>
-                      <Select {...field} label="Стан" sx={inputSx}>
-                        <MenuItem value="true">Нова</MenuItem>
-                        <MenuItem value="false">Б/У</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
               {/* Ціна та валюта */}
               <Grid item xs={4}>
                 <Controller
@@ -776,32 +609,6 @@ const CreateListingPage = () => {
                 />
               </Grid>
               <Grid item xs={6} />
-              {/* Чекбокси */}
-              <Grid item xs={12}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: 1, 
-                  mt: 1
-                }}>
-                  <FormControlLabel
-                    control={<Checkbox name="uncleared" size="small" />}
-                    label={<Typography sx={{ fontSize: 15 }}>Розмитнений</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Checkbox name="possible_trade" size="small" />}
-                    label={<Typography sx={{ fontSize: 15 }}>Можливий торг</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Checkbox name="possible_exchange" size="small" />}
-                    label={<Typography sx={{ fontSize: 15 }}>Можливий обмін на автомобіль</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Checkbox name="installment_payment" size="small" />}
-                    label={<Typography sx={{ fontSize: 15 }}>Можлива оплата частинами</Typography>}
-                  />
-                </Box>
-              </Grid>
             </Grid>
           </Box>
 

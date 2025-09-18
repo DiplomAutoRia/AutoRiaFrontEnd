@@ -141,6 +141,7 @@ export interface VehicleFilters {
   technical_condition?: TechnicalCondition;
   has_bathroom?: boolean;
   is_custom_cleared?: boolean;
+  is_new?: boolean;
 }
 
 export const VEHICLE_TYPES = [

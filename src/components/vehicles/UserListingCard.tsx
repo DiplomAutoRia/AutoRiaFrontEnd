@@ -1,23 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Settings } from '@mui/icons-material';
-import { Card, CardMedia, IconButton, Box, Typography, Stack } from '@mui/material';
+import { Settings, Speed, DirectionsCar, ConfirmationNumber, LocationOn } from '@mui/icons-material';
+import { Card, CardMedia, IconButton, Box, Typography, Stack, Chip, Button } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
 interface UserListingCardProps {
   vehicle: Vehicle;
   onSettingsClick: (vehicleId: number) => void;
+  onDelete?: (vehicleId: number) => void; // Додаємо проп
 }
 
-const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsClick }) => {
+const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsClick, onDelete }) => {
   const navigate = useNavigate();
 
   const formatPrice = (price: number, currency: string) => {
+    if (currency === 'UAH') {
+      return new Intl.NumberFormat('uk-UA').format(price);
+    }
     return new Intl.NumberFormat('uk-UA', {
       style: 'currency',
-      currency: currency === 'USD' ? 'USD' : 'UAH',
+      currency: currency === 'USD' ? 'USD' : 'EUR',
     }).format(price);
   };
 
@@ -59,20 +63,58 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
       </IconButton>
 
       {/* Зображення */}
-      <CardMedia
-        component="img"
-        sx={{
-          width: 280,
-          height: '100%',
-          objectFit: 'cover',
-          backgroundColor: '#f5f5f5',
-          flexShrink: 0
-        }}
-        image={vehicle.images && vehicle.images.length > 0 
-          ? vehicle.images[0].image 
-          : '/locales/images/car.png'}
-        alt={`${vehicle.brand} ${vehicle.model}`}
-      />
+      <Box sx={{ position: 'relative', width: 280, flexShrink: 0 }}>
+        {vehicle.is_new && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 2,
+              backgroundColor: '#1976d2',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: 1,
+            }}
+          >
+            Нова
+          </Box>
+        )}
+        <CardMedia
+          component="img"
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            backgroundColor: '#f5f5f5',
+          }}
+          image={vehicle.images && vehicle.images.length > 0 
+            ? vehicle.images[0].image 
+            : '/locales/images/car.png'}
+          alt={`${vehicle.brand} ${vehicle.model}`}
+        />
+        {vehicle.vin_code && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '4px 8px',
+              textAlign: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            {vehicle.vin_code}
+          </Box>
+        )}
+      </Box>
 
       {/* Контент */}
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
@@ -87,55 +129,115 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
               lineHeight: 1.2
             }}
           >
-            {vehicle.brand} {vehicle.model}
-          </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{ fontSize: '1rem' }}
-          >
-            {vehicle.year} рік
+            {vehicle.brand} {vehicle.model} {vehicle.year}
           </Typography>
         </Box>
 
-        {/* Ціна */}
-        <Typography 
-          variant="h6" 
-          color="primary"
-          sx={{ 
-            fontSize: '1.3rem',
-            fontWeight: 'bold'
-          }}
-        >
-          {formatPrice(vehicle.price, vehicle.currency)}
-        </Typography>
+        {/* Engine specifications under title */}
+        {(vehicle.engine_volume || vehicle.engine_power || vehicle.fuel_type) && (
+          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+            {vehicle.engine_volume && (
+              <Typography variant="body2" color="text.secondary">
+                {vehicle.engine_volume} л
+              </Typography>
+            )}
+            {vehicle.engine_power && (
+              <Typography variant="body2" color="text.secondary">
+                {vehicle.engine_power} к.с.
+              </Typography>
+            )}
+            {vehicle.fuel_type && (
+              <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                {vehicle.fuel_type}
+              </Typography>
+            )}
+          </Stack>
+        )}
 
-        {/* Деталі у стовпчик */}
-        <Stack spacing={0.5}>
-          {vehicle.mileage && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Пробіг: {vehicle.mileage.toLocaleString()} км
-            </Typography>
+        {/* Price display with UAH conversion */}
+        <Box sx={{ mb: 1, mt: 0.5, textAlign: 'left' }}>
+          <Typography variant="h6" color="primary" component="span" sx={{ fontWeight: 'bold' }}>
+            {formatPrice(vehicle.price, vehicle.currency)}
+          </Typography>
+          {vehicle.currency !== 'UAH' && (
+            <>
+              <Typography variant="body2" color="text.secondary" component="span" sx={{ mx: 0.5 }}>
+                |
+              </Typography>
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                component="span"
+                sx={{ fontSize: '0.9rem' }}
+              >
+                {formatPrice(vehicle.price * (vehicle.currency === 'USD' ? 40 : 43), 'UAH')} грн
+              </Typography>
+            </>
           )}
+        </Box>
 
-          {vehicle.fuel_type && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Паливо: {vehicle.fuel_type}
-            </Typography>
-          )}
+        {/* Information in columns */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+          {/* First column */}
+          <Stack spacing={0.5}>
+            {vehicle.mileage && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <Speed fontSize="small" color="action" />
+                <Typography variant="body2">{vehicle.mileage.toLocaleString()} км</Typography>
+              </Stack>
+            )}
+            {vehicle.transmission && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <DirectionsCar fontSize="small" color="action" />
+                <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                  {vehicle.transmission}
+                </Typography>
+              </Stack>
+            )}
+            {vehicle.plate_number && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <ConfirmationNumber fontSize="small" color="action" />
+                <Typography variant="body2">{vehicle.plate_number}</Typography>
+              </Stack>
+            )}
+          </Stack>
 
-          {vehicle.transmission && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              КПП: {vehicle.transmission}
-            </Typography>
-          )}
+          {/* Second column */}
+          <Stack spacing={0.5}>
+            {vehicle.location && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <LocationOn fontSize="small" color="action" />
+                <Typography variant="body2">
+                  {vehicle.location.split(',').map(part => part.trim()).slice(0, 2).join(', ')}
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
+        </Box>
 
-          {vehicle.location && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Місто: {vehicle.location}
-            </Typography>
+        {/* Action buttons */}
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onSettingsClick(vehicle.id)}
+          >
+            Редагувати
+          </Button>
+          {onDelete && (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation(); // Зупиняє пробивання події
+                onDelete?.(vehicle.id);
+              }}
+            >
+              Видалити
+            </Button>
           )}
-        </Stack>
+        </Box>
       </Box>
     </Card>
   );

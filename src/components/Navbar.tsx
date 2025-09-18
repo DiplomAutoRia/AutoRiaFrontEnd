@@ -10,6 +10,7 @@ import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
 import type { RootState } from '../redux/store';
 import { routes } from '../routes';
+import { NotificationBell } from './notifications/NotificationSystem';
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -27,6 +28,14 @@ const Navbar = () => {
 
   const handleProfile = () => {
     navigate(routes.PROFILE);
+  };
+
+  const handleMessages = () => {
+    navigate(routes.PROFILE, { state: { activeSection: 'messages' } });
+  };
+
+  const handleFavorites = () => {
+    navigate(routes.PROFILE, { state: { activeSection: 'favorites' } });
   };
 
   const handleLogout = () => {
@@ -81,22 +90,20 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Link to={routes.MESSAGES} className="relative p-2 hover:bg-blue-700 rounded-full transition-colors">
+              <button onClick={handleMessages} className="relative p-2 hover:bg-blue-700 rounded-full transition-colors">
                 <MessageCircle size={20} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
-              </Link>
-              
-              <Link to={routes.FAVORITES} className="p-2 hover:bg-blue-700 rounded-full transition-colors">
-                <Heart size={20} />
-              </Link>
-              
-              <button className="p-2 hover:bg-blue-700 rounded-full transition-colors">
-                <Bell size={20} />
               </button>
+              
+              <button onClick={handleFavorites} className="p-2 hover:bg-blue-700 rounded-full transition-colors">
+                <Heart size={20} />
+              </button>
+              
+              <NotificationBell />
               
               <button
                 onClick={handleProfile}
@@ -195,22 +202,26 @@ const Navbar = () => {
             
             {user ? (
               <>
-                <Link 
-                  to={routes.MESSAGES} 
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button 
+                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
+                  onClick={() => {
+                    handleMessages();
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   <MessageCircle size={16} />
                   <span>Повідомлення {unreadCount > 0 && `(${unreadCount})`}</span>
-                </Link>
-                <Link 
-                  to={routes.FAVORITES} 
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
-                  onClick={() => setMobileMenuOpen(false)}
+                </button>
+                <button 
+                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
+                  onClick={() => {
+                    handleFavorites();
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   <Heart size={16} />
                   <span>Обране</span>
-                </Link>
+                </button>
                 <button 
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
                   onClick={() => setMobileMenuOpen(false)}

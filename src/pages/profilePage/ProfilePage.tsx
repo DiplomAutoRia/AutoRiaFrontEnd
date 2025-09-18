@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -29,9 +29,11 @@ import ProfileLayout from '../../components/profile/ProfileLayout';
 import UserListingsGrid from '../../components/vehicles/UserListingsGrid';
 import UserListingCard from '../../components/vehicles/UserListingCard';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
+import ProfileChat from '../../components/profile/ProfileChat';
 import type { RootState } from '../../redux/store';
 import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
+import { useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 
 interface FavoriteVehicleCardProps {
   favorite: any;
@@ -181,7 +183,7 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
 
           {vehicle.transmission && (
             <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              КПП: {vehicle.transmission}
+              КП: {vehicle.transmission}
             </Typography>
           )}
 
@@ -199,10 +201,20 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState('profile');
   const [expandedNotificationId, setExpandedNotificationId] = useState<number | null>(null);
   const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+
+  // Read navigation state to set active section
+  React.useEffect(() => {
+    if (location.state?.activeSection) {
+      setActiveSection(location.state.activeSection);
+      // Clear the state to avoid persisting it on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleNotificationToggle = (id: number) => {
     setExpandedNotificationId(prevId => prevId === id ? null : id);
@@ -244,6 +256,7 @@ export default function ProfilePage() {
     }
   }, [favorites]);
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
+  const [deleteVehicle] = useDeleteVehicleMutation();
 
   const handleSettingsClick = (vehicleId: number) => {
     navigate(`/vehicles/${vehicleId}/edit`);
@@ -254,6 +267,15 @@ export default function ProfilePage() {
       await removeFromFavorites(favoriteId).unwrap();
     } catch (error) {
       console.error('Failed to remove from favorites:', error);
+    }
+  };
+
+  const handleDeleteVehicle = async (vehicleId: number) => {
+    try {
+      await deleteVehicle(vehicleId).unwrap();
+      // Можна додати оновлення списку або повідомлення
+    } catch (error) {
+      console.error('Не вдалося видалити оголошення:', error);
     }
   };
 
@@ -363,6 +385,7 @@ export default function ProfilePage() {
                       key={vehicle.id}
                       vehicle={vehicle}
                       onSettingsClick={handleSettingsClick}
+                      onDelete={handleDeleteVehicle} // Додаємо проп
                     />
                   ))}
                 </Box>
@@ -423,16 +446,7 @@ export default function ProfilePage() {
         return <UserListingsGrid />;
 
       case 'messages':
-        return (
-          <Paper elevation={1} sx={{ borderRadius: 0, p: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
-              Чат та повідомлення
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              Функціонал чату буде доступний незабаром
-            </Typography>
-          </Paper>
-        );
+        return <ProfileChat />;
 
       case 'notifications':
         return (

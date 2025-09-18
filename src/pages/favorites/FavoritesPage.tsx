@@ -55,11 +55,18 @@ const FavoritesPage: React.FC = () => {
   }
 
   if (error) {
+    console.error('Favorites API error:', error);
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">{t('errors.networkError')}</Alert>
       </Container>
     );
+  }
+
+  // Debug: log the favorites data to understand the structure
+  console.log('Favorites data:', favorites);
+  if (favorites.length > 0) {
+    console.log('First favorite structure:', favorites[0]);
   }
 
   return (

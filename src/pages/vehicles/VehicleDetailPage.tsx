@@ -43,7 +43,7 @@ import {
 import { useGetVehicleQuery } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 
-const VerifiedInfoBlock: React.FC = () => (
+const VerifiedInfoBlock: React.FC<{ vehicle: any }> = ({ vehicle }) => (
   <Paper sx={{ p: 3, mb: 3, mt: 1 }}>
     {/* --- Перевірено Turbosell за реєстрами МВС --- */}
     <Box sx={{ mb: 2 }}>
@@ -58,61 +58,70 @@ const VerifiedInfoBlock: React.FC = () => (
       <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
         Оновлено 10 липня 2025
       </Typography>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <DirectionsCarIcon sx={{ color: '#156ff5' }} />
-        <Box
-          sx={{
-            bgcolor: '#eaf2ff',
-            color: '#156ff5',
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            fontWeight: 600,
-            fontSize: 15,
-            mr: 1,
-          }}
-        >
-          WWVZZZ1JZXW277327
-        </Box>
-        <Box
-          sx={{
-            bgcolor: '#156ff5',
-            color: '#fff',
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            fontWeight: 600,
-            fontSize: 15,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Box component="span" sx={{ mr: 0.5 }}>
-            UA
-          </Box>
-          BK 9753 II
-        </Box>
-      </Stack>
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+          <DirectionsCarIcon sx={{ color: '#156ff5' }} />
+          {vehicle.vin_code && (
+            <Box
+              sx={{
+                bgcolor: '#eaf2ff',
+                color: '#156ff5',
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                fontWeight: 600,
+                fontSize: 15,
+                mr: 1,
+              }}
+            >
+              {vehicle.vin_code}
+            </Box>
+          )}
+          {vehicle.plate_number && (
+            <Box
+              sx={{
+                bgcolor: '#156ff5',
+                color: '#fff',
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                fontWeight: 600,
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Box component="span" sx={{ mr: 0.5 }}>
+                UA
+              </Box>
+              {vehicle.plate_number}
+            </Box>
+          )}
+        </Stack>
       <Grid container spacing={1} sx={{ mb: 1 }}>
         <Grid item xs={6}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <CheckCircleIcon color="success" fontSize="small" />
             <Typography>Марка, модель, рік</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>Volkswagen Golf 1998</Typography>
+            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>{vehicle.brand} {vehicle.model} {vehicle.year}</Typography>
           </Stack>
         </Grid>
         <Grid item xs={6}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <CheckCircleIcon color="success" fontSize="small" />
             <Typography>Двигун</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>1.6 л • Бензин</Typography>
+            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>
+              {vehicle.engine_volume ? `${vehicle.engine_volume} л` : ''}
+              {vehicle.engine_power ? ` • ${vehicle.engine_power} к.с.` : ''}
+              {vehicle.fuel_type ? ` • ${vehicle.fuel_type}` : ''}
+              {!vehicle.engine_volume && !vehicle.engine_power && !vehicle.fuel_type && 'Не вказано'}
+            </Typography>
           </Stack>
         </Grid>
         <Grid item xs={6}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <CheckCircleIcon color="success" fontSize="small" />
             <Typography>Колір</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>Синій</Typography>
+            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>{vehicle.color || 'Не вказано'}</Typography>
           </Stack>
         </Grid>
         <Grid item xs={6}>
@@ -173,20 +182,6 @@ const VerifiedInfoBlock: React.FC = () => (
       <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
         Оновлено 17 липня 2025
       </Typography>
-      <Grid container spacing={1}>
-        <Grid item xs={6}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>Тип обтяження</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>не виявлено</Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={6}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>Обмеження відчуження</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>дозволено відчужувати</Typography>
-          </Stack>
-        </Grid>
-      </Grid>
     </Box>
 
     {/* --- Перевірено Turbosell по страховим базам України --- */}
@@ -241,54 +236,206 @@ const VehicleInfoBlock: React.FC<{ vehicle: any; owner: any; onContactSeller: ()
       </Typography>
     </Stack>
       <Grid container spacing={1} sx={{ mb: 1 }}>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Пробіг</Typography>
-          <Typography>{vehicle.mileage ? `${vehicle.mileage} тис. км` : 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Двигун</Typography>
-          <Typography>
-            {vehicle.engine_volume ? `${vehicle.engine_volume} л` : ''}
-            {vehicle.engine_power ? ` (${vehicle.engine_power} к.с.)` : ''}
-            {vehicle.fuel_type ? ` • ${vehicle.fuel_type}` : ''}
-          </Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Коробка передач</Typography>
-          <Typography>{vehicle.transmission || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Привід</Typography>
-          <Typography>{vehicle.drive_type || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Колір</Typography>
-          <Typography>{vehicle.color || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Країна реєстрації</Typography>
-          <Typography>{vehicle.registration_country || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Розмитнено</Typography>
-          <Typography>{vehicle.is_custom_cleared !== undefined ? (vehicle.is_custom_cleared ? 'Так' : 'Ні') : 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">VIN код</Typography>
-          <Typography>{vehicle.vin_code || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Кількість власників</Typography>
-          <Typography>{vehicle.number_of_owners || 'Не вказано'}</Typography>
-        </Grid>
+        {vehicle.mileage && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Пробіг</Typography>
+            <Typography>{vehicle.mileage} тис. км</Typography>
+          </Grid>
+        )}
+        {(vehicle.engine_volume || vehicle.engine_power || vehicle.fuel_type) && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Двигун</Typography>
+            <Typography>
+              {vehicle.engine_volume && `${vehicle.engine_volume} л`}
+              {vehicle.engine_power && ` (${vehicle.engine_power} к.с.)`}
+              {vehicle.fuel_type && ` • ${vehicle.fuel_type}`}
+            </Typography>
+          </Grid>
+        )}
+        {vehicle.transmission && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Коробка передач</Typography>
+            <Typography>{vehicle.transmission}</Typography>
+          </Grid>
+        )}
+        {vehicle.drive_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Привід</Typography>
+            <Typography>{vehicle.drive_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.color && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Колір</Typography>
+            <Typography>{vehicle.color}</Typography>
+          </Grid>
+        )}
+        {vehicle.registration_country && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Країна реєстрації</Typography>
+            <Typography>{vehicle.registration_country}</Typography>
+          </Grid>
+        )}
+        {vehicle.is_custom_cleared !== undefined && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Розмитнено</Typography>
+            <Typography>{vehicle.is_custom_cleared ? 'Так' : 'Ні'}</Typography>
+          </Grid>
+        )}
+        {vehicle.vin_code && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">VIN код</Typography>
+            <Typography>{vehicle.vin_code}</Typography>
+          </Grid>
+        )}
+        {vehicle.number_of_owners && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кількість власників</Typography>
+            <Typography>{vehicle.number_of_owners}</Typography>
+          </Grid>
+        )}
         <Grid item xs={6} sm={4}>
           <Typography variant="body2" color="text.secondary">Стан</Typography>
           <Typography>{vehicle.is_new ? 'Новий' : 'Вживаний'}</Typography>
         </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Держ. номер</Typography>
-          <Typography>{vehicle.plate_number || 'Не вказано'}</Typography>
-        </Grid>
+        {vehicle.plate_number && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Держ. номер</Typography>
+            <Typography>{vehicle.plate_number}</Typography>
+          </Grid>
+        )}
+        {vehicle.body_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип кузова</Typography>
+            <Typography>{vehicle.body_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.technical_condition && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Технічний стан</Typography>
+            <Typography>{vehicle.technical_condition}</Typography>
+          </Grid>
+        )}
+        {vehicle.seats && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кількість місць</Typography>
+            <Typography>{vehicle.seats}</Typography>
+          </Grid>
+        )}
+        {vehicle.doors_count && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кількість дверей</Typography>
+            <Typography>{vehicle.doors_count}</Typography>
+          </Grid>
+        )}
+        {vehicle.weight && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Вага</Typography>
+            <Typography>{vehicle.weight} кг</Typography>
+          </Grid>
+        )}
+        {vehicle.vehicle_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип транспорту</Typography>
+            <Typography>{vehicle.vehicle_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.specialization && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Спеціалізація</Typography>
+            <Typography>{vehicle.specialization}</Typography>
+          </Grid>
+        )}
+        {vehicle.truck_load_capacity && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Вантажопідйомність</Typography>
+            <Typography>{vehicle.truck_load_capacity} т</Typography>
+          </Grid>
+        )}
+        {vehicle.axle_count && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кількість осей</Typography>
+            <Typography>{vehicle.axle_count}</Typography>
+          </Grid>
+        )}
+        {vehicle.trailer_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип причепа</Typography>
+            <Typography>{vehicle.trailer_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.trailer_load_capacity && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Вантажопідйомність причепа</Typography>
+            <Typography>{vehicle.trailer_load_capacity} т</Typography>
+          </Grid>
+        )}
+        {vehicle.bike_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип мотоцикла</Typography>
+            <Typography>{vehicle.bike_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.seat_height && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Висота сидіння</Typography>
+            <Typography>{vehicle.seat_height} см</Typography>
+          </Grid>
+        )}
+        {vehicle.boat_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип човна</Typography>
+            <Typography>{vehicle.boat_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.engine_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип двигуна</Typography>
+            <Typography>{vehicle.engine_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.hull_material && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Матеріал корпусу</Typography>
+            <Typography>{vehicle.hull_material}</Typography>
+          </Grid>
+        )}
+        {vehicle.aircraft_type && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Тип літака</Typography>
+            <Typography>{vehicle.aircraft_type}</Typography>
+          </Grid>
+        )}
+        {vehicle.engine_count && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кількість двигунів</Typography>
+            <Typography>{vehicle.engine_count}</Typography>
+          </Grid>
+        )}
+        {vehicle.max_altitude && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Макс. висота</Typography>
+            <Typography>{vehicle.max_altitude} м</Typography>
+          </Grid>
+        )}
+        {vehicle.sleeping_places && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Спальні місця</Typography>
+            <Typography>{vehicle.sleeping_places}</Typography>
+          </Grid>
+        )}
+        {vehicle.has_kitchen !== undefined && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Кухня</Typography>
+            <Typography>{vehicle.has_kitchen ? 'Так' : 'Ні'}</Typography>
+          </Grid>
+        )}
+        {vehicle.has_bathroom !== undefined && (
+          <Grid item xs={6} sm={4}>
+            <Typography variant="body2" color="text.secondary">Ванна кімната</Typography>
+            <Typography>{vehicle.has_bathroom ? 'Так' : 'Ні'}</Typography>
+          </Grid>
+        )}
       </Grid>
     <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
       Опис
@@ -843,7 +990,7 @@ const VehicleDetailPage: React.FC = () => {
           </Box>
 
           {/* Блок перевіреної інформації */}
-          <VerifiedInfoBlock />
+          <VerifiedInfoBlock vehicle={vehicle} />
 
           {/* Блок інформації про машину */}
           <VehicleInfoBlock vehicle={vehicle} owner={owner} onContactSeller={handleContactSeller} />

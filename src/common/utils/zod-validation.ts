@@ -131,32 +131,12 @@ export const carListingSchema = z.object({
     .max(17, 'VIN-код має містити 17 символів')
     .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'Невірний формат VIN-коду')
     .optional(),
-  registration_country: z.string()
-    .max(50, 'Країна реєстрації не може перевищувати 50 символів')
-    .optional(),
-  is_custom_cleared: z.boolean().optional(),
-  number_of_owners: z.coerce
-    .number()
-    .int('Кількість власників має бути цілим числом')
-    .min(1, 'Кількість власників має бути не менше 1')
-    .max(20, 'Кількість власників не може перевищувати 20')
-    .optional(),
-  technical_condition: z.enum(['excellent', 'good', 'satisfactory', 'needs_repair', 'not_running'], {
-    message: 'Оберіть технічний стан зі списку'
-  }).optional(),
-  seats: z.coerce
-    .number()
-    .int('Кількість місць має бути цілим числом')
-    .min(1, 'Кількість місць має бути не менше 1')
-    .max(100, 'Кількість місць не може перевищувати 100')
-    .optional(),
-  doors_count: z.coerce
-    .number()
-    .int('Кількість дверей має бути цілим числом')
-    .min(1, 'Кількість дверей має бути не менше 1')
-    .max(10, 'Кількість дверей не може перевищувати 10')
-    .optional(),
-  
+
+
+
+
+
+
   // Image field
   image: z.any(),
 });
