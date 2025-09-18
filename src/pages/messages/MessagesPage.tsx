@@ -25,25 +25,6 @@ const MessagesPage: React.FC = () => {
             <ConversationView conversationId={parseInt(conversationId)} />
           </Grid>
         )}
-
-        {!conversationId && (
-          <Grid item xs={12} sx={{ display: { xs: 'none', md: 'block' } }}>
-            <Box
-              sx={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'grey.50',
-                borderRadius: 1,
-              }}
-            >
-              <Typography variant="h6" color="text.secondary">
-                {t('messages.selectConversation')}
-              </Typography>
-            </Box>
-          </Grid>
-        )}
       </Grid>
 
       {/* Notifications Form */}

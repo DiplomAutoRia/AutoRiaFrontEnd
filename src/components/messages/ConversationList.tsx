@@ -93,8 +93,20 @@ const ConversationList: React.FC = () => {
   }
 
   return (
-    <Paper sx={{ height: '100%' }}>
-      <List>
+    <Paper
+      sx={{
+        height: '600px',
+        maxHeight: '600px',
+        overflow: 'hidden',
+      }}
+    >
+      <List
+        sx={{
+          height: '600px',
+          overflow: 'auto',
+          padding: 0,
+        }}
+      >
         {conversations.map((conversation) => (
           <ListItem
             key={conversation.id}

@@ -84,13 +84,13 @@ const MESSENGERS = [
 ];
 
 const Footer: React.FC = () => (
-  <footer className="bg-[#0066cc] text-white pt-10 pb-6">
+  <footer className="bg-[#0066cc] text-white pt-10 pb-6" role="contentinfo">
     <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:justify-between gap-8">
       <div className="flex-1">
         <div className="mb-8 flex items-center">
-          <img src="/locales/images/logo.png" alt="Turbosell Logo" className="h-12 w-auto" />
+          <img src="/locales/images/logo.png" alt="AutoRia - Купівля та продаж автомобілів" className="h-12 w-auto" />
         </div>
-        <nav>
+        <nav aria-label="Footer navigation">
           <div className="flex flex-col sm:flex-row gap-8">
             {NAV_LINKS.map((col) => (
               <section key={col.heading} className="mb-6 sm:mb-0 min-w-[150px]">

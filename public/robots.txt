@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://autoria.com.ua/sitemap.xml
+
+# Заборонити індексацію API endpoints
+Disallow: /api/
+
+# Заборонити індексацію админ панелі
+Disallow: /admin/
+
+# Заборонити індексацію приватних сторінок
+Disallow: /messages/
+Disallow: /profile/
+
+# Кешувати статичні файли
+Allow: /locales/
+Allow: /assets/
