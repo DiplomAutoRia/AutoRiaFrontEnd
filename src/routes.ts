@@ -16,9 +16,9 @@ export const routes = {
   MESSAGES: '/messages',
   MESSAGE_CONVERSATION: '/messages/:conversationId',
   NOT_FOUND: '*',
-  CAR_DETAILS: "/car/:id",
-  MY_LISTINGS: "/my-listings",
-  EDIT_LISTING: "/edit-listing/:id",
+  CAR_DETAILS: '/car/:id',
+  MY_LISTINGS: '/my-listings',
+  EDIT_LISTING: '/edit-listing/:id',
   API: {
     BASE: import.meta.env.VITE_BASE_API_URL,
     USERS: '/users',

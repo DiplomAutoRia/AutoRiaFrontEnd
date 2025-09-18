@@ -409,16 +409,11 @@ const EditListingPage = () => {
                   name="plate_number"
                   control={control}
                   render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Номерний знак"
-                      placeholder="АА1234ВВ"
-                    />
+                    <TextField {...field} fullWidth label="Номерний знак" placeholder="АА1234ВВ" />
                   )}
                 />
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Controller
                   name="location"

@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Заборонити індексацію приватних сторінок
+Disallow: /profile/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$
+
+# Дозволити важливі сторінки
+Allow: /vehicles/
+Allow: /search/
+
+# Вказати місцезнаходження sitemap
+Sitemap: https://autoria.com/sitemap.xml

@@ -26,6 +26,7 @@ import {
 import { z } from 'zod';
 
 import { POPULAR_BRANDS } from '../../models/brands';
+import { getModelsForBrand } from '../../models/car-models';
 import { COLOR_TYPES, CURRENCY_TYPES, FUEL_TYPES, TRANSMISSION_TYPES, VEHICLE_TYPES } from '../../models/vehicle';
 import type { Vehicle, VehicleCreateRequest, VehicleType } from '../../models/vehicle';
 
@@ -72,12 +73,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [formKey] = useState(Date.now());
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     mode: 'onChange',
@@ -123,6 +126,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
           number_of_owners: '' as any,
         },
   });
+
+  const watchedBrand = watch('brand');
+
+  useEffect(() => {
+    setSelectedBrand(watchedBrand || '');
+  }, [watchedBrand]);
 
   useEffect(() => {
     if (!vehicle) {
@@ -249,15 +258,34 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
               <Controller
                 name="model"
                 control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label={`${t('vehicles.model')} *`}
-                    fullWidth
-                    error={!!errors.model}
-                    helperText={errors.model?.message}
-                  />
-                )}
+                render={({ field }) => {
+                  const availableModels = getModelsForBrand(selectedBrand);
+
+                  if (availableModels.length > 0) {
+                    return (
+                      <FormControl fullWidth error={!!errors.model}>
+                        <InputLabel>{t('vehicles.model')} *</InputLabel>
+                        <Select {...field}>
+                          {availableModels.map((model) => (
+                            <MenuItem key={model} value={model}>
+                              {model}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    );
+                  }
+
+                  return (
+                    <TextField
+                      {...field}
+                      label={`${t('vehicles.model')} *`}
+                      fullWidth
+                      error={!!errors.model}
+                      helperText={errors.model?.message}
+                    />
+                  );
+                }}
               />
             </Grid>
 
@@ -267,20 +295,19 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onSubmit, onCancel, 
                 name="year"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    name="vehicle-year"
-                    value={field.value || ''}
-                    label={`${t('vehicles.yearOfManufacture')} *`}
-                    type="number"
-                    fullWidth
-                    error={!!errors.year}
-                    helperText={errors.year?.message}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      field.onChange(val === '' ? '' : parseInt(val) || '');
-                    }}
-                    onBlur={field.onBlur}
-                  />
+                  <FormControl fullWidth error={!!errors.year}>
+                    <InputLabel>{t('vehicles.yearOfManufacture')} *</InputLabel>
+                    <Select {...field} value={field.value || ''}>
+                      {Array.from(
+                        { length: new Date().getFullYear() - 1989 },
+                        (_, i) => new Date().getFullYear() - i,
+                      ).map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 )}
               />
             </Grid>

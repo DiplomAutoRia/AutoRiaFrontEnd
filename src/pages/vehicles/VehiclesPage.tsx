@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { Search, NavigateNext as NavigateNextIcon } from '@mui/icons-material';
+import { NavigateNext as NavigateNextIcon, Search } from '@mui/icons-material';
 import { Box, Breadcrumbs, Button, Container, Paper, Stack, TextField, Typography } from '@mui/material';
 
 import { getErrorMessage } from '../../common/utils/errorUtils';
@@ -103,22 +103,25 @@ const VehiclesPage: React.FC = () => {
   };
 
   const handleFilterRemove = (key: keyof VehicleFiltersType, value?: string) => {
-    setFilters(prevFilters => {
+    setFilters((prevFilters) => {
       const newFilters = { ...prevFilters };
-      
-      if (key === 'brand' || key === 'location' || key === 'vehicle_type' || 
-          key === 'drive_type' || key === 'technical_condition') {
+
+      if (
+        key === 'brand' ||
+        key === 'location' ||
+        key === 'vehicle_type' ||
+        key === 'drive_type' ||
+        key === 'technical_condition'
+      ) {
         delete newFilters[key];
-      } else if (key === 'price_min' || key === 'price_max' || 
-                 key === 'year_min' || key === 'year_max') {
+      } else if (key === 'price_min' || key === 'price_max' || key === 'year_min' || key === 'year_max') {
         delete newFilters[key];
-      } else if (key === 'body_type' || key === 'fuel_type' || 
-                 key === 'transmission' || key === 'color') {
+      } else if (key === 'body_type' || key === 'fuel_type' || key === 'transmission' || key === 'color') {
         if (newFilters[key] && Array.isArray(newFilters[key])) {
           // Use type assertion to handle the specific array types
           const currentArray = newFilters[key] as unknown as string[];
-          const filteredArray = currentArray.filter(item => item !== value);
-          
+          const filteredArray = currentArray.filter((item) => item !== value);
+
           if (filteredArray.length === 0) {
             delete newFilters[key];
           } else {
@@ -128,7 +131,7 @@ const VehiclesPage: React.FC = () => {
       } else if (key === 'is_custom_cleared') {
         delete newFilters[key];
       }
-      
+
       return { ...newFilters, page: 1 };
     });
     setCurrentPage(1);
@@ -139,15 +142,11 @@ const VehiclesPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Breadcrumb navigation */}
-      <Breadcrumbs 
-        separator={<NavigateNextIcon fontSize="small" />} 
-        aria-label="breadcrumb"
-        sx={{ mb: 2 }}
-      >
+      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 2 }}>
         <Button
           onClick={() => navigate('/')}
-          sx={{ 
-            textDecoration: 'none', 
+          sx={{
+            textDecoration: 'none',
             color: 'inherit',
             p: 0,
             minWidth: 'auto',
@@ -202,12 +201,7 @@ const VehiclesPage: React.FC = () => {
         {/* Права колонка - Оголошення */}
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           {/* Активні фільтри */}
-          {!shouldUseSearch && (
-            <ActiveFiltersBar
-              filters={filters}
-              onFilterRemove={handleFilterRemove}
-            />
-          )}
+          {!shouldUseSearch && <ActiveFiltersBar filters={filters} onFilterRemove={handleFilterRemove} />}
 
           {shouldUseSearch && (
             <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>

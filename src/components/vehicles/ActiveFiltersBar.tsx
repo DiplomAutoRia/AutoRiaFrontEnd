@@ -1,15 +1,13 @@
 import React from 'react';
-import {
-  Box,
-  Chip,
-  Typography,
-} from '@mui/material';
+
 import { Close as CloseIcon } from '@mui/icons-material';
+import { Box, Chip, Typography } from '@mui/material';
+
 import type { VehicleFilters } from '../../models/vehicle';
 
 interface ActiveFiltersBarProps {
   filters: VehicleFilters;
-  onFilterRemove: (key: keyof VehicleFilters, value?: string) => void;
+  onFilterRemove: (_key: keyof VehicleFilters, _value?: string) => void;
 }
 
 const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRemove }) => {
@@ -20,7 +18,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'brand',
       label: `Марка: ${filters.brand}`,
-      value: filters.brand
+      value: filters.brand,
     });
   }
 
@@ -29,7 +27,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'model',
       label: `Модель: ${filters.model[0]}`,
-      value: filters.model[0]
+      value: filters.model[0],
     });
   }
 
@@ -38,7 +36,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'year_min',
       label: `Рік від: ${filters.year_min}`,
-      value: filters.year_min.toString()
+      value: filters.year_min.toString(),
     });
   }
 
@@ -46,7 +44,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'year_max',
       label: `Рік до: ${filters.year_max}`,
-      value: filters.year_max.toString()
+      value: filters.year_max.toString(),
     });
   }
 
@@ -55,7 +53,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'price_min',
       label: `Ціна від: ${filters.price_min.toLocaleString()} грн`,
-      value: filters.price_min.toString()
+      value: filters.price_min.toString(),
     });
   }
 
@@ -63,7 +61,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'price_max',
       label: `Ціна до: ${filters.price_max.toLocaleString()} грн`,
-      value: filters.price_max.toString()
+      value: filters.price_max.toString(),
     });
   }
 
@@ -72,7 +70,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'location',
       label: `Регіон: ${filters.location}`,
-      value: filters.location
+      value: filters.location,
     });
   }
 
@@ -81,50 +79,50 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'vehicle_type',
       label: `Тип: ${filters.vehicle_type}`,
-      value: filters.vehicle_type
+      value: filters.vehicle_type,
     });
   }
 
   // Add body type filters
   if (filters.body_type && filters.body_type.length > 0) {
-    filters.body_type.forEach(bodyType => {
+    filters.body_type.forEach((bodyType) => {
       activeFilters.push({
         key: 'body_type',
         label: `Кузов: ${bodyType}`,
-        value: bodyType
+        value: bodyType,
       });
     });
   }
 
   // Add fuel type filters
   if (filters.fuel_type && filters.fuel_type.length > 0) {
-    filters.fuel_type.forEach(fuelType => {
+    filters.fuel_type.forEach((fuelType) => {
       activeFilters.push({
         key: 'fuel_type',
         label: `Паливо: ${fuelType}`,
-        value: fuelType
+        value: fuelType,
       });
     });
   }
 
   // Add transmission filters
   if (filters.transmission && filters.transmission.length > 0) {
-    filters.transmission.forEach(transmission => {
+    filters.transmission.forEach((transmission) => {
       activeFilters.push({
         key: 'transmission',
         label: `КПП: ${transmission}`,
-        value: transmission
+        value: transmission,
       });
     });
   }
 
   // Add color filters
   if (filters.color && filters.color.length > 0) {
-    filters.color.forEach(color => {
+    filters.color.forEach((color) => {
       activeFilters.push({
         key: 'color',
         label: `Колір: ${color}`,
-        value: color
+        value: color,
       });
     });
   }
@@ -134,7 +132,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'drive_type',
       label: `Привід: ${filters.drive_type}`,
-      value: filters.drive_type
+      value: filters.drive_type,
     });
   }
 
@@ -143,7 +141,7 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'technical_condition',
       label: `Стан: ${filters.technical_condition}`,
-      value: filters.technical_condition
+      value: filters.technical_condition,
     });
   }
 
@@ -152,10 +150,9 @@ const ActiveFiltersBar: React.FC<ActiveFiltersBarProps> = ({ filters, onFilterRe
     activeFilters.push({
       key: 'is_custom_cleared',
       label: 'Розмитнена',
-      value: 'true'
+      value: 'true',
     });
   }
-
 
   const handleChipDelete = (filterKey: keyof VehicleFilters, filterValue?: string) => {
     onFilterRemove(filterKey, filterValue);

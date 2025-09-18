@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import EditIcon from '@mui/icons-material/Edit';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
-import MarkAsReadIcon from '@mui/icons-material/MarkEmailRead';
+import EditIcon from '@mui/icons-material/Edit';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import MarkAsReadIcon from '@mui/icons-material/MarkEmailRead';
 import {
   Avatar,
   Box,
@@ -26,20 +26,24 @@ import {
 } from '@mui/material';
 
 import ProfileLayout from '../../components/profile/ProfileLayout';
-import UserListingsGrid from '../../components/vehicles/UserListingsGrid';
-import UserListingCard from '../../components/vehicles/UserListingCard';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
-import type { RootState } from '../../redux/store';
-import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
+import UserListingCard from '../../components/vehicles/UserListingCard';
+import UserListingsGrid from '../../components/vehicles/UserListingsGrid';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
+import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 
 interface FavoriteVehicleCardProps {
   favorite: any;
-  onRemove: (favoriteId: number) => void;
-  onNavigate: (vehicleId: number) => void;
+  onRemove: (_favoriteId: number) => void;
+  onNavigate: (_vehicleId: number) => void;
 }
 
-const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onRemove, onNavigate }) => {
+const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({
+  favorite,
+  onRemove: _onRemove,
+  onNavigate: _onNavigate,
+}) => {
   // The favorite object already contains the full vehicle data
   const vehicle = favorite.vehicle;
 
@@ -55,11 +59,7 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
               ID: {favorite.id}
             </Typography>
           </Box>
-          <IconButton 
-            size="small" 
-            onClick={() => onRemove(favorite.id)}
-            color="error"
-          >
+          <IconButton size="small" onClick={() => onRemove(favorite.id)} color="error">
             <FavoriteIcon />
           </IconButton>
         </Box>
@@ -75,8 +75,8 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
   };
 
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         display: 'flex',
         position: 'relative',
         borderRadius: 0,
@@ -85,8 +85,8 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
         height: 200,
         '&:hover': {
           boxShadow: 3,
-          transform: 'translateY(-2px)'
-        }
+          transform: 'translateY(-2px)',
+        },
       }}
       onClick={() => onNavigate(vehicle.id)}
     >
@@ -99,8 +99,8 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
           zIndex: 2,
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           '&:hover': {
-            backgroundColor: 'white'
-          }
+            backgroundColor: 'white',
+          },
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -119,11 +119,9 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
           height: '100%',
           objectFit: 'cover',
           backgroundColor: '#f5f5f5',
-          flexShrink: 0
+          flexShrink: 0,
         }}
-        src={vehicle.images && vehicle.images.length > 0 
-          ? vehicle.images[0].image 
-          : '/locales/images/car.png'}
+        src={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'}
         alt={`${vehicle.brand} ${vehicle.model}`}
       />
 
@@ -131,34 +129,30 @@ const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onR
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
         {/* Brand, model and year in one line */}
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="h3"
-            sx={{ 
+            sx={{
               fontSize: '1.2rem',
               fontWeight: 'bold',
-              lineHeight: 1.2
+              lineHeight: 1.2,
             }}
           >
             {vehicle.brand} {vehicle.model}
           </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{ fontSize: '1rem' }}
-          >
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
             {vehicle.year} рік
           </Typography>
         </Box>
 
         {/* Price */}
         {vehicle.price && (
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             color="primary"
-            sx={{ 
+            sx={{
               fontSize: '1.3rem',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
             }}
           >
             {formatPrice(vehicle.price, vehicle.currency)}
@@ -205,13 +199,11 @@ export default function ProfilePage() {
   const [selectAll, setSelectAll] = useState(false);
 
   const handleNotificationToggle = (id: number) => {
-    setExpandedNotificationId(prevId => prevId === id ? null : id);
+    setExpandedNotificationId((prevId) => (prevId === id ? null : id));
   };
 
   const handleSelectNotification = (id: number) => {
-    setSelectedNotifications(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
+    setSelectedNotifications((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const handleSelectAll = () => {
@@ -228,13 +220,13 @@ export default function ProfilePage() {
     alert('Редагування профілю буде доступне незабаром');
   };
 
-  const { data: vehiclesData, isLoading: vehiclesLoading } = useGetMyVehiclesQuery({ 
-    page: 1, 
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useGetMyVehiclesQuery({
+    page: 1,
     limit: 3,
   });
 
   const { data: favorites = [], isLoading: favoritesLoading } = useGetFavoritesQuery(undefined, { skip: !user });
-  
+
   // Debug: log favorites structure to understand the API response
   React.useEffect(() => {
     if (favorites && favorites.length > 0) {
@@ -283,21 +275,18 @@ export default function ProfilePage() {
           <>
             {/* User info block */}
             <Paper elevation={1} sx={{ borderRadius: 0, p: 3, mb: 3, position: 'relative' }}>
-              <IconButton 
-                sx={{ position: 'absolute', top: 16, right: 16 }}
-                onClick={handleEditProfile}
-              >
+              <IconButton sx={{ position: 'absolute', top: 16, right: 16 }} onClick={handleEditProfile}>
                 <EditIcon />
               </IconButton>
-              
+
               <Grid container spacing={3} alignItems="center">
                 <Grid item>
-                  <Avatar 
-                    sx={{ 
-                      width: 80, 
-                      height: 80, 
+                  <Avatar
+                    sx={{
+                      width: 80,
+                      height: 80,
                       bgcolor: 'primary.main',
-                      fontSize: '2rem'
+                      fontSize: '2rem',
                     }}
                   >
                     {user.first_name?.[0]?.toUpperCase()}
@@ -332,18 +321,10 @@ export default function ProfilePage() {
                   Активні оголошення продавця
                 </Typography>
                 <Stack direction="row" spacing={1}>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ borderRadius: 0 }}
-                    onClick={() => setActiveSection('listings')}
-                  >
+                  <Button variant="outlined" sx={{ borderRadius: 0 }} onClick={() => setActiveSection('listings')}>
                     Переглянути всі
                   </Button>
-                  <Button 
-                    variant="contained" 
-                    sx={{ borderRadius: 0 }}
-                    onClick={() => navigate('/create')}
-                  >
+                  <Button variant="contained" sx={{ borderRadius: 0 }} onClick={() => navigate('/create')}>
                     Створити оголошення
                   </Button>
                 </Stack>
@@ -359,11 +340,7 @@ export default function ProfilePage() {
               ) : vehiclesData?.results && vehiclesData.results.length > 0 ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {vehiclesData.results.slice(0, 3).map((vehicle) => (
-                    <UserListingCard
-                      key={vehicle.id}
-                      vehicle={vehicle}
-                      onSettingsClick={handleSettingsClick}
-                    />
+                    <UserListingCard key={vehicle.id} vehicle={vehicle} onSettingsClick={handleSettingsClick} />
                   ))}
                 </Box>
               ) : (
@@ -381,11 +358,7 @@ export default function ProfilePage() {
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                   Обране
                 </Typography>
-                <Button 
-                  variant="outlined" 
-                  sx={{ borderRadius: 0 }}
-                  onClick={handleViewAllFavorites}
-                >
+                <Button variant="outlined" sx={{ borderRadius: 0 }} onClick={handleViewAllFavorites}>
                   Переглянути всі
                 </Button>
               </Box>
@@ -442,11 +415,7 @@ export default function ProfilePage() {
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                 Сповіщення
               </Typography>
-              <Button 
-                variant="outlined" 
-                size="small"
-                sx={{ borderRadius: 0 }}
-              >
+              <Button variant="outlined" size="small" sx={{ borderRadius: 0 }}>
                 Налаштування
               </Button>
             </Box>
@@ -454,12 +423,7 @@ export default function ProfilePage() {
             {/* Filter buttons */}
             <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
               {['Всі', 'Акції', 'Продаж', 'Купівля', 'Обране', 'Інформаційні', 'Архів'].map((label) => (
-                <Button
-                  key={label}
-                  variant="outlined"
-                  size="small"
-                  sx={{ borderRadius: 0, minWidth: 'auto', px: 1.5 }}
-                >
+                <Button key={label} variant="outlined" size="small" sx={{ borderRadius: 0, minWidth: 'auto', px: 1.5 }}>
                   {label}
                 </Button>
               ))}
@@ -468,19 +432,10 @@ export default function ProfilePage() {
             {/* Actions row */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Checkbox 
-                  size="small" 
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                />
+                <Checkbox size="small" checked={selectAll} onChange={handleSelectAll} />
                 <Typography variant="body2">вибрати все</Typography>
               </Box>
-              <Select
-                size="small"
-                defaultValue=""
-                displayEmpty
-                sx={{ minWidth: 120, borderRadius: 0 }}
-              >
+              <Select size="small" defaultValue="" displayEmpty sx={{ minWidth: 120, borderRadius: 0 }}>
                 <MenuItem value="">Дії</MenuItem>
                 <MenuItem value="delete">Видалити</MenuItem>
                 <MenuItem value="archive">Архівувати</MenuItem>
@@ -500,7 +455,7 @@ export default function ProfilePage() {
                   title: 'Нова пропозиція для вашого авто',
                   date: '12.05.2024',
                   message: 'Доброго дня! Мене цікавить ваше авто BMW X5. Чи можна домовитись про зустріч?',
-                  expanded: false
+                  expanded: false,
                 },
                 {
                   id: 2,
@@ -508,40 +463,38 @@ export default function ProfilePage() {
                   title: 'Акція на страхування',
                   date: '11.05.2024',
                   message: 'Спеціальна пропозиція: знижка 15% на страхування для власників BMW.',
-                  expanded: false
+                  expanded: false,
                 },
                 {
                   id: 3,
                   username: 'CarDealer UA',
                   title: 'Нові надходження',
                   date: '10.05.2024',
-                  message: 'У нас з\'явились нові автомобілі марки Audi. Запрошуємо на перегляд.',
-                  expanded: false
-                }
+                  message: "У нас з'явились нові автомобілі марки Audi. Запрошуємо на перегляд.",
+                  expanded: false,
+                },
               ].map((notification) => (
-                <Paper 
-                  key={notification.id} 
-                  elevation={1} 
-                  sx={{ 
-                    p: 2, 
+                <Paper
+                  key={notification.id}
+                  elevation={1}
+                  sx={{
+                    p: 2,
                     borderRadius: 0,
                     transition: 'all 0.3s ease',
                     height: expandedNotificationId === notification.id ? 'auto' : '60px',
-                    minHeight: '60px'
+                    minHeight: '60px',
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     {/* Checkbox */}
-                    <Checkbox 
-                      size="small" 
+                    <Checkbox
+                      size="small"
                       checked={selectedNotifications.includes(notification.id)}
                       onChange={() => handleSelectNotification(notification.id)}
                     />
 
                     {/* Icon */}
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                      {notification.username[0]}
-                    </Avatar>
+                    <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>{notification.username[0]}</Avatar>
 
                     {/* User info and title */}
                     <Box sx={{ flex: 1 }}>
@@ -558,10 +511,7 @@ export default function ProfilePage() {
                       <Typography variant="caption" color="text.secondary">
                         {notification.date}
                       </Typography>
-                      <IconButton 
-                        size="small"
-                        onClick={() => handleNotificationToggle(notification.id)}
-                      >
+                      <IconButton size="small" onClick={() => handleNotificationToggle(notification.id)}>
                         {expandedNotificationId === notification.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       </IconButton>
                     </Box>
@@ -587,8 +537,8 @@ export default function ProfilePage() {
                           <IconButton size="small" title="Позначити як прочитане">
                             <MarkAsReadIcon />
                           </IconButton>
-                          <IconButton 
-                            size="small" 
+                          <IconButton
+                            size="small"
                             title="Згорнути"
                             onClick={() => handleNotificationToggle(notification.id)}
                           >
@@ -610,7 +560,7 @@ export default function ProfilePage() {
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
               Обране
             </Typography>
-            
+
             {favoritesLoading ? (
               <Box sx={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
@@ -656,7 +606,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <ProfileLayout 
+    <ProfileLayout
       title={getSectionTitle(activeSection)}
       activeSection={activeSection}
       onSectionChange={setActiveSection}
@@ -668,12 +618,12 @@ export default function ProfilePage() {
 
 function getSectionTitle(section: string): string {
   const titles: Record<string, string> = {
-    'profile': 'Особистий кабінет',
-    'listings': 'Мої оголошення', 
-    'notifications': 'Повідомлення',
-    'messages': 'Чат',
-    'favorites': 'Обране',
-    'settings': 'Налаштування'
+    profile: 'Особистий кабінет',
+    listings: 'Мої оголошення',
+    notifications: 'Повідомлення',
+    messages: 'Чат',
+    favorites: 'Обране',
+    settings: 'Налаштування',
   };
   return titles[section] || 'Особистий кабінет';
 }

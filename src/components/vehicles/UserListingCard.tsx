@@ -2,13 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Settings } from '@mui/icons-material';
-import { Card, CardMedia, IconButton, Box, Typography, Stack } from '@mui/material';
+import { Box, Card, CardMedia, IconButton, Stack, Typography } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
 interface UserListingCardProps {
   vehicle: Vehicle;
-  onSettingsClick: (vehicleId: number) => void;
+  onSettingsClick: (_vehicleId: number) => void;
 }
 
 const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsClick }) => {
@@ -22,8 +22,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
   };
 
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         display: 'flex',
         position: 'relative',
         borderRadius: 0,
@@ -32,8 +32,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
         height: 200,
         '&:hover': {
           boxShadow: 3,
-          transform: 'translateY(-2px)'
-        }
+          transform: 'translateY(-2px)',
+        },
       }}
       onClick={() => navigate(`/vehicles/${vehicle.id}`)}
     >
@@ -46,8 +46,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
           zIndex: 2,
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           '&:hover': {
-            backgroundColor: 'white'
-          }
+            backgroundColor: 'white',
+          },
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -66,11 +66,9 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
           height: '100%',
           objectFit: 'cover',
           backgroundColor: '#f5f5f5',
-          flexShrink: 0
+          flexShrink: 0,
         }}
-        image={vehicle.images && vehicle.images.length > 0 
-          ? vehicle.images[0].image 
-          : '/locales/images/car.png'}
+        image={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'}
         alt={`${vehicle.brand} ${vehicle.model}`}
       />
 
@@ -78,33 +76,29 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
         {/* Назва, модель та рік в один рядок */}
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="h3"
-            sx={{ 
+            sx={{
               fontSize: '1.2rem',
               fontWeight: 'bold',
-              lineHeight: 1.2
+              lineHeight: 1.2,
             }}
           >
             {vehicle.brand} {vehicle.model}
           </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{ fontSize: '1rem' }}
-          >
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
             {vehicle.year} рік
           </Typography>
         </Box>
 
         {/* Ціна */}
-        <Typography 
-          variant="h6" 
+        <Typography
+          variant="h6"
           color="primary"
-          sx={{ 
+          sx={{
             fontSize: '1.3rem',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
           }}
         >
           {formatPrice(vehicle.price, vehicle.currency)}

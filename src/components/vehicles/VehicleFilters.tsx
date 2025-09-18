@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { RestartAlt as RestartAltIcon } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -15,7 +16,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { RestartAlt as RestartAltIcon } from '@mui/icons-material';
 
 import { POPULAR_BRANDS } from '../../models/brands';
 import {
@@ -36,7 +36,12 @@ interface VehicleFiltersProps {
   resultsCount?: number;
 }
 
-const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFiltersChange, onReset, resultsCount = 0 }) => {
+const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({
+  filters,
+  onFiltersChange,
+  onReset,
+  resultsCount = 0,
+}) => {
   const { t } = useTranslation();
   const [showAllBodyTypes, setShowAllBodyTypes] = useState(false);
 
@@ -74,7 +79,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               value={filters.vehicle_type || ''}
               onChange={(e) => handleFilterChange('vehicle_type', e.target.value || undefined)}
               sx={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
             >
               <MenuItem value="">{t('vehicles.filters.allTypes')}</MenuItem>
@@ -120,8 +125,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               />
             ))}
             {CAR_BODY_TYPES.length > 5 && (
-              <Button 
-                size="medium" 
+              <Button
+                size="medium"
                 onClick={() => setShowAllBodyTypes(!showAllBodyTypes)}
                 sx={{ mt: 1, justifyContent: 'flex-start', fontSize: '1rem' }}
               >
@@ -142,7 +147,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               value={filters.brand || ''}
               onChange={(e) => handleFilterChange('brand', e.target.value || undefined)}
               sx={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
             >
               <MenuItem value="">{t('vehicles.filters.allMakes')}</MenuItem>
@@ -167,7 +172,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               onChange={(e) => handleFilterChange('model', e.target.value ? [e.target.value] : undefined)}
               disabled={!filters.brand}
               sx={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
             >
               <MenuItem value="">Всі моделі</MenuItem>
@@ -189,8 +194,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               label="Від"
               value={filters.year_min || ''}
               onChange={(e) => handleFilterChange('year_min', e.target.value ? parseInt(e.target.value) : undefined)}
-              sx={{ 
-                backgroundColor: 'transparent'
+              sx={{
+                backgroundColor: 'transparent',
               }}
             />
             <TextField
@@ -200,8 +205,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               label="До"
               value={filters.year_max || ''}
               onChange={(e) => handleFilterChange('year_max', e.target.value ? parseInt(e.target.value) : undefined)}
-              sx={{ 
-                backgroundColor: 'transparent'
+              sx={{
+                backgroundColor: 'transparent',
               }}
             />
           </Box>
@@ -220,8 +225,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               label="Від"
               value={filters.price_min || ''}
               onChange={(e) => handleFilterChange('price_min', e.target.value ? parseInt(e.target.value) : undefined)}
-              sx={{ 
-                backgroundColor: 'transparent'
+              sx={{
+                backgroundColor: 'transparent',
               }}
             />
             <TextField
@@ -231,8 +236,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               label="До"
               value={filters.price_max || ''}
               onChange={(e) => handleFilterChange('price_max', e.target.value ? parseInt(e.target.value) : undefined)}
-              sx={{ 
-                backgroundColor: 'transparent'
+              sx={{
+                backgroundColor: 'transparent',
               }}
             />
           </Box>
@@ -249,7 +254,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               value={filters.location || ''}
               onChange={(e) => handleFilterChange('location', e.target.value || undefined)}
               sx={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
             >
               <MenuItem value="">Всі регіони</MenuItem>
@@ -263,7 +268,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black', mb: 2 }}>
             Додаткові фільтри
           </Typography>
-          
+
           {/* Тип палива */}
           <Box mb={2}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black', mb: 1 }}>
@@ -416,7 +421,9 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
                   control={
                     <Checkbox
                       checked={filters.technical_condition === condition}
-                      onChange={(e) => handleFilterChange('technical_condition', e.target.checked ? condition : undefined)}
+                      onChange={(e) =>
+                        handleFilterChange('technical_condition', e.target.checked ? condition : undefined)
+                      }
                       size="small"
                       sx={{
                         '& .MuiSvgIcon-root': {
@@ -442,22 +449,22 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
           {/* Розмитнення */}
           <Box>
             <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.is_custom_cleared || false}
-                    onChange={(e) => handleFilterChange('is_custom_cleared', e.target.checked || undefined)}
-                    size="small"
-                    sx={{
-                      '& .MuiSvgIcon-root': {
-                        fontSize: 20,
-                      },
-                      color: 'rgba(0, 0, 0, 0.6)',
-                      '&.Mui-checked': {
-                        color: '#156ff5',
-                      },
-                    }}
-                  />
-                }
+              control={
+                <Checkbox
+                  checked={filters.is_custom_cleared || false}
+                  onChange={(e) => handleFilterChange('is_custom_cleared', e.target.checked || undefined)}
+                  size="small"
+                  sx={{
+                    '& .MuiSvgIcon-root': {
+                      fontSize: 20,
+                    },
+                    color: 'rgba(0, 0, 0, 0.6)',
+                    '&.Mui-checked': {
+                      color: '#156ff5',
+                    },
+                  }}
+                />
+              }
               label={
                 <Typography variant="body1" sx={{ fontSize: '1rem' }}>
                   Розмитнена
@@ -480,14 +487,14 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               fontSize: '0.875rem',
               '&:hover': {
                 color: 'primary.main',
-                textDecoration: 'underline'
-              }
+                textDecoration: 'underline',
+              },
             }}
           >
             <RestartAltIcon fontSize="small" />
             Скинути фільтри
           </Typography>
-          
+
           <Button
             variant="contained"
             onClick={() => onFiltersChange(filters)}
@@ -499,8 +506,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFil
               py: 1,
               bgcolor: '#156ff5',
               '&:hover': {
-                bgcolor: '#115cc9'
-              }
+                bgcolor: '#115cc9',
+              },
             }}
           >
             Підібрати ({resultsCount})

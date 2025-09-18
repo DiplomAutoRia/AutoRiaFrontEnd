@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Box,  Card, CardMedia, CircularProgress, Pagination, Stack, Typography } from '@mui/material';
+import { Box, Card, CardMedia, CircularProgress, Pagination, Stack, Typography } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
@@ -24,7 +24,7 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
   currentPage = 1,
   pageSize = 10,
   onPageChange,
-  favoriteIds = {},
+  favoriteIds: _favoriteIds = {},
 }) => {
   const navigate = useNavigate();
 
@@ -68,25 +68,25 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
       {/* Список оголошень у ряд */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {vehicles.map((vehicle) => (
-            <Card 
-              key={vehicle.id} 
-              elevation={0}
-              sx={{ 
-                display: 'flex',
-                position: 'relative',
-                borderRadius: 0,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                height: 200,
-                backgroundColor: 'transparent',
-                border: 'none',
-                boxShadow: 'none',
-                '&:hover': {
-                  transform: 'translateY(-2px)'
-                }
-              }}
-              onClick={() => navigate(`/vehicles/${vehicle.id}`)}
-            >
+          <Card
+            key={vehicle.id}
+            elevation={0}
+            sx={{
+              display: 'flex',
+              position: 'relative',
+              borderRadius: 0,
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              height: 200,
+              backgroundColor: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+              },
+            }}
+            onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+          >
             {/* Зображення */}
             <CardMedia
               component="img"
@@ -95,11 +95,9 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
                 height: '100%',
                 objectFit: 'cover',
                 backgroundColor: '#f5f5f5',
-                flexShrink: 0
+                flexShrink: 0,
               }}
-              image={vehicle.images && vehicle.images.length > 0 
-                ? vehicle.images[0].image 
-                : '/locales/images/car.png'}
+              image={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'}
               alt={`${vehicle.brand} ${vehicle.model}`}
             />
 
@@ -107,33 +105,29 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
               {/* Назва, модель та рік в один рядок */}
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   component="h3"
-                  sx={{ 
+                  sx={{
                     fontSize: '1.2rem',
                     fontWeight: 'bold',
-                    lineHeight: 1.2
+                    lineHeight: 1.2,
                   }}
                 >
                   {vehicle.brand} {vehicle.model}
                 </Typography>
-                <Typography 
-                  variant="body1" 
-                  color="text.secondary"
-                  sx={{ fontSize: '1rem' }}
-                >
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
                   {vehicle.year} рік
                 </Typography>
               </Box>
 
               {/* Ціна */}
-              <Typography 
-                variant="h6" 
+              <Typography
+                variant="h6"
                 color="primary"
-                sx={{ 
+                sx={{
                   fontSize: '1.3rem',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
                 }}
               >
                 {formatPrice(vehicle.price, vehicle.currency)}

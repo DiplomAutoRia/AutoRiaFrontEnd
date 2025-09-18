@@ -95,12 +95,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
       <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
         {user && (
           <Tooltip title={isFavoriteState ? 'Видалити з обраного' : 'Додати до обраного'}>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={handleFavoriteToggle}
-              sx={{ 
+              aria-label={isFavoriteState ? 'Видалити з обраного' : 'Додати до обраного'}
+              sx={{
                 backgroundColor: 'rgba(255,255,255,0.9)',
-                '&:hover': { backgroundColor: 'rgba(255,255,255,1)' }
+                '&:hover': { backgroundColor: 'rgba(255,255,255,1)' },
               }}
             >
               {isFavoriteState ? <Favorite color="error" fontSize="small" /> : <FavoriteBorder fontSize="small" />}
@@ -119,12 +120,20 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         component="img"
         height="200"
         image={mainImage}
-        alt={`${vehicle.brand} ${vehicle.model}`}
+        alt={`${vehicle.brand} ${vehicle.model} ${vehicle.year} - перейти до детального огляду`}
         sx={{
           backgroundColor: '#e0e0e0',
           cursor: 'pointer',
         }}
         onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            navigate(`/vehicles/${vehicle.id}`);
+          }
+        }}
       />
 
       <CardContent sx={{ flexGrow: 1 }}>

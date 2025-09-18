@@ -78,10 +78,13 @@ export const fetchVehiclesByUserId = createAsyncThunk('vehicles/fetchVehiclesByU
   return Array.isArray(response.data) ? response.data : response.data.results;
 });
 
-export const deleteVehicleImage = createAsyncThunk('vehicles/deleteVehicleImage', async ({ vehicleId, imageId }: { vehicleId: string; imageId: string }) => {
-  await vehiclesAPI.deleteImage(vehicleId, imageId);
-  return imageId;
-});
+export const deleteVehicleImage = createAsyncThunk(
+  'vehicles/deleteVehicleImage',
+  async ({ vehicleId, imageId }: { vehicleId: string; imageId: string }) => {
+    await vehiclesAPI.deleteImage(vehicleId, imageId);
+    return imageId;
+  },
+);
 
 export const deleteVehicle = createAsyncThunk('vehicles/deleteVehicle', async (id: string) => {
   await vehiclesAPI.delete(id);

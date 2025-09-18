@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export interface Car {
   id: number;
@@ -18,11 +17,7 @@ interface CarListingsProps {
   title?: string;
 }
 
-const CarListings: React.FC<CarListingsProps> = ({ 
-  cars, 
-  title = "Переглянуте раніше" 
-}) => {
-  const navigate = useNavigate();
+const CarListings: React.FC<CarListingsProps> = ({ cars, title = 'Переглянуте раніше' }) => {
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('uk-UA').format(price) + ' $';
   };
@@ -76,12 +71,9 @@ const CarListings: React.FC<CarListingsProps> = ({
             ))}
           </div>
 
-        <div className="flex justify-center mt-6">
-          <button
-          >
-            Дивитись більше
-          </button>
-        </div>
+          <div className="flex justify-center mt-6">
+            <button>Дивитись більше</button>
+          </div>
         </>
       )}
     </div>

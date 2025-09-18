@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
-import { getUserById } from '../../redux/auth/authSlice';
-import { fetchVehiclesByUserId, selectOwnerVehicles } from '../../redux/vehicles/vehiclesSlice';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import {
-  ArrowBack,
-  Email,
-  Favorite,
-  FavoriteBorder,
-  Share,
-  Star as StarIcon,
-  Visibility,
-} from '@mui/icons-material';
+import { ArrowBack, Email, Favorite, FavoriteBorder, Share, Visibility } from '@mui/icons-material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Alert,
   Box,
@@ -30,9 +22,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 
 import { MessageModal } from '../../components/messages';
 import {
@@ -41,7 +30,10 @@ import {
   useRemoveFromFavoritesMutation,
 } from '../../redux/api/favoritesApi';
 import { useGetVehicleQuery } from '../../redux/api/vehiclesApi';
+import { getUserById } from '../../redux/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
 import type { RootState } from '../../redux/store';
+import { fetchVehiclesByUserId, selectOwnerVehicles } from '../../redux/vehicles/vehiclesSlice';
 
 const VerifiedInfoBlock: React.FC = () => (
   <Paper sx={{ p: 3, mb: 3, mt: 1 }}>
@@ -119,9 +111,7 @@ const VerifiedInfoBlock: React.FC = () => (
           <Stack direction="row" alignItems="center" spacing={1}>
             <CheckCircleIcon color="success" fontSize="small" />
             <Typography>Перша операція</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>
-              27.06.2020 • 5 років тому
-            </Typography>
+            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>27.06.2020 • 5 років тому</Typography>
           </Stack>
         </Grid>
         <Grid item xs={12}>
@@ -133,9 +123,7 @@ const VerifiedInfoBlock: React.FC = () => (
           <Stack direction="row" alignItems="center" spacing={1}>
             <CheckCircleIcon color="success" fontSize="small" />
             <Typography>Остання операція</Typography>
-            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>
-              20.07.2024 • 11 міс. тому
-            </Typography>
+            <Typography sx={{ ml: 'auto', fontWeight: 500 }}>20.07.2024 • 11 міс. тому</Typography>
           </Stack>
         </Grid>
         <Grid item xs={12}>
@@ -219,7 +207,11 @@ type OwnerPhone = {
   name: string;
 };
 
-const VehicleInfoBlock: React.FC<{ vehicle: any; owner: any; onContactSeller: () => void }> = ({ vehicle, owner, onContactSeller }) => (
+const VehicleInfoBlock: React.FC<{ vehicle: any; owner: any; onContactSeller: () => void }> = ({
+  vehicle,
+  owner,
+  onContactSeller,
+}) => (
   <Box sx={{ mb: 3, px: 0, py: 0 }}>
     <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
       {vehicle.brand} {vehicle.model} {vehicle.year}
@@ -228,68 +220,88 @@ const VehicleInfoBlock: React.FC<{ vehicle: any; owner: any; onContactSeller: ()
       {vehicle.generation} {vehicle.modification}
     </Typography>
     <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-      {vehicle.installment && (
-        <Chip label="Можлива оплата частинами" color="primary" size="small" />
-      )}
-      {vehicle.bargain && (
-        <Chip label="Торг" color="primary" size="small" />
-      )}
+      {vehicle.installment && <Chip label="Можлива оплата частинами" color="primary" size="small" />}
+      {vehicle.bargain && <Chip label="Торг" color="primary" size="small" />}
     </Stack>
     <Stack direction="row" spacing={2} sx={{ mb: 1, flexWrap: 'wrap' }}>
       <Typography variant="body2">
         {vehicle.body_type} | {vehicle.doors} дверей | {vehicle.seats} місць
       </Typography>
     </Stack>
-      <Grid container spacing={1} sx={{ mb: 1 }}>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Пробіг</Typography>
-          <Typography>{vehicle.mileage ? `${vehicle.mileage} тис. км` : 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Двигун</Typography>
-          <Typography>
-            {vehicle.engine_volume ? `${vehicle.engine_volume} л` : ''}
-            {vehicle.engine_power ? ` (${vehicle.engine_power} к.с.)` : ''}
-            {vehicle.fuel_type ? ` • ${vehicle.fuel_type}` : ''}
-          </Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Коробка передач</Typography>
-          <Typography>{vehicle.transmission || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Привід</Typography>
-          <Typography>{vehicle.drive_type || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Колір</Typography>
-          <Typography>{vehicle.color || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Країна реєстрації</Typography>
-          <Typography>{vehicle.registration_country || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Розмитнено</Typography>
-          <Typography>{vehicle.is_custom_cleared !== undefined ? (vehicle.is_custom_cleared ? 'Так' : 'Ні') : 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">VIN код</Typography>
-          <Typography>{vehicle.vin_code || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Кількість власників</Typography>
-          <Typography>{vehicle.number_of_owners || 'Не вказано'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Стан</Typography>
-          <Typography>{vehicle.is_new ? 'Новий' : 'Вживаний'}</Typography>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Typography variant="body2" color="text.secondary">Держ. номер</Typography>
-          <Typography>{vehicle.plate_number || 'Не вказано'}</Typography>
-        </Grid>
+    <Grid container spacing={1} sx={{ mb: 1 }}>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Пробіг
+        </Typography>
+        <Typography>{vehicle.mileage ? `${vehicle.mileage} тис. км` : 'Не вказано'}</Typography>
       </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Двигун
+        </Typography>
+        <Typography>
+          {vehicle.engine_volume ? `${vehicle.engine_volume} л` : ''}
+          {vehicle.engine_power ? ` (${vehicle.engine_power} к.с.)` : ''}
+          {vehicle.fuel_type ? ` • ${vehicle.fuel_type}` : ''}
+        </Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Коробка передач
+        </Typography>
+        <Typography>{vehicle.transmission || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Привід
+        </Typography>
+        <Typography>{vehicle.drive_type || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Колір
+        </Typography>
+        <Typography>{vehicle.color || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Країна реєстрації
+        </Typography>
+        <Typography>{vehicle.registration_country || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Розмитнено
+        </Typography>
+        <Typography>
+          {vehicle.is_custom_cleared !== undefined ? (vehicle.is_custom_cleared ? 'Так' : 'Ні') : 'Не вказано'}
+        </Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          VIN код
+        </Typography>
+        <Typography>{vehicle.vin_code || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Кількість власників
+        </Typography>
+        <Typography>{vehicle.number_of_owners || 'Не вказано'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Стан
+        </Typography>
+        <Typography>{vehicle.is_new ? 'Новий' : 'Вживаний'}</Typography>
+      </Grid>
+      <Grid item xs={6} sm={4}>
+        <Typography variant="body2" color="text.secondary">
+          Держ. номер
+        </Typography>
+        <Typography>{vehicle.plate_number || 'Не вказано'}</Typography>
+      </Grid>
+    </Grid>
     <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
       Опис
     </Typography>
@@ -298,53 +310,78 @@ const VehicleInfoBlock: React.FC<{ vehicle: any; owner: any; onContactSeller: ()
     </Typography>
     <Grid container spacing={1}>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Лакофарбове покриття</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Лакофарбове покриття
+        </Typography>
         <Typography>{vehicle.paint_condition || 'Як нове'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Технічний стан</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Технічний стан
+        </Typography>
         <Typography>{vehicle.technical_condition || 'Повністю непошкоджене'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Матеріали салону</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Матеріали салону
+        </Typography>
         <Typography>{vehicle.interior_material || 'Велюр'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Регулювання сидінь салону</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Регулювання сидінь салону
+        </Typography>
         <Typography>{vehicle.seat_adjustment || 'Ручне регулювання передніх сидінь'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Електросклопідйомники</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Електросклопідйомники
+        </Typography>
         <Typography>{vehicle.windows || 'Передні та задні'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Кондиціонер</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Кондиціонер
+        </Typography>
         <Typography>{vehicle.air_conditioner || 'Кондиціонер'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Підсилювач керма</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Підсилювач керма
+        </Typography>
         <Typography>{vehicle.steering_booster || 'Гідро'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Регулювання керма</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Регулювання керма
+        </Typography>
         <Typography>{vehicle.steering_adjustment || 'По висоті та по вильоту'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Запасне колесо</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Запасне колесо
+        </Typography>
         <Typography>{vehicle.spare_wheel || 'Повнорозмірне'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Мультимедіа</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Мультимедіа
+        </Typography>
         <Typography>{vehicle.multimedia || 'AUX • Bluetooth'}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <Typography variant="body2" color="text.secondary">Система допомоги при паркуванні</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Система допомоги при паркуванні
+        </Typography>
         <Typography>{vehicle.parking_assist || 'Задня камера'}</Typography>
       </Grid>
     </Grid>
     <Box sx={{ mt: 2 }}>
       <Typography variant="body2" color="text.secondary">
-        Звʼязатися з продавцем: <Box component="span" sx={{ color: '#156ff5', fontWeight: 500 }}>{owner?.name || 'Продавець'}</Box>
+        Звʼязатися з продавцем:{' '}
+        <Box component="span" sx={{ color: '#156ff5', fontWeight: 500 }}>
+          {owner?.name || 'Продавець'}
+        </Box>
       </Typography>
       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
         {owner?.phones?.map((phone: OwnerPhone, idx: number) => (
@@ -369,7 +406,7 @@ interface SellerOtherListingsProps {
 
 const SellerOtherListings: React.FC<SellerOtherListingsProps> = ({ listings = [], currentVehicleId }) => {
   const navigate = useNavigate();
-  
+
   // Фільтруємо оголошення, щоб не показувати поточне оголошення
   const filteredListings = listings.filter((item: any) => item.id !== currentVehicleId).slice(0, 5);
 
@@ -392,13 +429,13 @@ const SellerOtherListings: React.FC<SellerOtherListingsProps> = ({ listings = []
       <Stack spacing={2}>
         {filteredListings.length > 0 ? (
           filteredListings.map((item, idx) => (
-            <Box 
-              key={item.id} 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                borderBottom: idx < filteredListings.length - 1 ? '1px solid #e0e0e0' : 'none', 
-                pb: 1, 
+            <Box
+              key={item.id}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                borderBottom: idx < filteredListings.length - 1 ? '1px solid #e0e0e0' : 'none',
+                pb: 1,
                 mb: 1,
                 cursor: 'pointer',
                 '&:hover': {
@@ -424,7 +461,9 @@ const SellerOtherListings: React.FC<SellerOtherListingsProps> = ({ listings = []
                 }}
               />
               <Box sx={{ flexGrow: 1 }}>
-                <Typography sx={{ fontWeight: 600 }}>{item.brand} {item.model} {item.year}</Typography>
+                <Typography sx={{ fontWeight: 600 }}>
+                  {item.brand} {item.model} {item.year}
+                </Typography>
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 0.5 }}>
                   <Typography sx={{ color: '#43a047', fontWeight: 700, fontSize: 18 }}>
                     {formatPrice(item.price, item.currency)}
@@ -466,7 +505,7 @@ const VehicleDetailPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [selectedImage, setSelectedImage] = useState(0);
   const [owner, setOwner] = useState<any>(null);
-  const [ownerLoading, setOwnerLoading] = useState(false);
+  const [, setOwnerLoading] = useState(false);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
 
@@ -520,13 +559,13 @@ const VehicleDetailPage: React.FC = () => {
     setMessageModalOpen(true);
   };
 
-  const handleCallSeller = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    alert('Функція дзвінка буде додана пізніше');
-  };
+  // const _handleCallSeller = () => {
+  //   if (!user) {
+  //     navigate('/login');
+  //     return;
+  //   }
+  //   alert('Функція дзвінка буде додана пізніше');
+  // };
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('uk-UA', {
@@ -597,7 +636,7 @@ const VehicleDetailPage: React.FC = () => {
     if (owner && ownerVehicles.length > 0) {
       setOwner((prevOwner: any) => ({
         ...prevOwner,
-        listings: ownerVehicles.length
+        listings: ownerVehicles.length,
       }));
     }
   }, [ownerVehicles]);
@@ -632,7 +671,6 @@ const VehicleDetailPage: React.FC = () => {
   const previewCount = 7;
   const showPreviewImages = !showAllPhotos && images.length > previewCount ? images.slice(0, previewCount) : images;
 
-
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box mb={3}>
@@ -661,13 +699,13 @@ const VehicleDetailPage: React.FC = () => {
           <Stack direction="row" spacing={1}>
             {user && (
               <Tooltip title={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'}>
-                <IconButton 
-                  onClick={handleFavoriteToggle} 
-                  sx={{ 
+                <IconButton
+                  onClick={handleFavoriteToggle}
+                  sx={{
                     color: isFavorite ? '#156ff5' : 'default',
                     '&:hover': {
-                      color: isFavorite ? '#1158d4' : '#156ff5'
-                    }
+                      color: isFavorite ? '#1158d4' : '#156ff5',
+                    },
                   }}
                 >
                   {isFavorite ? <Favorite /> : <FavoriteBorder />}
@@ -893,11 +931,7 @@ const VehicleDetailPage: React.FC = () => {
                   >
                     {/* Аватар або ініціали */}
                     {owner?.avatar ? (
-                      <img
-                        src={owner.avatar}
-                        alt={owner.name}
-                        style={{ width: 48, height: 48, borderRadius: '50%' }}
-                      />
+                      <img src={owner.avatar} alt={owner.name} style={{ width: 48, height: 48, borderRadius: '50%' }} />
                     ) : (
                       owner?.name?.[0] || '?'
                     )}

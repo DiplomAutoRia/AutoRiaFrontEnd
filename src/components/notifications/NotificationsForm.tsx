@@ -1,21 +1,11 @@
 import { useState } from 'react';
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MarkAsReadIcon from '@mui/icons-material/MarkEmailRead';
-import {
-  Avatar,
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  MenuItem,
-  Paper,
-  Select,
-  Typography,
-} from '@mui/material';
+import { Avatar, Box, Button, Checkbox, IconButton, MenuItem, Paper, Select, Typography } from '@mui/material';
 
 interface Notification {
   id: number;
@@ -35,20 +25,18 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
   const [selectAll, setSelectAll] = useState(false);
 
   const handleNotificationToggle = (id: number) => {
-    setExpandedNotificationId(prevId => prevId === id ? null : id);
+    setExpandedNotificationId((prevId) => (prevId === id ? null : id));
   };
 
   const handleSelectNotification = (id: number) => {
-    setSelectedNotifications(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
+    setSelectedNotifications((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedNotifications([]);
     } else {
-      setSelectedNotifications(notifications.map(n => n.id));
+      setSelectedNotifications(notifications.map((n) => n.id));
     }
     setSelectAll(!selectAll);
   };
@@ -73,8 +61,8 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
       username: 'CarDealer UA',
       title: 'Нові надходження',
       date: '10.05.2024',
-      message: 'У нас з\'явились нові автомобілі марки Audi. Запрошуємо на перегляд.',
-    }
+      message: "У нас з'явились нові автомобілі марки Audi. Запрошуємо на перегляд.",
+    },
   ];
 
   const displayNotifications = notifications.length > 0 ? notifications : defaultNotifications;
@@ -86,11 +74,7 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           Сповіщення
         </Typography>
-        <Button 
-          variant="outlined" 
-          size="small"
-          sx={{ borderRadius: 0 }}
-        >
+        <Button variant="outlined" size="small" sx={{ borderRadius: 0 }}>
           Налаштування
         </Button>
       </Box>
@@ -98,12 +82,7 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
       {/* Filter buttons */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
         {['Всі', 'Акції', 'Продаж', 'Купівля', 'Обране', 'Інформаційні', 'Архів'].map((label) => (
-          <Button
-            key={label}
-            variant="outlined"
-            size="small"
-            sx={{ borderRadius: 0, minWidth: 'auto', px: 1.5 }}
-          >
+          <Button key={label} variant="outlined" size="small" sx={{ borderRadius: 0, minWidth: 'auto', px: 1.5 }}>
             {label}
           </Button>
         ))}
@@ -112,19 +91,10 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
       {/* Actions row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Checkbox 
-            size="small" 
-            checked={selectAll}
-            onChange={handleSelectAll}
-          />
+          <Checkbox size="small" checked={selectAll} onChange={handleSelectAll} />
           <Typography variant="body2">вибрати все</Typography>
         </Box>
-        <Select
-          size="small"
-          defaultValue=""
-          displayEmpty
-          sx={{ minWidth: 120, borderRadius: 0 }}
-        >
+        <Select size="small" defaultValue="" displayEmpty sx={{ minWidth: 120, borderRadius: 0 }}>
           <MenuItem value="">Дії</MenuItem>
           <MenuItem value="delete">Видалити</MenuItem>
           <MenuItem value="archive">Архівувати</MenuItem>
@@ -138,29 +108,27 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
       {/* Notifications list */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {displayNotifications.map((notification) => (
-          <Paper 
-            key={notification.id} 
-            elevation={1} 
-            sx={{ 
-              p: 2, 
+          <Paper
+            key={notification.id}
+            elevation={1}
+            sx={{
+              p: 2,
               borderRadius: 0,
               transition: 'all 0.3s ease',
               height: expandedNotificationId === notification.id ? 'auto' : '60px',
-              minHeight: '60px'
+              minHeight: '60px',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {/* Checkbox */}
-              <Checkbox 
-                size="small" 
+              <Checkbox
+                size="small"
                 checked={selectedNotifications.includes(notification.id)}
                 onChange={() => handleSelectNotification(notification.id)}
               />
 
               {/* Icon */}
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                {notification.username[0]}
-              </Avatar>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>{notification.username[0]}</Avatar>
 
               {/* User info and title */}
               <Box sx={{ flex: 1 }}>
@@ -177,10 +145,7 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
                 <Typography variant="caption" color="text.secondary">
                   {notification.date}
                 </Typography>
-                <IconButton 
-                  size="small"
-                  onClick={() => handleNotificationToggle(notification.id)}
-                >
+                <IconButton size="small" onClick={() => handleNotificationToggle(notification.id)}>
                   {expandedNotificationId === notification.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </IconButton>
               </Box>
@@ -206,11 +171,7 @@ export default function NotificationsForm({ notifications = [] }: NotificationsF
                     <IconButton size="small" title="Позначити як прочитане">
                       <MarkAsReadIcon />
                     </IconButton>
-                    <IconButton 
-                      size="small" 
-                      title="Згорнути"
-                      onClick={() => handleNotificationToggle(notification.id)}
-                    >
+                    <IconButton size="small" title="Згорнути" onClick={() => handleNotificationToggle(notification.id)}>
                       <ExpandLessIcon />
                     </IconButton>
                   </Box>
