@@ -1,10 +1,64 @@
 <!doctype html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AutoRia</title>
+    <title>AutoRia - Купівля та продаж автомобілів в Україні</title>
+    <meta name="description" content="AutoRia - найкращий сайт для купівлі та продажу автомобілів в Україні. Вживані та нові авто, електромобілі, авто з США та Європи." />
+    <meta name="keywords" content="автомобілі, купити авто, продати авто, вживані авто, нові авто, електромобілі, авто з США, авто з Європи, AutoRia" />
+    <meta name="author" content="AutoRia" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://autoria.com.ua" />
+
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="AutoRia - Купівля та продаж автомобілів в Україні" />
+    <meta property="og:description" content="AutoRia - найкращий сайт для купівлі та продажу автомобілів в Україні. Вживані та нові авто, електромобілі, авто з США та Європи." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://autoria.com.ua" />
+    <meta property="og:image" content="/locales/images/logo.png" />
+    <meta property="og:locale" content="uk_UA" />
+    <meta property="og:site_name" content="AutoRia" />
+
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AutoRia - Купівля та продаж автомобілів в Україні" />
+    <meta name="twitter:description" content="AutoRia - найкращий сайт для купівлі та продажу автомобілів в Україні. Вживані та нові авто, електромобілі, авто з США та Європи." />
+    <meta name="twitter:image" content="/locales/images/logo.png" />
+
+    <!-- Additional SEO tags -->
+    <meta name="theme-color" content="#0066cc" />
+    <meta name="msapplication-TileColor" content="#0066cc" />
+    <link rel="apple-touch-icon" href="/locales/images/logo.png" />
+
+    <!-- Preload важливих ресурсів -->
+    <link rel="preload" href="/locales/images/logo.png" as="image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AutoRia",
+      "url": "https://autoria.com.ua",
+      "description": "AutoRia - найкращий сайт для купівлі та продажу автомобілів в Україні",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://autoria.com.ua/vehicles?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AutoRia",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://autoria.com.ua/locales/images/logo.png"
+        }
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

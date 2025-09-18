@@ -62,8 +62,10 @@ const MainPage = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <Box component="main" role="main" sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Box
+        component="section"
+        aria-label="Пошук автомобілів"
         sx={{
           background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
           color: 'white',
@@ -150,8 +152,8 @@ const MainPage = () => {
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" gutterBottom>
+      <Container maxWidth="lg" sx={{ py: 4 }} component="section" aria-label="Популярні бренди">
+        <Typography variant="h4" component="h2" gutterBottom>
           {t('mainPage.popularBrands')}
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -168,9 +170,9 @@ const MainPage = () => {
         </Stack>
       </Container>
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }} component="section" aria-label="Рекомендовані автомобілі">
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" component="h2" gutterBottom>
             {t('mainPage.recommendedCars')}
           </Typography>
           <Button variant="outlined" onClick={() => navigate('/vehicles')}>
@@ -199,7 +201,7 @@ const MainPage = () => {
         )}
       </Container>
 
-      <Box sx={{ backgroundColor: 'white', py: 6 }}>
+      <Box component="section" aria-label="Статистика" sx={{ backgroundColor: 'white', py: 6 }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} textAlign="center">
             <Grid item xs={12} md={3}>

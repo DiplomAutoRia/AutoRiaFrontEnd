@@ -45,6 +45,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
   const [sendMessage, { isLoading: isSending }] = useCreateMessageMutation();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     isConnected,
@@ -76,7 +77,9 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
   });
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   const allMessages = React.useMemo(() => {
@@ -209,7 +212,15 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
   }
 
   return (
-    <Paper sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Paper
+      sx={{
+        height: '600px',
+        maxHeight: '600px',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <Box
         sx={{
           p: 2,
@@ -218,6 +229,9 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
           display: 'flex',
           alignItems: 'center',
           gap: 1,
+          height: '80px',
+          minHeight: '80px',
+          flexShrink: 0,
         }}
       >
         <IconButton onClick={() => navigate('/messages')}>
@@ -258,8 +272,17 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
         </Box>
       </Box>
 
-      <Box sx={{ flexGrow: 1, overflow: 'auto', p: 1 }}>
-        <List>
+      <Box
+        ref={messagesContainerRef}
+        sx={{
+          height: '440px', // 600px - 80px (header) - 80px (form) = 440px
+          maxHeight: '440px',
+          overflow: 'auto',
+          p: 1,
+          flexShrink: 0,
+        }}
+      >
+        <List sx={{ pb: 0 }}>
           {allMessages.map((message: Message) => {
             const isOwnMessage = message.sender === user?.id;
 
@@ -335,8 +358,19 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
       </Box>
 
       <Divider />
-      <Box component="form" onSubmit={handleSendMessage} sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+      <Box
+        component="form"
+        onSubmit={handleSendMessage}
+        sx={{
+          p: 2,
+          height: '80px',
+          minHeight: '80px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', width: '100%' }}>
           <TextField
             fullWidth
             multiline
@@ -346,7 +380,6 @@ const ConversationView: React.FC<ConversationViewProps> = ({ conversationId }) =
             onKeyDown={handleKeyDown}
             placeholder={t('messages.typeMessage')}
             disabled={isSending}
-            size="small"
           />
           <IconButton type="submit" color="primary" disabled={!newMessageText.trim() || isSending} sx={{ mb: 0.5 }}>
             {isSending ? <CircularProgress size={20} /> : <Send />}
