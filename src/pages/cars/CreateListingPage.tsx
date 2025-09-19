@@ -159,7 +159,7 @@ const CreateListingPage = () => {
       transmission: undefined,
       body_type: undefined,
       drive_type: undefined,
-      is_new: true,
+      is_new: "true",
       plate_number: '',
       color: undefined,
       engine_volume: 0,
@@ -199,6 +199,12 @@ const CreateListingPage = () => {
       });
     }
   };
+
+  const onError = (errors: any) => {
+  console.error('Validation errors:', errors);
+};
+
+
 
   const onSubmit = async (data: any) => {
     try {
@@ -560,9 +566,9 @@ const CreateListingPage = () => {
                         <MenuItem value="true">Нова</MenuItem>
                         <MenuItem value="false">Б/У</MenuItem>
                       </Select>
-                      {errors.drive_type && (
+                      {errors.is_new && (
                         <Typography variant="caption" color="error">
-                          {errors.drive_type.message}
+                          {errors.is_new.message}
                         </Typography>
                       )}
                     </FormControl>
@@ -1270,7 +1276,7 @@ const CreateListingPage = () => {
                   fontSize: 16,
                   textTransform: 'none',
                 }}
-                onClick={handleSubmit(onSubmit)}
+                onClick={handleSubmit(onSubmit, onError)}
               >
                 Розмістити оголошення
               </Button>

@@ -109,7 +109,6 @@ export const carListingSchema = z.object({
   drive_type: z.enum(['front', 'rear', 'all', 'full'], {
     message: 'Оберіть тип приводу зі списку'
   }).optional(),
-  is_new: z.boolean().default(true),
   plate_number: z.string()
     .max(20, 'Номер авто не може перевищувати 20 символів')
     .regex(/^[A-Z0-9\s-]*$/, 'Номер авто може містити тільки літери, цифри, пробіли та дефіси')
@@ -131,6 +130,7 @@ export const carListingSchema = z.object({
     .max(17, 'VIN-код має містити 17 символів')
     .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'Невірний формат VIN-коду')
     .optional(),
+  is_new: z.string().optional(),
 
 
 

@@ -35,8 +35,13 @@ import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
 import { useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 
+interface Favorite {
+  id: number;
+  vehicle: any; // This can be a Vehicle object or a number (ID)
+}
+
 interface FavoriteVehicleCardProps {
-  favorite: any;
+  favorite: Favorite;
   onRemove: (favoriteId: number) => void;
   onNavigate: (vehicleId: number) => void;
 }
@@ -245,7 +250,8 @@ export default function ProfilePage() {
     limit: 3,
   });
 
-  const { data: favorites = [], isLoading: favoritesLoading } = useGetFavoritesQuery(undefined, { skip: !user });
+  const { data: favoritesData = [], isLoading: favoritesLoading } = useGetFavoritesQuery(undefined, { skip: !user });
+  const favorites = favoritesData as Favorite[];
   
   // Debug: log favorites structure to understand the API response
   React.useEffect(() => {
@@ -385,7 +391,6 @@ export default function ProfilePage() {
                       key={vehicle.id}
                       vehicle={vehicle}
                       onSettingsClick={handleSettingsClick}
-                      onDelete={handleDeleteVehicle} // Додаємо проп
                     />
                   ))}
                 </Box>
@@ -422,14 +427,69 @@ export default function ProfilePage() {
                 </Box>
               ) : favorites.length > 0 ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {favorites.slice(0, 3).map((favorite) => (
-                    <FavoriteVehicleCard
-                      key={favorite.id}
-                      favorite={favorite}
-                      onRemove={handleRemoveFavorite}
-                      onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
-                    />
-                  ))}
+                  {favorites.slice(0, 3).map((favorite) => {
+                    // Handle case where vehicle might be an ID (number) or an object
+                    const vehicle = favorite.vehicle;
+                    
+                    // If vehicle is a number (ID), we can't display it properly
+                    if (typeof vehicle === 'number') {
+                      return (
+                        <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                Оголошення завантажується...
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                ID: {vehicle}
+                              </Typography>
+                            </Box>
+                            <IconButton 
+                              size="small" 
+                              onClick={() => handleRemoveFavorite(favorite.id)}
+                              color="error"
+                            >
+                              <FavoriteIcon />
+                            </IconButton>
+                          </Box>
+                        </Paper>
+                      );
+                    }
+                    
+                    // If vehicle is an object with id property, display it
+                    if (vehicle && typeof vehicle === 'object' && 'id' in vehicle) {
+                      return (
+                        <UserListingCard
+                          key={vehicle.id}
+                          vehicle={vehicle}
+                          onSettingsClick={() => {}}
+                        />
+                      );
+                    }
+                    
+                    // Fallback for invalid vehicle data
+                    return (
+                      <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                              Помилка завантаження оголошення
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              ID: {favorite.id}
+                            </Typography>
+                          </Box>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => handleRemoveFavorite(favorite.id)}
+                            color="error"
+                          >
+                            <FavoriteIcon />
+                          </IconButton>
+                        </Box>
+                      </Paper>
+                    );
+                  })}
                 </Box>
               ) : (
                 <Box sx={{ minHeight: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

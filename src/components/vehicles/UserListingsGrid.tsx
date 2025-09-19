@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Settings } from '@mui/icons-material';
+import { Settings, Delete } from '@mui/icons-material';
 import { Box, Button, Card, CardMedia, Container, IconButton, Stack, Typography } from '@mui/material';
 
 import Filter from '../ui/filter';
 import type { Vehicle } from '../../models/vehicle';
 import type { VehicleFilters } from '../../models/vehicle';
-import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
+import { useGetMyVehiclesQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 
 interface UserListingsGridProps {
@@ -29,6 +29,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
     limit: 12,
     ...filters 
   });
+  const [deleteVehicle] = useDeleteVehicleMutation();
 
   const handleSearch = (searchFilters: Partial<VehicleFilters>) => {
     setFilters(searchFilters);
@@ -43,6 +44,15 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
 
   const handleSettingsClick = (vehicleId: number) => {
     navigate(`/vehicles/${vehicleId}/edit`);
+  };
+
+  const handleDeleteVehicle = async (vehicleId: number) => {
+    try {
+      await deleteVehicle(vehicleId).unwrap();
+      // Можна додати оновлення списку або повідомлення
+    } catch (error) {
+      console.error('Не вдалося видалити оголошення:', error);
+    }
   };
 
   if (!user) {
@@ -134,26 +144,43 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
               }}
               onClick={() => navigate(`/vehicles/${vehicle.id}`)}
             >
-              {/* Іконка налаштувань */}
-              <IconButton
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  zIndex: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  '&:hover': {
-                    backgroundColor: 'white'
-                  }
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSettingsClick(vehicle.id);
-                }}
-                size="small"
-              >
-                <Settings fontSize="small" />
-              </IconButton>
+              {/* Іконки дій */}
+              <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', gap: 0.5 }}>
+                {/* Іконка налаштувань */}
+                <IconButton
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                      backgroundColor: 'white'
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSettingsClick(vehicle.id);
+                  }}
+                  size="small"
+                >
+                  <Settings fontSize="small" />
+                </IconButton>
+
+                {/* Іконка видалення */}
+                <IconButton
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                      backgroundColor: 'white'
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteVehicle(vehicle.id);
+                  }}
+                  size="small"
+                  color="error"
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              </Box>
 
               {/* Зображення */}
               <CardMedia
