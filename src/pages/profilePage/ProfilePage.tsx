@@ -31,9 +31,8 @@ import UserListingCard from '../../components/vehicles/UserListingCard';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
 import ProfileChat from '../../components/profile/ProfileChat';
 import type { RootState } from '../../redux/store';
-import { useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
+import { useGetMyVehiclesQuery, useGetVehicleQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
-import { useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 
 interface Favorite {
   id: number;
@@ -45,6 +44,80 @@ interface FavoriteVehicleCardProps {
   onRemove: (favoriteId: number) => void;
   onNavigate: (vehicleId: number) => void;
 }
+
+interface FavoriteVehicleWithIdProps {
+  vehicleId: number;
+  favoriteId: number;
+  onRemove: (favoriteId: number) => void;
+  onNavigate: (vehicleId: number) => void;
+}
+
+const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({ 
+  vehicleId, 
+  favoriteId, 
+  onRemove, 
+  onNavigate 
+}) => {
+  const { data: vehicle, isLoading, error } = useGetVehicleQuery(vehicleId);
+
+  if (isLoading) {
+    return (
+      <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              Завантаження оголошення...
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ID: {vehicleId}
+            </Typography>
+          </Box>
+          <IconButton 
+            size="small" 
+            onClick={() => onRemove(favoriteId)}
+            color="primary"
+          >
+            <FavoriteIcon />
+          </IconButton>
+        </Box>
+      </Paper>
+    );
+  }
+
+  if (error || !vehicle) {
+    return (
+      <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              Помилка завантаження оголошення
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ID: {vehicleId}
+            </Typography>
+          </Box>
+          <IconButton 
+            size="small" 
+            onClick={() => onRemove(favoriteId)}
+            color="primary"
+          >
+            <FavoriteIcon />
+          </IconButton>
+        </Box>
+      </Paper>
+    );
+  }
+
+  return (
+    <UserListingCard
+      key={vehicle.id}
+      vehicle={vehicle}
+      onSettingsClick={() => {}}
+      showFavoriteIcon={true}
+      onFavoriteClick={() => onRemove(favoriteId)}
+    />
+  );
+};
 
 const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onRemove, onNavigate }) => {
   // The favorite object already contains the full vehicle data
@@ -431,28 +504,16 @@ export default function ProfilePage() {
                     // Handle case where vehicle might be an ID (number) or an object
                     const vehicle = favorite.vehicle;
                     
-                    // If vehicle is a number (ID), we can't display it properly
+                    // If vehicle is a number (ID), fetch the vehicle data
                     if (typeof vehicle === 'number') {
                       return (
-                        <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                Оголошення завантажується...
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                ID: {vehicle}
-                              </Typography>
-                            </Box>
-                            <IconButton 
-                              size="small" 
-                              onClick={() => handleRemoveFavorite(favorite.id)}
-                              color="error"
-                            >
-                              <FavoriteIcon />
-                            </IconButton>
-                          </Box>
-                        </Paper>
+                        <FavoriteVehicleWithId
+                          key={favorite.id}
+                          vehicleId={vehicle}
+                          favoriteId={favorite.id}
+                          onRemove={handleRemoveFavorite}
+                          onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
+                        />
                       );
                     }
                     
@@ -463,6 +524,8 @@ export default function ProfilePage() {
                           key={vehicle.id}
                           vehicle={vehicle}
                           onSettingsClick={() => {}}
+                          showFavoriteIcon={true}
+                          onFavoriteClick={() => handleRemoveFavorite(favorite.id)}
                         />
                       );
                     }
@@ -482,7 +545,7 @@ export default function ProfilePage() {
                           <IconButton 
                             size="small" 
                             onClick={() => handleRemoveFavorite(favorite.id)}
-                            color="error"
+                            color="primary"
                           >
                             <FavoriteIcon />
                           </IconButton>
@@ -693,14 +756,59 @@ export default function ProfilePage() {
               </Box>
             ) : favorites.length > 0 ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {favorites.map((favorite) => (
-                  <FavoriteVehicleCard
-                    key={favorite.id}
-                    favorite={favorite}
-                    onRemove={handleRemoveFavorite}
-                    onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
-                  />
-                ))}
+                {favorites.map((favorite) => {
+                  // Handle case where vehicle might be an ID (number) or an object
+                  const vehicle = favorite.vehicle;
+                  
+                  // If vehicle is a number (ID), fetch the vehicle data
+                  if (typeof vehicle === 'number') {
+                    return (
+                      <FavoriteVehicleWithId
+                        key={favorite.id}
+                        vehicleId={vehicle}
+                        favoriteId={favorite.id}
+                        onRemove={handleRemoveFavorite}
+                        onNavigate={(vehicleId) => navigate(`/vehicles/${vehicleId}`)}
+                      />
+                    );
+                  }
+                  
+                  // If vehicle is an object with id property, display it
+                  if (vehicle && typeof vehicle === 'object' && 'id' in vehicle) {
+                    return (
+                      <UserListingCard
+                        key={vehicle.id}
+                        vehicle={vehicle}
+                        onSettingsClick={() => {}}
+                        showFavoriteIcon={true}
+                        onFavoriteClick={() => handleRemoveFavorite(favorite.id)}
+                      />
+                    );
+                  }
+                  
+                  // Fallback for invalid vehicle data
+                  return (
+                    <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                            Помилка завантаження оголошення
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            ID: {favorite.id}
+                          </Typography>
+                        </Box>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleRemoveFavorite(favorite.id)}
+                          color="primary"
+                        >
+                          <FavoriteIcon />
+                        </IconButton>
+                      </Box>
+                    </Paper>
+                  );
+                })}
               </Box>
             ) : (
               <Box sx={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

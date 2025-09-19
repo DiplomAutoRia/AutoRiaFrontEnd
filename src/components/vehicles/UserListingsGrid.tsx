@@ -76,7 +76,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
         {showCreateButton && (
           <Button 
             variant="contained" 
-            onClick={() => navigate('/create')}
+            onClick={() => navigate('/vehicles/create')}
             sx={{ borderRadius: 0 }}
           >
             Створити оголошення

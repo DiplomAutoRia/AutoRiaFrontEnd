@@ -404,7 +404,7 @@ const ProfileSettingsForm: React.FC = () => {
                   onChange={() => handleMailingToggle('informational')}
                   sx={{ 
                     '& .MuiSvgIcon-root': { 
-                      fontSize: 32,
+                      fontSize: 20,
                       transform: 'scale(1.5)'
                     } 
                   }}
@@ -426,7 +426,7 @@ const ProfileSettingsForm: React.FC = () => {
                   onChange={() => handleMailingToggle('purchaseHelp')}
                   sx={{ 
                     '& .MuiSvgIcon-root': { 
-                      fontSize: 32,
+                      fontSize: 20,
                       transform: 'scale(1.5)'
                     } 
                   }}
@@ -449,7 +449,7 @@ const ProfileSettingsForm: React.FC = () => {
                   onChange={() => handleMailingToggle('autoNews')}
                   sx={{ 
                     '& .MuiSvgIcon-root': { 
-                      fontSize: 32,
+                      fontSize: 20,
                       transform: 'scale(1.5)'
                     } 
                   }}
@@ -471,7 +471,7 @@ const ProfileSettingsForm: React.FC = () => {
                   onChange={() => handleMailingToggle('newOffers')}
                   sx={{ 
                     '& .MuiSvgIcon-root': { 
-                      fontSize: 32,
+                      fontSize: 20,
                       transform: 'scale(1.5)'
                     } 
                   }}
@@ -493,7 +493,7 @@ const ProfileSettingsForm: React.FC = () => {
                   onChange={() => handleMailingToggle('carReviews')}
                   sx={{ 
                     '& .MuiSvgIcon-root': { 
-                      fontSize: 32,
+                      fontSize: 20,
                       transform: 'scale(1.5)'
                     } 
                   }}

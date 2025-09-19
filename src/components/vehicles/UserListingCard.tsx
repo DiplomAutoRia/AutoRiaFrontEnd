@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Settings, Speed, DirectionsCar, ConfirmationNumber, LocationOn } from '@mui/icons-material';
+import { Settings, Speed, DirectionsCar, ConfirmationNumber, LocationOn, Favorite } from '@mui/icons-material';
 import { Card, CardMedia, IconButton, Box, Typography, Stack, Chip, Button } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
@@ -10,9 +10,17 @@ interface UserListingCardProps {
   vehicle: Vehicle;
   onSettingsClick: (vehicleId: number) => void;
   onDelete?: (vehicleId: number) => void; // Додаємо проп
+  showFavoriteIcon?: boolean; // Показувати іконку сердечка замість налаштувань
+  onFavoriteClick?: (vehicleId: number) => void; // Обробник кліку на сердечко
 }
 
-const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsClick, onDelete }) => {
+const UserListingCard: React.FC<UserListingCardProps> = ({ 
+  vehicle, 
+  onSettingsClick, 
+  onDelete,
+  showFavoriteIcon = false,
+  onFavoriteClick
+}) => {
   const navigate = useNavigate();
 
   const formatPrice = (price: number, currency: string) => {
@@ -41,7 +49,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
       }}
       onClick={() => navigate(`/vehicles/${vehicle.id}`)}
     >
-      {/* Іконка налаштувань */}
+      {/* Іконка налаштувань або сердечка */}
       <IconButton
         sx={{
           position: 'absolute',
@@ -55,11 +63,17 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
         }}
         onClick={(e) => {
           e.stopPropagation();
-          onSettingsClick(vehicle.id);
+          if (showFavoriteIcon && onFavoriteClick) {
+            // Pass the favorite ID instead of vehicle ID for favorites
+            onFavoriteClick(vehicle.id);
+          } else {
+            onSettingsClick(vehicle.id);
+          }
         }}
         size="small"
+        color={showFavoriteIcon ? "primary" : "default"}
       >
-        <Settings fontSize="small" />
+        {showFavoriteIcon ? <Favorite fontSize="small" /> : <Settings fontSize="small" />}
       </IconButton>
 
       {/* Зображення */}
@@ -135,7 +149,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
 
         {/* Engine specifications under title */}
         {(vehicle.engine_volume || vehicle.engine_power || vehicle.fuel_type) && (
-          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+          <Stack direction="row" spacing={1} >
             {vehicle.engine_volume && (
               <Typography variant="body2" color="text.secondary">
                 {vehicle.engine_volume} л
@@ -217,13 +231,6 @@ const UserListingCard: React.FC<UserListingCardProps> = ({ vehicle, onSettingsCl
 
         {/* Action buttons */}
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => onSettingsClick(vehicle.id)}
-          >
-            Редагувати
-          </Button>
           {onDelete && (
             <Button
               variant="outlined"
