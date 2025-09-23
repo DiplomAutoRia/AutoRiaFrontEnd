@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
-import { z } from 'zod';
 
+import { changePasswordSchema } from '../../common/utils/zod-validation';
 import { useChangePasswordMutation } from '../../redux/api/authApi';
 
 type ChangePasswordFormData = {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
 };
 
 interface ChangePasswordFormProps {
@@ -22,20 +22,6 @@ interface ChangePasswordFormProps {
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCancel }) => {
   const { t } = useTranslation();
   const [changePassword, { isLoading, error }] = useChangePasswordMutation();
-
-  const changePasswordSchema = z
-    .object({
-      currentPassword: z.string().min(1, t('profile.validation.currentPasswordRequired')),
-      newPassword: z
-        .string()
-        .min(8, t('profile.validation.newPasswordMin'))
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, t('profile.validation.passwordComplexity')),
-      confirmPassword: z.string().min(1, t('profile.validation.confirmPasswordRequired')),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-      message: t('profile.validation.passwordsDontMatch'),
-      path: ['confirmPassword'],
-    });
 
   const {
     register,
@@ -49,8 +35,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
   const onSubmit = async (data: ChangePasswordFormData) => {
     try {
       await changePassword({
-        current_password: data.currentPassword,
-        new_password: data.newPassword,
+        current_password: data.current_password,
+        new_password: data.new_password,
       }).unwrap();
 
       reset();
@@ -73,39 +59,39 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSuccess, onCa
       )}
 
       <TextField
-        {...register('currentPassword')}
+        {...register('current_password')}
         margin="normal"
         required
         fullWidth
         label={t('profile.currentPassword')}
         type="password"
         autoComplete="current-password"
-        error={!!errors.currentPassword}
-        helperText={errors.currentPassword?.message}
+        error={!!errors.current_password}
+        helperText={errors.current_password?.message}
       />
 
       <TextField
-        {...register('newPassword')}
+        {...register('new_password')}
         margin="normal"
         required
         fullWidth
         label={t('profile.newPassword')}
         type="password"
         autoComplete="new-password"
-        error={!!errors.newPassword}
-        helperText={errors.newPassword?.message}
+        error={!!errors.new_password}
+        helperText={errors.new_password?.message}
       />
 
       <TextField
-        {...register('confirmPassword')}
+        {...register('confirm_password')}
         margin="normal"
         required
         fullWidth
         label={t('profile.confirmNewPassword')}
         type="password"
         autoComplete="new-password"
-        error={!!errors.confirmPassword}
-        helperText={errors.confirmPassword?.message}
+        error={!!errors.confirm_password}
+        helperText={errors.confirm_password?.message}
       />
 
       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

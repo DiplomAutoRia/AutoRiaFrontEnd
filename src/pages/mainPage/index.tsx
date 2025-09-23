@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
-import CarListingsGrid from '../../components/vehicles/CarListingsGrid';
-import Filter from '../../components/ui/filter';
 import News from '../../components/ui/News';
+import Filter from '../../components/ui/filter';
+import CarListingsGrid from '../../components/vehicles/CarListingsGrid';
 import { POPULAR_BRANDS } from '../../models/brands';
-import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
-import type { RootState } from '../../redux/store';
 import type { VehicleFilters } from '../../models/vehicle';
+import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
 
 const MainPage = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.auth.user);
   const [filters, setFilters] = useState<VehicleFilters>({ limit: 9 });
   const { data: vehiclesData } = useGetVehiclesQuery(filters);
-
 
   const handleSearch = (searchFilters: Partial<VehicleFilters>) => {
     setFilters({ ...searchFilters, limit: 9 });
@@ -48,10 +42,7 @@ const MainPage = () => {
       </div>
 
       {vehiclesData?.results && vehiclesData.results.length > 0 && (
-        <CarListingsGrid 
-          cars={vehiclesData.results}
-          title="Останні оголошення"
-        />
+        <CarListingsGrid cars={vehiclesData.results} title="Останні оголошення" />
       )}
 
       <div className="container mx-auto px-4 max-w-7xl py-8">
@@ -64,8 +55,8 @@ const MainPage = () => {
               className="flex flex-col items-center p-3 border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="w-[70px] h-[70px] bg-white flex items-center justify-center mb-2">
-                <img 
-                  src={`/brands/${brandName.toLowerCase().replace(/\s+/g, '-')}.png`} 
+                <img
+                  src={`/brands/${brandName.toLowerCase().replace(/\s+/g, '-')}.png`}
                   alt={brandName}
                   className="w-[44px] h-[44px] object-contain"
                   onError={(e) => {
@@ -94,7 +85,6 @@ const MainPage = () => {
           На початок сторінки
         </button>
       </div>
-
     </div>
   );
 };

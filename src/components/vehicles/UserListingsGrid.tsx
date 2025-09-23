@@ -5,29 +5,26 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, Delete } from '@mui/icons-material';
 import { Box, Button, Card, CardMedia, Container, IconButton, Stack, Typography } from '@mui/material';
 
-import Filter from '../ui/filter';
 import type { Vehicle } from '../../models/vehicle';
 import type { VehicleFilters } from '../../models/vehicle';
 import { useGetMyVehiclesQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
+import Filter from '../ui/filter';
 
 interface UserListingsGridProps {
   title?: string;
   showCreateButton?: boolean;
 }
 
-const UserListingsGrid: React.FC<UserListingsGridProps> = ({
-  title = "Мої оголошення",
-  showCreateButton = true
-}) => {
+const UserListingsGrid: React.FC<UserListingsGridProps> = ({ title = 'Мої оголошення', showCreateButton = true }) => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const [filters, setFilters] = useState<Partial<VehicleFilters>>({});
-  
-  const { data, isLoading, error } = useGetMyVehiclesQuery({ 
-    page: 1, 
+
+  const { data, isLoading, error } = useGetMyVehiclesQuery({
+    page: 1,
     limit: 12,
-    ...filters 
+    ...filters,
   });
   const [deleteVehicle] = useDeleteVehicleMutation();
 
@@ -72,7 +69,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-        
+
         {showCreateButton && (
           <Button 
             variant="contained" 
@@ -99,9 +96,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
       {/* Помилка */}
       {error && (
         <Box display="flex" justifyContent="center" py={4}>
-          <Typography color="error">
-            Помилка завантаження оголошень
-          </Typography>
+          <Typography color="error">Помилка завантаження оголошень</Typography>
         </Box>
       )}
 
@@ -114,11 +109,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Створіть своє перше оголошення про продаж транспортного засобу
           </Typography>
-          <Button 
-            variant="contained" 
-            onClick={() => navigate('/create')}
-            sx={{ mt: 2, borderRadius: 0 }}
-          >
+          <Button variant="contained" onClick={() => navigate('/create')} sx={{ mt: 2, borderRadius: 0 }}>
             Створити оголошення
           </Button>
         </Box>
@@ -128,9 +119,9 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
       {!isLoading && !error && data?.results && data.results.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {data.results.map((vehicle: Vehicle) => (
-            <Card 
-              key={vehicle.id} 
-              sx={{ 
+            <Card
+              key={vehicle.id}
+              sx={{
                 display: 'flex',
                 position: 'relative',
                 borderRadius: 0,
@@ -139,8 +130,8 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
                 height: 200,
                 '&:hover': {
                   boxShadow: 3,
-                  transform: 'translateY(-2px)'
-                }
+                  transform: 'translateY(-2px)',
+                },
               }}
               onClick={() => navigate(`/vehicles/${vehicle.id}`)}
             >
@@ -190,11 +181,11 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
                   height: '100%',
                   objectFit: 'cover',
                   backgroundColor: '#f5f5f5',
-                  flexShrink: 0
+                  flexShrink: 0,
                 }}
-                image={vehicle.images && vehicle.images.length > 0 
-                  ? vehicle.images[0].image 
-                  : '/locales/images/car.png'}
+                image={
+                  vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'
+                }
                 alt={`${vehicle.brand} ${vehicle.model}`}
               />
 
@@ -202,33 +193,29 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({
               <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
                 {/* Назва, модель та рік в один рядок */}
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography 
-                    variant="h6" 
+                  <Typography
+                    variant="h6"
                     component="h3"
-                    sx={{ 
+                    sx={{
                       fontSize: '1.2rem',
                       fontWeight: 'bold',
-                      lineHeight: 1.2
+                      lineHeight: 1.2,
                     }}
                   >
                     {vehicle.brand} {vehicle.model}
                   </Typography>
-                  <Typography 
-                    variant="body1" 
-                    color="text.secondary"
-                    sx={{ fontSize: '1rem' }}
-                  >
+                  <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
                     {vehicle.year} рік
                   </Typography>
                 </Box>
 
                 {/* Ціна */}
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   color="primary"
-                  sx={{ 
+                  sx={{
                     fontSize: '1.3rem',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
                   }}
                 >
                   {formatPrice(vehicle.price, vehicle.currency)}

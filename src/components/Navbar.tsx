@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AppBar, Toolbar, Typography } from '@mui/material';
-import { MessageCircle, Heart, Bell, User, X, Menu as MenuIcon } from 'lucide-react';
+import { AppBar, Toolbar } from '@mui/material';
+import { Bell, Heart, Menu as MenuIcon, MessageCircle, User, X } from 'lucide-react';
 
 import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
 import { logout } from '../redux/auth/authSlice';
@@ -13,7 +12,6 @@ import { routes } from '../routes';
 import { NotificationBell } from './notifications/NotificationSystem';
 
 const Navbar = () => {
-  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,11 +54,7 @@ const Navbar = () => {
     <AppBar position="static">
       <Toolbar className="container mx-auto px-4 max-w-7xl justify-between">
         <Link to={routes.HOME} className="flex items-center">
-          <img 
-            src="/locales/images/logo.png" 
-            alt="AutoRia Logo" 
-            className="h-8 w-auto"
-          />
+          <img src="/locales/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto" />
         </Link>
 
         <div className="flex items-center space-x-6">
@@ -70,8 +64,8 @@ const Navbar = () => {
           <Link to={`${routes.VEHICLES}?is_new=true`} className="hover:text-gray-200 transition-colors">
             Нові авто
           </Link>
-          <Link 
-            to={routes.VEHICLE_CREATE} 
+          <Link
+            to={routes.VEHICLE_CREATE}
             className="hover:text-gray-200 transition-colors"
             onClick={(e) => {
               if (!user) {
@@ -119,15 +113,15 @@ const Navbar = () => {
               <button className="p-2 hover:bg-blue-700 rounded-full transition-colors">
                 <MessageCircle size={20} />
               </button>
-              
+
               <button className="p-2 hover:bg-blue-700 rounded-full transition-colors">
                 <Heart size={20} />
               </button>
-              
+
               <button className="p-2 hover:bg-blue-700 rounded-full transition-colors">
                 <Bell size={20} />
               </button>
-              
+
               <Link
                 to={routes.LOGIN}
                 className="flex items-center space-x-2 px-4 py-2 bg-white text-blue-600 rounded-full hover:bg-gray-100 transition-colors"
@@ -141,21 +135,13 @@ const Navbar = () => {
       </Toolbar>
 
       <div className="md:hidden flex items-center justify-between px-4">
-
         <div className="flex items-center">
           <Link to={routes.HOME} className="flex items-center">
-            <img 
-              src="/locales/images/logo.png" 
-              alt="AutoRia Logo" 
-              className="h-8 w-auto mr-4"
-            />
+            <img src="/locales/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto mr-4" />
           </Link>
         </div>
 
-        <button
-          onClick={toggleMobileMenu}
-          className="p-2 hover:bg-blue-700 rounded-full transition-colors"
-        >
+        <button onClick={toggleMobileMenu} className="p-2 hover:bg-blue-700 rounded-full transition-colors">
           {mobileMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
         </button>
       </div>
@@ -163,22 +149,22 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden mt-4 bg-blue-700 rounded-lg p-4">
           <div className="space-y-3">
-            <Link 
-              to={`${routes.VEHICLES}?is_new=false`} 
+            <Link
+              to={`${routes.VEHICLES}?is_new=false`}
               className="block py-2 hover:bg-blue-600 rounded px-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Вживані авто
             </Link>
-            <Link 
-              to={`${routes.VEHICLES}?is_new=true`} 
+            <Link
+              to={`${routes.VEHICLES}?is_new=true`}
               className="block py-2 hover:bg-blue-600 rounded px-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Нові авто
             </Link>
-            <Link 
-              to={routes.VEHICLE_CREATE} 
+            <Link
+              to={routes.VEHICLE_CREATE}
               className="block py-2 hover:bg-blue-600 rounded px-2"
               onClick={(e) => {
                 if (!user) {
@@ -192,14 +178,10 @@ const Navbar = () => {
             >
               Продати авто
             </Link>
-            <Link 
-              to="#" 
-              className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link to="#" className="block py-2 hover:bg-blue-600 rounded px-2" onClick={() => setMobileMenuOpen(false)}>
               Пошук
             </Link>
-            
+
             {user ? (
               <>
                 <button 
@@ -229,7 +211,7 @@ const Navbar = () => {
                   <Bell size={16} />
                   <span>Сповіщення</span>
                 </button>
-                <button 
+                <button
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
                   onClick={() => {
                     handleProfile();
@@ -241,7 +223,7 @@ const Navbar = () => {
                   </div>
                   <span>Профіль</span>
                 </button>
-                <button 
+                <button
                   className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
                   onClick={() => {
                     handleLogout();
@@ -252,8 +234,8 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Link 
-                to={routes.LOGIN} 
+              <Link
+                to={routes.LOGIN}
                 className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -264,7 +246,6 @@ const Navbar = () => {
           </div>
         </div>
       )}
-
     </AppBar>
   );
 };

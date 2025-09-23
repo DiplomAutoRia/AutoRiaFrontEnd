@@ -1,7 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import type { Vehicle } from '../../models/vehicle';
-import { useNavigate } from 'react-router-dom';
 
 interface CarListingsGridProps {
   cars: Vehicle[];
@@ -130,14 +130,14 @@ const CarListingsGrid: React.FC<CarListingsGridProps> = ({ cars, title = 'Пер
             </div>
           )}
 
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => navigate('/vehicles')}
-            className="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 px-9 py-2 text-sm font-medium transition-colors"
-          >
-            Дивитись більше
-          </button>
-        </div>
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => navigate('/vehicles')}
+              className="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 px-9 py-2 text-sm font-medium transition-colors"
+            >
+              Дивитись більше
+            </button>
+          </div>
         </>
       )}
     </div>

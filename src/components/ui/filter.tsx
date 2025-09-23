@@ -1,40 +1,29 @@
-import { useState } from "react";
-import {
-  FUEL_TYPES,
-  TRANSMISSION_TYPES,
-  COLOR_TYPES,
-  CAR_BODY_TYPES,
-  DRIVE_TYPES,
-  TECHNICAL_CONDITIONS,
-  CURRENCY_TYPES,
-  VEHICLE_TYPES,
-  MOTORCYCLE_TYPES,
-  TRAILER_TYPES,
-  BOAT_TYPES,
-  AIRCRAFT_TYPES,
-  type VehicleFilters,
-} from "@/models/vehicle";
+import { useState } from 'react';
 
-const pages = [
-  "Базові дані",
-  "Характеристики",
-  "Двигун і трансмісія",
-  "Фінанси та стан",
-  "Додаткові",
-];
+import {
+  CAR_BODY_TYPES,
+  COLOR_TYPES,
+  CURRENCY_TYPES,
+  DRIVE_TYPES,
+  FUEL_TYPES,
+  TECHNICAL_CONDITIONS,
+  TRANSMISSION_TYPES,
+  VEHICLE_TYPES,
+  type VehicleFilters,
+} from '@/models/vehicle';
+
+const pages = ['Базові дані', 'Характеристики', 'Двигун і трансмісія', 'Фінанси та стан', 'Додаткові'];
 
 interface FilterProps {
-  onSearch?: (filters: Partial<VehicleFilters>) => void;
+  onSearch?: (_filters: Partial<VehicleFilters>) => void;
 }
 
-export default function Filter({ onSearch }: FilterProps) {
+export default function Filter({ onSearch: _onSearch }: FilterProps) {
   const [activePage, setActivePage] = useState<number>(0);
   const [showAll, setShowAll] = useState(false);
-  const [filters, setFilters] = useState<Partial<VehicleFilters>>({});
+  const [, setFilters] = useState<Partial<VehicleFilters>>({});
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
@@ -53,7 +42,7 @@ export default function Filter({ onSearch }: FilterProps) {
   const icons = [
     (active: boolean) => (
       <svg
-        className={active ? "text-blue-600" : "text-gray-400"}
+        className={active ? 'text-blue-600' : 'text-gray-400'}
         width="28"
         height="28"
         fill="none"
@@ -64,118 +53,57 @@ export default function Filter({ onSearch }: FilterProps) {
           stroke="currentColor"
           strokeWidth="2"
         />
-        <circle
-          cx="7.5"
-          cy="16.5"
-          r="1.5"
-          fill={active ? "#2563eb" : "#d1d5db"}
-        />
-        <circle
-          cx="16.5"
-          cy="16.5"
-          r="1.5"
-          fill={active ? "#2563eb" : "#d1d5db"}
-        />
+        <circle cx="7.5" cy="16.5" r="1.5" fill={active ? '#2563eb' : '#d1d5db'} />
+        <circle cx="16.5" cy="16.5" r="1.5" fill={active ? '#2563eb' : '#d1d5db'} />
       </svg>
     ),
     (active: boolean) => (
       <svg
-        className={active ? "text-blue-600" : "text-gray-400"}
+        className={active ? 'text-blue-600' : 'text-gray-400'}
         width="28"
         height="28"
         fill="none"
         viewBox="0 0 24 24"
       >
-        <rect
-          x="4"
-          y="7"
-          width="16"
-          height="10"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-        <circle cx="8" cy="16" r="1" fill={active ? "#2563eb" : "#d1d5db"} />
-        <circle cx="16" cy="16" r="1" fill={active ? "#2563eb" : "#d1d5db"} />
+        <rect x="4" y="7" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+        <circle cx="8" cy="16" r="1" fill={active ? '#2563eb' : '#d1d5db'} />
+        <circle cx="16" cy="16" r="1" fill={active ? '#2563eb' : '#d1d5db'} />
       </svg>
     ),
     (active: boolean) => (
       <svg
-        className={active ? "text-blue-600" : "text-gray-400"}
+        className={active ? 'text-blue-600' : 'text-gray-400'}
         width="28"
         height="28"
         fill="none"
         viewBox="0 0 24 24"
       >
-        <rect
-          x="4"
-          y="7"
-          width="16"
-          height="10"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-        <rect
-          x="8"
-          y="11"
-          width="8"
-          height="2"
-          rx="1"
-          fill={active ? "#2563eb" : "#d1d5db"}
-        />
+        <rect x="4" y="7" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+        <rect x="8" y="11" width="8" height="2" rx="1" fill={active ? '#2563eb' : '#d1d5db'} />
       </svg>
     ),
     (active: boolean) => (
       <svg
-        className={active ? "text-blue-600" : "text-gray-400"}
+        className={active ? 'text-blue-600' : 'text-gray-400'}
         width="28"
         height="28"
         fill="none"
         viewBox="0 0 24 24"
       >
-        <rect
-          x="4"
-          y="7"
-          width="16"
-          height="10"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-        <rect
-          x="10"
-          y="9"
-          width="4"
-          height="6"
-          rx="1"
-          fill={active ? "#2563eb" : "#d1d5db"}
-        />
+        <rect x="4" y="7" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+        <rect x="10" y="9" width="4" height="6" rx="1" fill={active ? '#2563eb' : '#d1d5db'} />
       </svg>
     ),
     (active: boolean) => (
       <svg
-        className={active ? "text-blue-600" : "text-gray-400"}
+        className={active ? 'text-blue-600' : 'text-gray-400'}
         width="28"
         height="28"
         fill="none"
         viewBox="0 0 24 24"
       >
-        <rect
-          x="4"
-          y="7"
-          width="16"
-          height="10"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="2"
-          fill={active ? "#2563eb" : "#d1d5db"}
-        />
+        <rect x="4" y="7" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+        <circle cx="12" cy="12" r="2" fill={active ? '#2563eb' : '#d1d5db'} />
       </svg>
     ),
   ];
@@ -190,10 +118,10 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Марка</label>
               <select
                 name="brand"
-                value={filters.brand || ""}
+                value={filters.brand || ''}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 <option value="bmw">BMW</option>
@@ -207,10 +135,10 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Регіон</label>
               <select
                 name="location"
-                value={filters.location || ""}
+                value={filters.location || ''}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 <option value="kyiv">Київ</option>
@@ -226,20 +154,20 @@ export default function Filter({ onSearch }: FilterProps) {
                 <input
                   type="number"
                   name="year_min"
-                  value={filters.year_min || ""}
+                  value={filters.year_min || ''}
                   onChange={handleChange}
                   placeholder="Від"
                   className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                  style={{ width: "40%", minWidth: 0, flex: "1 1 0%" }}
+                  style={{ width: '40%', minWidth: 0, flex: '1 1 0%' }}
                 />
                 <input
                   type="number"
                   name="year_max"
-                  value={filters.year_max || ""}
+                  value={filters.year_max || ''}
                   onChange={handleChange}
                   placeholder="До"
                   className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                  style={{ width: "40%", minWidth: 0, flex: "1 1 0%" }}
+                  style={{ width: '40%', minWidth: 0, flex: '1 1 0%' }}
                 />
               </div>
             </div>
@@ -247,7 +175,7 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Коробка передач</label>
               <select
                 name="transmission"
-                value={filters.transmission?.[0] || ""}
+                value={filters.transmission?.[0] || ''}
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,
@@ -255,7 +183,7 @@ export default function Filter({ onSearch }: FilterProps) {
                   }))
                 }
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {TRANSMISSION_TYPES.map((t) => (
@@ -270,20 +198,18 @@ export default function Filter({ onSearch }: FilterProps) {
               <input
                 type="text"
                 name="model"
-                value={filters.model?.[0] || ""}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, model: [e.target.value] }))
-                }
+                value={filters.model?.[0] || ''}
+                onChange={(e) => setFilters((prev) => ({ ...prev, model: [e.target.value] }))}
                 placeholder="пошук"
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               />
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Паливо</label>
               <select
                 name="fuel_type"
-                value={filters.fuel_type?.[0] || ""}
+                value={filters.fuel_type?.[0] || ''}
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,
@@ -291,7 +217,7 @@ export default function Filter({ onSearch }: FilterProps) {
                   }))
                 }
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {FUEL_TYPES.map((f) => (
@@ -307,20 +233,20 @@ export default function Filter({ onSearch }: FilterProps) {
                 <input
                   type="number"
                   name="price_min"
-                  value={filters.price_min || ""}
+                  value={filters.price_min || ''}
                   onChange={handleChange}
                   placeholder="Від"
                   className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                  style={{ width: "40%", minWidth: 0, flex: "1 1 0%" }}
+                  style={{ width: '40%', minWidth: 0, flex: '1 1 0%' }}
                 />
                 <input
                   type="number"
                   name="price_max"
-                  value={filters.price_max || ""}
+                  value={filters.price_max || ''}
                   onChange={handleChange}
                   placeholder="До"
                   className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                  style={{ width: "40%", minWidth: 0, flex: "1 1 0%" }}
+                  style={{ width: '40%', minWidth: 0, flex: '1 1 0%' }}
                 />
               </div>
             </div>
@@ -330,20 +256,9 @@ export default function Filter({ onSearch }: FilterProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
-                <svg
-                  className="mr-2"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-2" width="18" height="18" fill="none" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-                  <path
-                    d="M20 20L17 17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M20 20L17 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 Пошук
               </button>
@@ -359,18 +274,18 @@ export default function Filter({ onSearch }: FilterProps) {
               <input
                 type="number"
                 name="mileage"
-                value={filters.mileage || ""}
+                value={filters.mileage || ''}
                 onChange={handleChange}
                 placeholder="Обрати"
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               />
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Колір</label>
               <select
                 name="color"
-                value={filters.color?.[0] || ""}
+                value={filters.color?.[0] || ''}
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,
@@ -378,7 +293,7 @@ export default function Filter({ onSearch }: FilterProps) {
                   }))
                 }
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {COLOR_TYPES.map((c) => (
@@ -392,7 +307,7 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Тип кузова</label>
               <select
                 name="body_type"
-                value={filters.body_type?.[0] || ""}
+                value={filters.body_type?.[0] || ''}
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,
@@ -400,7 +315,7 @@ export default function Filter({ onSearch }: FilterProps) {
                   }))
                 }
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {CAR_BODY_TYPES.map((b) => (
@@ -416,20 +331,9 @@ export default function Filter({ onSearch }: FilterProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
-                <svg
-                  className="mr-2"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-2" width="18" height="18" fill="none" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-                  <path
-                    d="M20 20L17 17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M20 20L17 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 Пошук
               </button>
@@ -445,11 +349,11 @@ export default function Filter({ onSearch }: FilterProps) {
               <input
                 type="number"
                 name="engine_volume"
-                value={filters.engine_volume || ""}
+                value={filters.engine_volume || ''}
                 onChange={handleChange}
                 placeholder="Обрати"
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               />
             </div>
             <div className="flex flex-col">
@@ -457,21 +361,21 @@ export default function Filter({ onSearch }: FilterProps) {
               <input
                 type="number"
                 name="engine_power"
-                value={filters.engine_power || ""}
+                value={filters.engine_power || ''}
                 onChange={handleChange}
                 placeholder="Обрати"
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               />
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Привід</label>
               <select
                 name="drive_type"
-                value={filters.drive_type || ""}
+                value={filters.drive_type || ''}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {DRIVE_TYPES.map((d) => (
@@ -487,20 +391,9 @@ export default function Filter({ onSearch }: FilterProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
-                <svg
-                  className="mr-2"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-2" width="18" height="18" fill="none" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-                  <path
-                    d="M20 20L17 17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M20 20L17 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 Пошук
               </button>
@@ -515,10 +408,10 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Валюта</label>
               <select
                 name="currency"
-                value={filters.currency || ""}
+                value={filters.currency || ''}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {CURRENCY_TYPES.map((c) => (
@@ -532,10 +425,10 @@ export default function Filter({ onSearch }: FilterProps) {
               <label className="font-bold text-sm mb-1">Стан</label>
               <select
                 name="technical_condition"
-                value={filters.technical_condition || ""}
+                value={filters.technical_condition || ''}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm h-9"
-                style={{ width: "90%" }}
+                style={{ width: '90%' }}
               >
                 <option value="">Обрати</option>
                 {TECHNICAL_CONDITIONS.map((t) => (
@@ -547,7 +440,7 @@ export default function Filter({ onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Розмитнений</label>
-              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: "36px" }}>
+              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: '36px' }}>
                 <input
                   type="checkbox"
                   name="is_custom_cleared"
@@ -564,20 +457,9 @@ export default function Filter({ onSearch }: FilterProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
-                <svg
-                  className="mr-2"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-2" width="18" height="18" fill="none" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-                  <path
-                    d="M20 20L17 17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M20 20L17 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 Пошук
               </button>
@@ -590,7 +472,7 @@ export default function Filter({ onSearch }: FilterProps) {
           <div className="grid grid-cols-4 gap-x-6 gap-y-2 w-full">
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Кухня</label>
-              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: "36px" }}>
+              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: '36px' }}>
                 <input
                   type="checkbox"
                   name="has_kitchen"
@@ -603,7 +485,7 @@ export default function Filter({ onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-sm mb-1">Ванна кімната</label>
-              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: "36px" }}>
+              <div className="flex items-center gap-2 p-2 border border-gray-300" style={{ height: '36px' }}>
                 <input
                   type="checkbox"
                   name="has_bathroom"
@@ -620,20 +502,9 @@ export default function Filter({ onSearch }: FilterProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
-                <svg
-                  className="mr-2"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="mr-2" width="18" height="18" fill="none" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-                  <path
-                    d="M20 20L17 17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M20 20L17 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 Пошук
               </button>
@@ -651,22 +522,22 @@ export default function Filter({ onSearch }: FilterProps) {
       className="flex bg-white shadow-sm border border-gray-200 p-4 mt-4"
       style={{
         borderRadius: 0,
-        minHeight: showAll ? "100%" : "280px",
-        height: showAll ? "auto" : "280px",
-        alignItems: showAll ? "stretch" : "initial",
+        minHeight: showAll ? '100%' : '280px',
+        height: showAll ? 'auto' : '280px',
+        alignItems: showAll ? 'stretch' : 'initial',
       }}
     >
       {/* Sidebar з іконками */}
       <div
         className="flex flex-col justify-stretch"
         style={{
-          height: "100%",
-          background: "#f5f7fa",
-          width: "56px",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-          marginTop: "-16px",
-          marginLeft: "-16px",
+          height: '100%',
+          background: '#f5f7fa',
+          width: '56px',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          marginTop: '-16px',
+          marginLeft: '-16px',
         }}
       >
         {pages.map((p, idx) => (
@@ -677,28 +548,26 @@ export default function Filter({ onSearch }: FilterProps) {
               setShowAll(false);
             }}
             className={`flex items-center justify-center flex-1 w-full border-0 transition-colors ${
-              activePage === idx && !showAll
-                ? "bg-white shadow"
-                : "bg-[#f5f7fa] hover:bg-gray-200"
+              activePage === idx && !showAll ? 'bg-white shadow' : 'bg-[#f5f7fa] hover:bg-gray-200'
             }`}
             style={{
               borderRadius: 0,
-              minHeight: "56px",
-              width: "100%",
+              minHeight: '56px',
+              width: '100%',
               padding: 0,
             }}
           >
-            <img 
-              src="/locales/images/car.png" 
-              alt={p}
-              className="h-6 w-6"
-            />
+            {icons[idx] ? (
+              icons[idx](activePage === idx && !showAll)
+            ) : (
+              <img src="/locales/images/car.png" alt={p} className="h-6 w-6" />
+            )}
           </button>
         ))}
       </div>
       {/* Основна частина */}
       <div className="flex-1 pl-6 flex flex-col">
-        <div className={`flex-1 ${showAll ? "flex flex-col h-full" : ""}`}>
+        <div className={`flex-1 ${showAll ? 'flex flex-col h-full' : ''}`}>
           {showAll ? (
             <div className="flex flex-col h-full justify-between w-full">
               <div>
@@ -708,7 +577,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Тип транспорту</label>
                     <select
                       name="vehicle_type"
-                      value={filters.vehicle_type || ""}
+                      value={filters.vehicle_type || ''}
                       onChange={handleChange}
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
@@ -727,7 +596,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <input
                       type="text"
                       name="brand"
-                      value={filters.brand || ""}
+                      value={filters.brand || ''}
                       onChange={handleChange}
                       placeholder="Введіть марку"
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -740,10 +609,8 @@ export default function Filter({ onSearch }: FilterProps) {
                     <input
                       type="text"
                       name="model"
-                      value={filters.model?.[0] || ""}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, model: [e.target.value] }))
-                      }
+                      value={filters.model?.[0] || ''}
+                      onChange={(e) => setFilters((prev) => ({ ...prev, model: [e.target.value] }))}
                       placeholder="Введіть модель"
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
@@ -756,7 +623,7 @@ export default function Filter({ onSearch }: FilterProps) {
                       <input
                         type="number"
                         name="year_min"
-                        value={filters.year_min || ""}
+                        value={filters.year_min || ''}
                         onChange={handleChange}
                         placeholder="Від"
                         className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full"
@@ -764,7 +631,7 @@ export default function Filter({ onSearch }: FilterProps) {
                       <input
                         type="number"
                         name="year_max"
-                        value={filters.year_max || ""}
+                        value={filters.year_max || ''}
                         onChange={handleChange}
                         placeholder="До"
                         className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full"
@@ -779,7 +646,7 @@ export default function Filter({ onSearch }: FilterProps) {
                       <input
                         type="number"
                         name="price_min"
-                        value={filters.price_min || ""}
+                        value={filters.price_min || ''}
                         onChange={handleChange}
                         placeholder="Від"
                         className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full"
@@ -787,7 +654,7 @@ export default function Filter({ onSearch }: FilterProps) {
                       <input
                         type="number"
                         name="price_max"
-                        value={filters.price_max || ""}
+                        value={filters.price_max || ''}
                         onChange={handleChange}
                         placeholder="До"
                         className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full"
@@ -800,7 +667,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Валюта</label>
                     <select
                       name="currency"
-                      value={filters.currency || ""}
+                      value={filters.currency || ''}
                       onChange={handleChange}
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
@@ -818,7 +685,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Тип палива</label>
                     <select
                       name="fuel_type"
-                      value={filters.fuel_type?.[0] || ""}
+                      value={filters.fuel_type?.[0] || ''}
                       onChange={(e) =>
                         setFilters((prev) => ({
                           ...prev,
@@ -841,7 +708,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Коробка передач</label>
                     <select
                       name="transmission"
-                      value={filters.transmission?.[0] || ""}
+                      value={filters.transmission?.[0] || ''}
                       onChange={(e) =>
                         setFilters((prev) => ({
                           ...prev,
@@ -864,7 +731,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Колір</label>
                     <select
                       name="color"
-                      value={filters.color?.[0] || ""}
+                      value={filters.color?.[0] || ''}
                       onChange={(e) =>
                         setFilters((prev) => ({
                           ...prev,
@@ -887,7 +754,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Тип кузова</label>
                     <select
                       name="body_type"
-                      value={filters.body_type?.[0] || ""}
+                      value={filters.body_type?.[0] || ''}
                       onChange={(e) =>
                         setFilters((prev) => ({
                           ...prev,
@@ -910,7 +777,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Тип приводу</label>
                     <select
                       name="drive_type"
-                      value={filters.drive_type || ""}
+                      value={filters.drive_type || ''}
                       onChange={handleChange}
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
@@ -929,7 +796,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <input
                       type="number"
                       name="mileage"
-                      value={filters.mileage || ""}
+                      value={filters.mileage || ''}
                       onChange={handleChange}
                       placeholder="Макс. пробіг"
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -942,7 +809,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <input
                       type="number"
                       name="engine_volume"
-                      value={filters.engine_volume || ""}
+                      value={filters.engine_volume || ''}
                       onChange={handleChange}
                       placeholder="Мін. об'єм"
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -955,7 +822,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <input
                       type="number"
                       name="engine_power"
-                      value={filters.engine_power || ""}
+                      value={filters.engine_power || ''}
                       onChange={handleChange}
                       placeholder="Мін. потужність"
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -967,7 +834,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Технічний стан</label>
                     <select
                       name="technical_condition"
-                      value={filters.technical_condition || ""}
+                      value={filters.technical_condition || ''}
                       onChange={handleChange}
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
@@ -985,7 +852,7 @@ export default function Filter({ onSearch }: FilterProps) {
                     <label className="font-bold text-sm mb-1">Регіон</label>
                     <select
                       name="location"
-                      value={filters.location || ""}
+                      value={filters.location || ''}
                       onChange={handleChange}
                       className="border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     >
@@ -1064,7 +931,7 @@ export default function Filter({ onSearch }: FilterProps) {
             className="text-blue-600 hover:text-blue-800 hover:underline px-3 py-1.5 text-sm font-medium transition-colors"
             style={{ borderRadius: 0 }}
           >
-            {showAll ? "Звичайний пошук" : "Розширений пошук"}
+            {showAll ? 'Звичайний пошук' : 'Розширений пошук'}
           </button>
         </div>
       </div>

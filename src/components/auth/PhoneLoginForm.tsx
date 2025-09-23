@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
 
+import { loginSchema } from '../../common/utils/zod-validation';
 import { loginUser } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
 
@@ -11,17 +13,26 @@ interface PhoneLoginFormProps {
 }
 
 export default function PhoneLoginForm({ onBack }: PhoneLoginFormProps) {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      contact: '',
+      password: '',
+    },
+  });
+
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit = (data: { contact: string; password: string }) => {
     dispatch(
       loginUser({
-        contact_info: phoneNumber,
-        password: password,
+        contact_info: data.contact,
+        password: data.password,
       }),
     );
   };
@@ -32,27 +43,29 @@ export default function PhoneLoginForm({ onBack }: PhoneLoginFormProps) {
 
       <p className="text-gray-600 mb-6 text-center">Введіть номер телефону та пароль для входу в систему.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <div>
           <input
             type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="Номер телефону"
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
+            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.contact ? 'border-red-500' : 'border-gray-300'
+            }`}
+            {...register('contact')}
           />
+          {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact.message}</p>}
         </div>
 
         <div>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             placeholder="Пароль"
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
+            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.password ? 'border-red-500' : 'border-gray-300'
+            }`}
+            {...register('password')}
           />
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
         </div>
 
         {error && (

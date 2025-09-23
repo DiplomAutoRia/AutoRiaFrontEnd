@@ -1,0 +1,21 @@
+{
+  "name": "AutoRia - купівля та продаж автомобілів",
+  "short_name": "AutoRia",
+  "description": "Найкращий сайт для купівлі та продажу автомобілів в Україні",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "automotive"],
+  "lang": "uk",
+  "scope": "/",
+  "orientation": "portrait-primary"
+}

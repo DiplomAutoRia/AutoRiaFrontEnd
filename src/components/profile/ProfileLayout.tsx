@@ -1,46 +1,37 @@
 import { type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Stack,
-  Typography,
-  Breadcrumbs,
-  Link,
-} from '@mui/material';
+import { Breadcrumbs, Button, Container, Grid, Link, Stack, Typography } from '@mui/material';
 
-import { routes } from '../../routes';
 import { logout } from '../../redux/auth/authSlice';
+import { routes } from '../../routes';
 
 interface ProfileLayoutProps {
   children: ReactNode;
   title: string;
   showBreadcrumb?: boolean;
   activeSection?: string;
-  onSectionChange?: (section: string) => void;
+  onSectionChange?: (_section: string) => void;
 }
 
-export default function ProfileLayout({ 
-  children, 
-  title, 
+export default function ProfileLayout({
+  children,
+  title,
   showBreadcrumb = true,
-  activeSection = 'profile',
-  onSectionChange
+  activeSection: _activeSection = 'profile',
+  onSectionChange,
 }: ProfileLayoutProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSectionChange = (section: string) => {
+  const handleSectionChange = (_section: string) => {
     if (onSectionChange) {
-      onSectionChange(section);
+      onSectionChange(_section);
     } else {
       // Fallback to old navigation for backward compatibility
-      switch (section) {
+      switch (_section) {
         case 'profile':
           navigate(routes.PROFILE);
           break;
@@ -74,22 +65,18 @@ export default function ProfileLayout({
     <Container maxWidth="xl" sx={{ py: 4, px: '25%' }}>
       {/* Breadcrumb navigation */}
       {showBreadcrumb && (
-        <Breadcrumbs 
-          separator={<NavigateNextIcon fontSize="small" />} 
-          aria-label="breadcrumb"
-          sx={{ mb: 2 }}
-        >
-          <Link 
-            color="inherit" 
-            href="/" 
+        <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <Link
+            color="inherit"
+            href="/"
             onClick={(e) => {
               e.preventDefault();
               navigate('/');
             }}
-            sx={{ 
-              textDecoration: 'none', 
+            sx={{
+              textDecoration: 'none',
               '&:hover': { textDecoration: 'underline' },
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             Turbosell
@@ -107,105 +94,105 @@ export default function ProfileLayout({
         {/* Navigation sidebar */}
         <Grid item xs={3}>
           <Stack spacing={2}>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('profile')}
             >
               <img src="/profile/account.png" alt="account" style={{ width: 24, height: 24, marginRight: 12 }} />
               Особистий кабінет
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('listings')}
             >
               <img src="/profile/mark.png" alt="listings" style={{ width: 24, height: 24, marginRight: 12 }} />
               Мої оголошення
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('notifications')}
             >
               <img src="/profile/news.png" alt="notifications" style={{ width: 24, height: 24, marginRight: 12 }} />
               Повідомлення
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('messages')}
             >
               <img src="/profile/chat.png" alt="chat" style={{ width: 24, height: 24, marginRight: 12 }} />
               Чат
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('favorites')}
             >
               <img src="/profile/heart.png" alt="favorites" style={{ width: 24, height: 24, marginRight: 12 }} />
               Обране
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={() => handleSectionChange('settings')}
             >
               <img src="/profile/settings.png" alt="settings" style={{ width: 24, height: 24, marginRight: 12 }} />
               Налаштування
             </Button>
-            <Button 
-              fullWidth 
-              sx={{ 
-                justifyContent: 'flex-start', 
+            <Button
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
                 color: 'black',
                 textTransform: 'none',
                 fontSize: '1rem',
                 p: 1.5,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
               }}
               onClick={handleLogout}
             >

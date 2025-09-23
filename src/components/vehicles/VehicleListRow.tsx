@@ -25,7 +25,7 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
   currentPage = 1,
   pageSize = 10,
   onPageChange,
-  favoriteIds = {},
+  favoriteIds: _favoriteIds = {},
 }) => {
   const navigate = useNavigate();
 
@@ -72,25 +72,25 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
       {/* Список оголошень у ряд */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {vehicles.map((vehicle) => (
-            <Card 
-              key={vehicle.id} 
-              elevation={0}
-              sx={{ 
-                display: 'flex',
-                position: 'relative',
-                borderRadius: 0,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                height: 200,
-                backgroundColor: 'transparent',
-                border: 'none',
-                boxShadow: 'none',
-                '&:hover': {
-                  transform: 'translateY(-2px)'
-                }
-              }}
-              onClick={() => navigate(`/vehicles/${vehicle.id}`)}
-            >
+          <Card
+            key={vehicle.id}
+            elevation={0}
+            sx={{
+              display: 'flex',
+              position: 'relative',
+              borderRadius: 0,
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              height: 200,
+              backgroundColor: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+              },
+            }}
+            onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+          >
             {/* Зображення */}
             <Box sx={{ position: 'relative', width: 280, flexShrink: 0 }}>
               {vehicle.is_new && (
@@ -149,13 +149,13 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
               {/* Назва, модель та рік в один рядок */}
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   component="h3"
-                  sx={{ 
+                  sx={{
                     fontSize: '1.2rem',
                     fontWeight: 'bold',
-                    lineHeight: 1.2
+                    lineHeight: 1.2,
                   }}
                 >
                   {vehicle.brand} {vehicle.model} {vehicle.year}

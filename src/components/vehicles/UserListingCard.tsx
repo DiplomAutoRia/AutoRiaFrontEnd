@@ -34,8 +34,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
   };
 
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         display: 'flex',
         position: 'relative',
         borderRadius: 0,
@@ -44,8 +44,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
         height: 200,
         '&:hover': {
           boxShadow: 3,
-          transform: 'translateY(-2px)'
-        }
+          transform: 'translateY(-2px)',
+        },
       }}
       onClick={() => navigate(`/vehicles/${vehicle.id}`)}
     >
@@ -58,8 +58,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
           zIndex: 2,
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           '&:hover': {
-            backgroundColor: 'white'
-          }
+            backgroundColor: 'white',
+          },
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -134,13 +134,13 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
         {/* Назва, модель та рік в один рядок */}
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="h3"
-            sx={{ 
+            sx={{
               fontSize: '1.2rem',
               fontWeight: 'bold',
-              lineHeight: 1.2
+              lineHeight: 1.2,
             }}
           >
             {vehicle.brand} {vehicle.model} {vehicle.year}
