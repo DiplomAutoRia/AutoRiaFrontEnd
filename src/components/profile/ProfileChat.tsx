@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 
 import { useGetConversationsQuery, useGetConversationQuery, useCreateMessageMutation } from '../../redux/api/messagesApi';
+import { useAddNotification } from '../notifications/NotificationSystem';
 import type { RootState } from '../../redux/store';
 
 const ProfileChat: React.FC = () => {
@@ -28,6 +29,7 @@ const ProfileChat: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
+  const { notifySystem } = useAddNotification();
 
   const {
     data: conversations,
@@ -99,16 +101,20 @@ const ProfileChat: React.FC = () => {
       const currentConversation = conversations?.find(c => c.id === selectedConversation);
       if (!currentConversation) return;
 
-      // Extract receiver ID from conversation (this might need adjustment based on API structure)
-      // For now, we'll use a placeholder - the actual implementation depends on how the API works
+      // Extract receiver ID from conversation - we need to get the other user's ID
+      // Since the conversation object might not have the receiver ID directly,
+      // we need to determine who the receiver should be
+      // For now, we'll send the message without receiver field if the conversation already exists
       await createMessage({
-        receiver: 0, // This needs to be the actual receiver ID from the conversation
         conversation: selectedConversation,
         text: messageText.trim(),
       }).unwrap();
       
       setMessageText('');
       refetchMessages();
+      
+      // Додаємо нотифікацію про успішне надсилання повідомлення
+      notifySystem('Повідомлення надіслано', 'Ваше повідомлення успішно надіслано');
     } catch (error) {
       console.error('Failed to send message:', error);
     }

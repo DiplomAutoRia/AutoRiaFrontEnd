@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PhotoCamera } from '@mui/icons-material';
+import { useAddNotification } from '../../components/notifications/NotificationSystem';
 import {
   Box,
   Button,
@@ -374,6 +375,7 @@ const CreateListingPage = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [agree, setAgree] = useState(false);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const { notifyNewVehicle } = useAddNotification();
 
   // Перевірка авторизації
   useEffect(() => {
@@ -460,8 +462,8 @@ const CreateListingPage = () => {
   };
 
   const onError = (errors: any) => {
-  console.error('Validation errors:', errors);
-};
+    console.error('Validation errors:', errors);
+  };
 
 
 
@@ -508,7 +510,7 @@ const CreateListingPage = () => {
         is_new: data.is_new === 'true' ? true : data.is_new === 'false' ? false : Boolean(data.is_new),
         plate_number: data.plate_number || undefined,
         color: data.color || undefined,
-        engine_volume: data.engine_volume ? parseFloat(data.engine_volume) : undefined,
+        engine_volume: data.engine_volume && data.engine_volume !== '' ? parseFloat(data.engine_volume) : undefined,
         engine_power: data.engine_power ? parseInt(data.engine_power) : undefined,
         vin_code: data.vin_code || undefined,
       };
@@ -516,6 +518,10 @@ const CreateListingPage = () => {
       console.log('Відправляємо дані на сервер:', newVehicle);
       const vehicle = await createVehicle(newVehicle).unwrap();
       console.log('Оголошення створено:', vehicle);
+
+      // Додаємо нотифікацію про створення оголошення
+      const vehicleTitle = `${data.brand} ${data.model} ${data.year}`;
+      notifyNewVehicle(vehicleTitle, vehicle.id);
 
       // Завантаження всіх зображень
       const imageUploadPromises = images
@@ -1147,19 +1153,30 @@ const CreateListingPage = () => {
 
               {/* Об'єм двигуна */}
               <Grid item xs={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Об'єм двигуна, л.</InputLabel>
-                  <Select name="engine_volume" label="Об'єм двигуна, л.">
-                    <MenuItem value="">
-                      <em>Оберіть</em>
-                    </MenuItem>
-                    {engineVolumes.map((volume) => (
-                      <MenuItem key={volume} value={volume}>
-                        {volume}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <Controller
+                  name="engine_volume"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.engine_volume}>
+                      <InputLabel>Об'єм двигуна, л.</InputLabel>
+                      <Select {...field} label="Об'єм двигуна, л.">
+                        <MenuItem value="">
+                          <em>Оберіть</em>
+                        </MenuItem>
+                        {engineVolumes.map((volume) => (
+                          <MenuItem key={volume} value={volume}>
+                            {volume}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.engine_volume && (
+                        <Typography variant="caption" color="error">
+                          {errors.engine_volume.message}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  )}
+                />
               </Grid>
               {/* Потужність двигуна */}
               <Grid item xs={3}>

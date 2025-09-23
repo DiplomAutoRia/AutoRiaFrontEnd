@@ -8,6 +8,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { Avatar, Box, Button, Checkbox, FormControlLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 
 import { profileSchema } from '../../common/utils/zod-validation';
+import { useAddNotification } from '../notifications/NotificationSystem';
 import { updateUserProfile } from '../../redux/auth/authSlice';
 import type { RootState } from '../../redux/store';
 
@@ -15,6 +16,7 @@ const ProfileSettingsForm: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { notifySystem } = useAddNotification();
 
   const {
     register,
@@ -50,7 +52,8 @@ const ProfileSettingsForm: React.FC = () => {
   const onSubmit = async (data: any) => {
     try {
       await dispatch(updateUserProfile(data) as any);
-      // You might want to show a success message here
+      // Додаємо нотифікацію про успішне оновлення профілю
+      notifySystem('Профіль оновлено', 'Ваш профіль успішно оновлено');
     } catch (error) {
       console.error('Failed to update profile:', error);
     }

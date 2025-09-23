@@ -28,6 +28,8 @@ import {
 import ProfileLayout from '../../components/profile/ProfileLayout';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
 import ProfileChat from '../../components/profile/ProfileChat';
+import UserListingCard from '../../components/vehicles/UserListingCard';
+import UserListingsGrid from '../../components/vehicles/UserListingsGrid';
 import type { RootState } from '../../redux/store';
 import { useGetMyVehiclesQuery, useGetVehicleQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
@@ -37,11 +39,6 @@ interface Favorite {
   vehicle: any; // This can be a Vehicle object or a number (ID)
 }
 
-interface FavoriteVehicleCardProps {
-  favorite: Favorite;
-  onRemove: (favoriteId: number) => void;
-  onNavigate: (vehicleId: number) => void;
-}
 
 interface FavoriteVehicleWithIdProps {
   vehicleId: number;
@@ -117,152 +114,6 @@ const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({
   );
 };
 
-const FavoriteVehicleCard: React.FC<FavoriteVehicleCardProps> = ({ favorite, onRemove, onNavigate }) => {
-  // The favorite object already contains the full vehicle data
-  const vehicle = favorite.vehicle;
-
-  if (!vehicle) {
-    return (
-      <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-              Помилка завантаження оголошення
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              ID: {favorite.id}
-            </Typography>
-          </Box>
-          <IconButton size="small" onClick={() => onRemove(favorite.id)} color="error">
-            <FavoriteIcon />
-          </IconButton>
-        </Box>
-      </Paper>
-    );
-  }
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency: currency === 'USD' ? 'USD' : 'UAH',
-    }).format(price);
-  };
-
-  return (
-    <Card
-      sx={{
-        display: 'flex',
-        position: 'relative',
-        borderRadius: 0,
-        transition: 'all 0.3s ease',
-        cursor: 'pointer',
-        height: 200,
-        '&:hover': {
-          boxShadow: 3,
-          transform: 'translateY(-2px)',
-        },
-      }}
-      onClick={() => onNavigate(vehicle.id)}
-    >
-      {/* Remove from favorites icon */}
-      <IconButton
-        sx={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          zIndex: 2,
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          '&:hover': {
-            backgroundColor: 'white',
-          },
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(favorite.id);
-        }}
-        size="small"
-      >
-        <FavoriteIcon fontSize="small" />
-      </IconButton>
-
-      {/* Image */}
-      <Box
-        component="img"
-        sx={{
-          width: 280,
-          height: '100%',
-          objectFit: 'cover',
-          backgroundColor: '#f5f5f5',
-          flexShrink: 0,
-        }}
-        src={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'}
-        alt={`${vehicle.brand} ${vehicle.model}`}
-      />
-
-      {/* Content */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2, gap: 1 }}>
-        {/* Brand, model and year in one line */}
-        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
-          <Typography
-            variant="h6"
-            component="h3"
-            sx={{
-              fontSize: '1.2rem',
-              fontWeight: 'bold',
-              lineHeight: 1.2,
-            }}
-          >
-            {vehicle.brand} {vehicle.model}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
-            {vehicle.year} рік
-          </Typography>
-        </Box>
-
-        {/* Price */}
-        {vehicle.price && (
-          <Typography
-            variant="h6"
-            color="primary"
-            sx={{
-              fontSize: '1.3rem',
-              fontWeight: 'bold',
-            }}
-          >
-            {formatPrice(vehicle.price, vehicle.currency)}
-          </Typography>
-        )}
-
-        {/* Details in column */}
-        <Stack spacing={0.5}>
-          {vehicle.mileage && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Пробіг: {vehicle.mileage.toLocaleString()} км
-            </Typography>
-          )}
-
-          {vehicle.fuel_type && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Паливо: {vehicle.fuel_type}
-            </Typography>
-          )}
-
-          {vehicle.transmission && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              КП: {vehicle.transmission}
-            </Typography>
-          )}
-
-          {vehicle.location && (
-            <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-              Місто: {vehicle.location}
-            </Typography>
-          )}
-        </Stack>
-      </Box>
-    </Card>
-  );
-};
 
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -332,15 +183,6 @@ export default function ProfilePage() {
       await removeFromFavorites(favoriteId).unwrap();
     } catch (error) {
       console.error('Failed to remove from favorites:', error);
-    }
-  };
-
-  const handleDeleteVehicle = async (vehicleId: number) => {
-    try {
-      await deleteVehicle(vehicleId).unwrap();
-      // Можна додати оновлення списку або повідомлення
-    } catch (error) {
-      console.error('Не вдалося видалити оголошення:', error);
     }
   };
 

@@ -21,7 +21,7 @@ interface FilterProps {
 export default function Filter({ onSearch: _onSearch }: FilterProps) {
   const [activePage, setActivePage] = useState<number>(0);
   const [showAll, setShowAll] = useState(false);
-  const [, setFilters] = useState<Partial<VehicleFilters>>({});
+  const [filters, setFilters] = useState<Partial<VehicleFilters>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -35,7 +35,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
 
   const resetFilters = () => {
     setFilters({});
-    onSearch?.({});
+    _onSearch?.({});
   };
 
   // --- SVG ICONS ---
@@ -252,7 +252,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col justify-end">
               <button
-                onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
@@ -327,7 +327,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col justify-end">
               <button
-                onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
@@ -387,7 +387,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col justify-end">
               <button
-                onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
@@ -453,7 +453,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col justify-end">
               <button
-                onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
@@ -498,7 +498,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
             </div>
             <div className="flex flex-col justify-end">
               <button
-                onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 text-sm font-medium transition-colors flex items-center justify-center w-[90%] mt-1 h-9"
                 style={{ borderRadius: 0 }}
               >
@@ -906,7 +906,7 @@ export default function Filter({ onSearch: _onSearch }: FilterProps) {
               {/* Кнопка пошуку для розширеного пошуку */}
               <div className="flex justify-end mt-4">
                 <button
-                  onClick={() => onSearch?.(filters)}
+                onClick={() => _onSearch?.(filters)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm font-medium transition-colors"
                 >
                   Застосувати фільтри

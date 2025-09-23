@@ -164,6 +164,9 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
   try {
     const response = await axios.post(`${routes.API.BASE}/users/social/google/login/`, {
       token,
+      access_token: token,
+      code: '',
+      id_token: token,
     });
 
     Cookies.set('access_token', response.data.access, { expires: 30 });
@@ -343,7 +346,8 @@ export const updateUserProfile = createAsyncThunk(
         throw new Error('Profile update failed. Please try again.');
       }
 
-      return { user: response.data };
+      // Оновлюємо відповідь для відповідності новому формату бекенду
+      return { user: response.data.user || response.data };
     } catch (err: unknown) {
       return rejectWithValue(getErrorMessage(err));
     }

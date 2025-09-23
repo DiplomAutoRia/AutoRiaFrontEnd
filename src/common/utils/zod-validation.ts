@@ -117,21 +117,7 @@ export const carListingSchema = z.object({
       message: 'Оберіть тип приводу зі списку',
     })
     .optional(),
-  is_new: z.boolean().default(true),
-  plate_number: z
-    .string()
-  fuel_type: z.enum(['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'], {
-    message: 'Оберіть тип палива зі списку'
-  }).optional(),
-  transmission: z.enum(['manual', 'automatic', 'cvt', 'robotic', 'other'], {
-    message: 'Оберіть коробку передач зі списку'
-  }).optional(),
-  body_type: z.enum(['sedan', 'hatchback', 'suv', 'wagon', 'coupe', 'convertible', 'pickup', 'van', 'minivan'], {
-    message: 'Оберіть тип кузова зі списку'
-  }).optional(),
-  drive_type: z.enum(['front', 'rear', 'all', 'full'], {
-    message: 'Оберіть тип приводу зі списку'
-  }).optional(),
+  is_new: z.string().optional(),
   plate_number: z.string()
     .max(20, 'Номер авто не може перевищувати 20 символів')
     .regex(/^[A-Z0-9\s-]*$/, 'Номер авто може містити тільки літери, цифри, пробіли та дефіси')
@@ -198,13 +184,6 @@ export const carListingSchema = z.object({
     .min(1, 'Кількість дверей має бути не менше 1')
     .max(10, 'Кількість дверей не може перевищувати 10')
     .optional(),
-
-  is_new: z.string().optional(),
-
-
-
-
-
 
   // Image field
   image: z.any(),
