@@ -164,6 +164,9 @@ export const googleAuth = createAsyncThunk('auth/googleAuth', async (token: stri
   try {
     const response = await axios.post(`${routes.API.BASE}/users/social/google/login/`, {
       token,
+      access_token: token,
+      code: '',
+      id_token: token,
     });
 
     Cookies.set('access_token', response.data.access, { expires: 30 });
@@ -302,6 +305,81 @@ export const confirmPasswordReset = createAsyncThunk(
     }
   },
 );
+
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUserProfile',
+  async (
+    data: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      location?: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const token = Cookies.get('access_token') || getTokenFromStorage();
+      const response = await axios.patch(`${routes.API.BASE}/users/profile/`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        validateStatus: (status) => status < 500,
+      });
+
+      if (response.status >= 400) {
+        if (response.data?.error) {
+          throw new Error(response.data.error);
+        } else if (response.data?.first_name) {
+          throw new Error(response.data.first_name);
+        } else if (response.data?.last_name) {
+          throw new Error(response.data.last_name);
+        } else if (response.data?.email) {
+          throw new Error(response.data.email);
+        } else if (response.data?.phone_number) {
+          throw new Error(response.data.phone_number);
+        } else if (response.data?.location) {
+          throw new Error(response.data.location);
+        }
+        throw new Error('Profile update failed. Please try again.');
+      }
+
+      // Оновлюємо відповідь для відповідності новому формату бекенду
+      return { user: response.data.user || response.data };
+    } catch (err: unknown) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  },
+);
+
+export const getUserById = createAsyncThunk('auth/getUserById', async (userId: number, { rejectWithValue }) => {
+  try {
+    const token = Cookies.get('access_token') || getTokenFromStorage();
+    const response = await axios.get(`${routes.API.BASE}/users/${userId}/`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      validateStatus: (status) => status < 500,
+    });
+
+    if (response.status >= 400) {
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      } else if (response.data?.detail) {
+        throw new Error(response.data.detail);
+      }
+      throw new Error('Failed to get user information.');
+    }
+
+    return { user: response.data };
+  } catch (err: unknown) {
+    return rejectWithValue(getErrorMessage(err));
+  }
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -449,6 +527,35 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.successMessage = null;
+      })
+
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.error = null;
+        saveUserToStorage(action.payload.user);
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(getUserById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserById.fulfilled, (state, _action) => {
+        state.loading = false;
+        state.error = null;
+        // Не зберігаємо отриманого користувача в стані auth, оскільки це інший користувач
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

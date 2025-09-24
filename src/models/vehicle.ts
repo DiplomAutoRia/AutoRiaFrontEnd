@@ -18,6 +18,8 @@ export interface Vehicle {
   is_custom_cleared?: boolean;
   vin_code?: string;
   number_of_owners?: number;
+  is_new?: boolean;
+  plate_number?: string;
   is_active: boolean;
   views_count: number;
   created_at: string;
@@ -74,6 +76,8 @@ export interface VehicleCreateRequest {
   is_custom_cleared?: boolean;
   vin_code?: string;
   number_of_owners?: number;
+  is_new?: boolean;
+  plate_number?: string;
   uploaded_images?: File[];
   body_type?: CarBodyType;
   drive_type?: DriveType;
@@ -128,6 +132,16 @@ export interface VehicleFilters {
   boat_type?: BoatType[];
   aircraft_type?: AircraftType[];
   has_kitchen?: boolean;
+  location?: string;
+  mileage?: number;
+  engine_volume?: number;
+  engine_power?: number;
+  drive_type?: DriveType;
+  currency?: CurrencyType;
+  technical_condition?: TechnicalCondition;
+  has_bathroom?: boolean;
+  is_custom_cleared?: boolean;
+  is_new?: boolean;
 }
 
 export const VEHICLE_TYPES = [

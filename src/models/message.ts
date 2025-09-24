@@ -23,7 +23,7 @@ export interface Conversation {
 }
 
 export interface CreateMessageRequest {
-  receiver: number;
+  receiver?: number;
   vehicle?: number;
   conversation?: number;
   text: string;

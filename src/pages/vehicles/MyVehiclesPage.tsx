@@ -55,8 +55,8 @@ const MyVehiclesPage: React.FC = () => {
           {t('vehicles.myVehicles')}
         </Typography>
 
-        <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/vehicles/create')}>
-          {t('vehicles.addListing')}
+        <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create')}>
+          Додати оголошення
         </Button>
       </Box>
 
@@ -68,8 +68,8 @@ const MyVehiclesPage: React.FC = () => {
           <Typography variant="body1" color="text.secondary" gutterBottom>
             {t('vehicles.createFirstListing')}
           </Typography>
-          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/vehicles/create')} sx={{ mt: 2 }}>
-            {t('vehicles.createListing')}
+          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/create')} sx={{ mt: 2 }}>
+            Створити оголошення
           </Button>
         </Box>
       ) : (

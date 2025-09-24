@@ -16,7 +16,6 @@ export const routes = {
   MESSAGES: '/messages',
   MESSAGE_CONVERSATION: '/messages/:conversationId',
   NOT_FOUND: '*',
-  CREATE: '/create',
   CAR_DETAILS: '/car/:id',
   MY_LISTINGS: '/my-listings',
   EDIT_LISTING: '/edit-listing/:id',

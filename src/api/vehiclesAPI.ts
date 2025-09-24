@@ -37,6 +37,7 @@ const vehiclesAPI = {
     });
   },
   getUserVehicles: () => api.get('my-vehicles/'),
+  getVehiclesByUserId: (userId: string) => api.get(`?user=${userId}`),
   deleteImage: (vehicleId: string, imageId: string) => api.delete(`${vehicleId}/delete-image/${imageId}/`),
 };
 

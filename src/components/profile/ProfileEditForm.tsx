@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, TextField } from '@mui/material';
-import { z } from 'zod';
 
+import { profileSchema } from '../../common/utils/zod-validation';
 import type { User } from '../../models/auth';
 
 type ProfileEditFormData = {
@@ -13,6 +13,7 @@ type ProfileEditFormData = {
   last_name: string;
   email?: string;
   phone_number?: string;
+  location?: string;
 };
 
 interface ProfileEditFormProps {
@@ -28,20 +29,13 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onSubmit, onCan
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const profileEditSchema = z.object({
-    first_name: z.string().min(2, t('profile.validation.firstNameMin')),
-    last_name: z.string().min(2, t('profile.validation.lastNameMin')),
-    email: z.string().email(t('profile.validation.invalidEmail')).optional().or(z.literal('')),
-    phone_number: z.string().optional().or(z.literal('')),
-  });
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<ProfileEditFormData>({
-    resolver: zodResolver(profileEditSchema),
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',

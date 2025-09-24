@@ -12,11 +12,11 @@ import PasswordResetConfirmPage from './pages/auth/PasswordResetConfirmPage';
 import LoginPage from './pages/auth/loginPage';
 import RegisterPage from './pages/auth/registerPage';
 import CarDetailsPage from './pages/cars/CarDetailsPage';
+import CreateListingPage from './pages/cars/CreateListingPage';
 import FavoritesPage from './pages/favorites/FavoritesPage';
 import MainPage from './pages/mainPage';
 import { MessagesPage } from './pages/messages';
 import ProfilePage from './pages/profilePage/ProfilePage';
-import CreateVehiclePage from './pages/vehicles/CreateVehiclePage';
 import EditVehiclePage from './pages/vehicles/EditVehiclePage';
 import MyVehiclesPage from './pages/vehicles/MyVehiclesPage';
 import VehicleDetailPage from './pages/vehicles/VehicleDetailPage';
@@ -60,7 +60,7 @@ function App() {
         <Route path={routes.PROFILE} element={<ProfilePage />} />
         <Route path={routes.VEHICLES} element={<VehiclesPage />} />
         <Route path={routes.VEHICLE_DETAIL} element={<VehicleDetailPage />} />
-        <Route path={routes.VEHICLE_CREATE} element={<CreateVehiclePage />} />
+        <Route path={routes.VEHICLE_CREATE} element={<CreateListingPage />} />
         <Route path={routes.VEHICLE_EDIT} element={<EditVehiclePage />} />
         <Route path={routes.MY_VEHICLES} element={<MyVehiclesPage />} />
         <Route path={routes.FAVORITES} element={<FavoritesPage />} />

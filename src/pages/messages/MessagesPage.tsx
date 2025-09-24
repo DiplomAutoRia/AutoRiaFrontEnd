@@ -2,22 +2,20 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 
-import { Container, Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 
 import ConversationList from '../../components/messages/ConversationList';
 import ConversationView from '../../components/messages/ConversationView';
+import NotificationsForm from '../../components/notifications/NotificationsForm';
+import ProfileLayout from '../../components/profile/ProfileLayout';
 
 const MessagesPage: React.FC = () => {
   const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId?: string }>();
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        {t('messages.title')}
-      </Typography>
-
-      <Grid container spacing={2} sx={{ height: '600px', maxHeight: '600px' }}>
+    <ProfileLayout title="Повідомлення" showBreadcrumb={false}>
+      <Grid container spacing={2} sx={{ height: '70vh' }}>
         <Grid item xs={12} md={conversationId ? 4 : 12}>
           <ConversationList />
         </Grid>
@@ -28,7 +26,12 @@ const MessagesPage: React.FC = () => {
           </Grid>
         )}
       </Grid>
-    </Container>
+
+      {/* Notifications Form */}
+      <Box sx={{ mt: 4 }}>
+        <NotificationsForm />
+      </Box>
+    </ProfileLayout>
   );
 };
 

@@ -21,7 +21,8 @@
       "Bash(set DJANGO_SETTINGS_MODULE=AutoRiaBackEnd.settings)",
       "Bash(uvicorn:*)",
       "Bash(taskkill:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

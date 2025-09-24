@@ -1,237 +1,91 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Search } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Chip,
-  Container,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
-
-import VehicleCard from '../../components/vehicles/VehicleCard';
+import News from '../../components/ui/News';
+import Filter from '../../components/ui/filter';
+import CarListingsGrid from '../../components/vehicles/CarListingsGrid';
 import { POPULAR_BRANDS } from '../../models/brands';
-import { useGetFavoritesQuery } from '../../redux/api/favoritesApi';
+import type { VehicleFilters } from '../../models/vehicle';
 import { useGetVehiclesQuery } from '../../redux/api/vehiclesApi';
-import type { RootState } from '../../redux/store';
 
 const MainPage = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [brand, setBrand] = React.useState('');
-  const [priceFrom, setPriceFrom] = React.useState('');
-  const [priceTo, setPriceTo] = React.useState('');
+  const [filters, setFilters] = useState<VehicleFilters>({ limit: 9 });
+  const { data: vehiclesData } = useGetVehiclesQuery(filters);
 
-  const user = useSelector((state: RootState) => state.auth.user);
-  const { data: vehiclesData } = useGetVehiclesQuery({ limit: 6 });
-  const { data: favorites = [] } = useGetFavoritesQuery(undefined, { skip: !user });
-
-  const favoriteIds = favorites.reduce(
-    (acc, fav) => {
-      if (fav.vehicle_details?.id) {
-        acc[fav.vehicle_details.id] = fav.id;
-      }
-      return acc;
-    },
-    {} as Record<number, number>,
-  );
-
-  const handleSearch = () => {
-    const searchParams = new URLSearchParams();
-    if (searchQuery) searchParams.set('search', searchQuery);
-    if (brand) searchParams.set('brand', brand);
-    if (priceFrom) searchParams.set('price_from', priceFrom);
-    if (priceTo) searchParams.set('price_to', priceTo);
-    navigate(`/vehicles?${searchParams.toString()}`);
+  const handleSearch = (searchFilters: Partial<VehicleFilters>) => {
+    setFilters({ ...searchFilters, limit: 9 });
   };
 
   const handleBrandClick = (brandName: string) => {
     navigate(`/vehicles?brand=${brandName}`);
   };
 
-  return (
-    <Box component="main" role="main" sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-      <Box
-        component="section"
-        aria-label="Пошук автомобілів"
-        sx={{
-          background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-          color: 'white',
-          py: 6,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Typography variant="h2" component="h1" gutterBottom align="center">
-            {t('mainPage.title')}
-          </Typography>
-          <Typography variant="h5" component="p" gutterBottom align="center" sx={{ mb: 4 }}>
-            {t('mainPage.subtitle')}
-          </Typography>
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-          <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label={t('vehicles.searchVehicle')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  InputProps={{
-                    startAdornment: <Search sx={{ color: 'text.secondary', mr: 1 }} />,
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="bg-white py-8">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
+            TurboSell - купівля та продаж авто в Україні
+          </h1>
+          <p className="text-xl text-center text-gray-600 mb-8">
+            Купуйте й продавайте авто онлайн
+          </p>
+
+          {/* New Filter Component */}
+          <Filter onSearch={handleSearch} />
+        </div>
+      </div>
+
+      {vehiclesData?.results && vehiclesData.results.length > 0 && (
+        <CarListingsGrid cars={vehiclesData.results} title="Останні оголошення" />
+      )}
+
+      <div className="container mx-auto px-4 max-w-7xl py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Популярні марки</h2>
+        <div className="grid grid-cols-6 gap-4">
+          {POPULAR_BRANDS.map((brandName) => (
+            <button
+              key={brandName}
+              onClick={() => handleBrandClick(brandName)}
+              className="flex flex-col items-center p-3 border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              <div className="w-[70px] h-[70px] bg-white flex items-center justify-center mb-2">
+                <img
+                  src={`/brands/${brandName.toLowerCase().replace(/\s+/g, '-')}.png`}
+                  alt={brandName}
+                  className="w-[44px] h-[44px] object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = '/locales/images/car.png';
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <FormControl fullWidth>
-                  <InputLabel>{t('vehicles.selectMake')}</InputLabel>
-                  <Select value={brand} onChange={(e) => setBrand(e.target.value)}>
-                    {POPULAR_BRANDS.map((brandName) => (
-                      <MenuItem key={brandName} value={brandName}>
-                        {brandName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  label={t('vehicles.filters.priceFrom')}
-                  type="number"
-                  value={priceFrom}
-                  onChange={(e) => setPriceFrom(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  label={t('vehicles.filters.priceTo')}
-                  type="number"
-                  value={priceTo}
-                  onChange={(e) => setPriceTo(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  startIcon={<Search />}
-                  sx={{ py: 1.5 }}
-                  onClick={handleSearch}
-                >
-                  {t('common.search')}
-                </Button>
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="large"
-                  component={Link}
-                  to="/create"
-                  sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-                >
-                  Додати авто
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Container>
-      </Box>
-
-      <Container maxWidth="lg" sx={{ py: 4 }} component="section" aria-label="Популярні бренди">
-        <Typography variant="h4" component="h2" gutterBottom>
-          {t('mainPage.popularBrands')}
-        </Typography>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-          {POPULAR_BRANDS.map((brandName) => (
-            <Chip
-              key={brandName}
-              label={brandName}
-              variant="outlined"
-              clickable
-              sx={{ mb: 1 }}
-              onClick={() => handleBrandClick(brandName)}
-            />
+              </div>
+              <span className="text-sm font-medium text-gray-900">{brandName}</span>
+            </button>
           ))}
-        </Stack>
-      </Container>
+        </div>
+      </div>
 
-      <Container maxWidth="lg" sx={{ py: 4 }} component="section" aria-label="Рекомендовані автомобілі">
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" component="h2" gutterBottom>
-            {t('mainPage.recommendedCars')}
-          </Typography>
-          <Button variant="outlined" onClick={() => navigate('/vehicles')}>
-            {t('mainPage.viewAll')}
-          </Button>
-        </Box>
+      {/* Car News Section */}
+      <div className="container mx-auto px-4 max-w-7xl py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Автомобільні новини</h2>
+        <News limit={5} />
+      </div>
 
-        <Grid container spacing={3}>
-          {vehiclesData?.results?.slice(0, 6).map((vehicle) => (
-            <Grid item xs={12} sm={6} md={4} key={vehicle.id}>
-              <VehicleCard
-                vehicle={vehicle}
-                isFavorite={user ? !!favoriteIds[vehicle.id] : false}
-                favoriteId={user ? favoriteIds[vehicle.id] : undefined}
-              />
-            </Grid>
-          ))}
-        </Grid>
-
-        {!vehiclesData?.results?.length && (
-          <Box textAlign="center" py={8}>
-            <Typography variant="h6" color="text.secondary">
-              {t('mainPage.loadingListings')}
-            </Typography>
-          </Box>
-        )}
-      </Container>
-
-      <Box component="section" aria-label="Статистика" sx={{ backgroundColor: 'white', py: 6 }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4} textAlign="center">
-            <Grid item xs={12} md={3}>
-              <Typography variant="h3" color="primary">
-                10,000+
-              </Typography>
-              <Typography variant="h6">{t('mainPage.statistics.vehicles')}</Typography>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography variant="h3" color="primary">
-                5,000+
-              </Typography>
-              <Typography variant="h6">{t('mainPage.statistics.sellers')}</Typography>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography variant="h3" color="primary">
-                15,000+
-              </Typography>
-              <Typography variant="h6">{t('mainPage.statistics.clients')}</Typography>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Typography variant="h3" color="primary">
-                24/7
-              </Typography>
-              <Typography variant="h6">{t('mainPage.statistics.support')}</Typography>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-    </Box>
+      {/* Back to Top Button */}
+      <div className="container mx-auto px-4 max-w-7xl py-6 flex justify-center">
+        <button
+          onClick={scrollToTop}
+          className="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 px-9 py-2 text-sm font-medium transition-colors"
+        >
+          На початок сторінки
+        </button>
+      </div>
+    </div>
   );
 };
 

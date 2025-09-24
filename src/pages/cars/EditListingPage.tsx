@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import { routes } from '../../routes';
+import { useGetVehicleQuery, useUpdateVehicleMutation, useAddVehicleImageMutation } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 import {
   Box,
   Button,
@@ -18,31 +19,108 @@ import {
   Stack,
   TextField,
   Typography,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
+import { PhotoCamera } from '@mui/icons-material';
 
 import { carListingSchema } from '../../common/utils/zod-validation';
-import type { AppDispatch, RootState } from '../../redux/store';
-import { addVehicleImage, fetchVehicleById, updateVehicle } from '../../redux/vehicles/vehiclesSlice';
-import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
+const fuels = ['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'];
+const transmissions = ['manual', 'automatic', 'cvt', 'robotic', 'other'];
+const bodyTypes = ['sedan', 'hatchback', 'suv', 'wagon', 'coupe', 'convertible', 'pickup', 'van', 'minivan'];
+const driveTypes = ['front', 'rear', 'all', 'full'];
+const colors = ['black', 'white', 'gray', 'red', 'blue', 'green', 'other'];
+const currencies = ['USD', 'EUR', 'UAH', 'GBP', 'PLN'];
+const vehicleTypes = ['Легковий автомобіль', 'Мотоцикл', 'Вантажний автомобіль', 'Автобус', 'Спецтехніка', 'Причіп'];
+
+const MAX_IMAGES = 8;
+
+const inputSx = {
+  bgcolor: '#fff',
+  borderRadius: 1,
+  fontSize: 15,
+  height: 40,
+  '.MuiInputBase-input': { py: 1, px: 1.5, fontSize: 15 },
+  '.MuiSelect-select': { py: 1, px: 1.5, fontSize: 15, height: 'auto' },
+};
+
+const labelSx = {
+  fontSize: 15,
+};
+
+const vinInputSx = {
+  bgcolor: '#fff',
+  borderRadius: 1,
+  fontSize: 15,
+  height: 40,
+  width: '66%',
+  '.MuiInputBase-input': { py: 1, px: 1.5, fontSize: 15 },
+  mr: 1,
+};
+
+const sectionSx = {
+  mb: 4,
+  borderRadius: 2,
+  p: 3,
+  background: 'transparent',
+};
+
+const vinSectionSx = {
+  mb: 4,
+  p: 3,
+  backgroundColor: 'white',
+  borderRadius: 2,
+  border: '1px solid #e0e0e0',
+};
+
+const hrSx = {
+  border: 0,
+  borderTop: '1px solid #e0e0e0',
+  my: 4,
+};
+
+const yellowBoxSx = {
+  background: '#fff9db',
+  border: '1px solid #ffe58f',
+  borderRadius: 1,
+  p: 2,
+  mb: 2,
+};
+
+const infoIconSx = {
+  display: 'inline-block',
+  width: 18,
+  height: 18,
+  borderRadius: '50%',
+  bgcolor: '#bdb76b',
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: 14,
+  textAlign: 'center',
+  lineHeight: '18px',
+  mr: 1,
+};
 
 const EditListingPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { id: vehicleId } = useParams();
-  const currentVehicle = useSelector((state: RootState) => state.vehicles.currentVehicle);
-  const status = useSelector((state: RootState) => state.vehicles.status);
-  const error = useSelector((state: RootState) => state.vehicles.error);
-
+  const user = useSelector((state: RootState) => state.auth.user);
+  
+  const { data: vehicle, isLoading, error } = useGetVehicleQuery(vehicleId!, { skip: !vehicleId });
+  const [updateVehicle] = useUpdateVehicleMutation();
+  const [addVehicleImage] = useAddVehicleImageMutation();
+  
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
+  const [images, setImages] = useState<(File | null)[]>(Array(MAX_IMAGES).fill(null));
+  const [previews, setPreviews] = useState<(string | null)[]>(Array(MAX_IMAGES).fill(null));
+  const [vin, setVin] = useState('');
+  const [isOwner, setIsOwner] = useState(false);
+  const [agree, setAgree] = useState(false);
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(carListingSchema),
     defaultValues: {
       brand: '',
@@ -50,95 +128,132 @@ const EditListingPage = () => {
       price: 0,
       currency: 'USD',
       year: 0,
-      mileage: 0,
-      fuel_type: '',
-      transmission: '',
-      body_type: 'Sedan' as 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Convertible' | 'Minivan',
-      drive_type: 'FWD' as 'FWD' | 'RWD' | 'AWD' | '4WD',
       location: '',
       description: '',
+      mileage: 0,
+      fuel_type: undefined,
+      transmission: undefined,
+      body_type: undefined,
+      drive_type: undefined,
+      is_new: 'true',
+      plate_number: '',
+      color: undefined,
+      engine_volume: 0,
+      engine_power: 0,
+      vin_code: '',
     },
   });
 
   useEffect(() => {
-    if (vehicleId) {
-      dispatch(fetchVehicleById(vehicleId));
-    }
-  }, [vehicleId, dispatch]);
-
-  useEffect(() => {
-    if (currentVehicle) {
+    if (vehicle) {
       reset({
-        brand: currentVehicle.brand,
-        model: currentVehicle.model || '',
-        price: currentVehicle.price,
-        currency: currentVehicle.currency || 'USD',
-        year: currentVehicle.year,
-        mileage: currentVehicle.mileage,
-        fuel_type: currentVehicle.fuel_type || currentVehicle.fuel || '',
-        transmission: currentVehicle.transmission,
-        body_type: currentVehicle.body_type || '',
-        drive_type: currentVehicle.drive_type || '',
-        location: currentVehicle.location,
-        description: currentVehicle.description || '',
+        brand: vehicle.brand,
+        model: vehicle.model,
+        price: vehicle.price,
+        currency: vehicle.currency,
+        year: vehicle.year,
+        location: vehicle.location || '',
+        description: vehicle.description || '',
+        mileage: vehicle.mileage || 0,
+        fuel_type: vehicle.fuel_type,
+        transmission: vehicle.transmission,
+        body_type: vehicle.body_type,
+        drive_type: vehicle.drive_type,
+        is_new: vehicle.is_new ? 'true' : 'false',
+        plate_number: vehicle.plate_number || '',
+        color: vehicle.color,
+        engine_volume: vehicle.engine_volume || 0,
+        engine_power: vehicle.engine_power || 0,
+        vin_code: vehicle.vin_code || '',
       });
-      setPreviewImage(currentVehicle.image || null);
+      
+      if (vehicle.images && vehicle.images.length > 0) {
+        setPreviews(vehicle.images.map(img => img.image));
+      }
     }
-  }, [currentVehicle, reset]);
+  }, [vehicle, reset]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
+        setPreviews(prev => {
+          const arr = [...prev];
+          arr[index] = reader.result as string;
+          return arr;
+        });
       };
       reader.readAsDataURL(file);
-      setImageFile(file);
+      setImages(prev => {
+        const arr = [...prev];
+        arr[index] = file;
+        return arr;
+      });
     } else {
-      setPreviewImage(null);
-      setImageFile(null);
+      setPreviews(prev => {
+        const arr = [...prev];
+        arr[index] = null;
+        return arr;
+      });
+      setImages(prev => {
+        const arr = [...prev];
+        arr[index] = null;
+        return arr;
+      });
     }
   };
 
-  const onSubmit = (data: any) => {
-    if (!vehicleId) return;
+  const onSubmit = async (data: any) => {
+    try {
+      if (!vehicleId) return;
 
-    const updatedVehicle = {
-      id: vehicleId,
-      brand: data.brand,
-      model: data.model,
-      price: data.price,
-      currency: data.currency,
-      year: data.year,
-      mileage: data.mileage,
-      fuel_type: data.fuel_type,
-      transmission: data.transmission,
-      body_type: data.body_type,
-      drive_type: data.drive_type,
-      location: data.location,
-      description: data.description,
-    };
+      const updatedVehicle = {
+        brand: data.brand,
+        model: data.model,
+        year: parseInt(data.year),
+        price: parseFloat(data.price),
+        currency: data.currency,
+        description: data.description,
+        location: data.location || undefined,
+        mileage: data.mileage ? parseInt(data.mileage) : undefined,
+        fuel_type: data.fuel_type || undefined,
+        transmission: data.transmission || undefined,
+        body_type: data.body_type || undefined,
+        drive_type: data.drive_type || undefined,
+        is_new: data.is_new === 'true' ? true : data.is_new === 'false' ? false : Boolean(data.is_new),
+        plate_number: data.plate_number || undefined,
+        color: data.color || undefined,
+        engine_volume: data.engine_volume ? parseFloat(data.engine_volume) : undefined,
+        engine_power: data.engine_power ? parseInt(data.engine_power) : undefined,
+        vin_code: data.vin_code || undefined,
+      };
 
-    dispatch(updateVehicle({ id: vehicleId, data: updatedVehicle }))
-      .unwrap()
-      .then((vehicle) => {
-        console.log('Оголошення оновлено:', vehicle);
+      console.log('Оновлюємо дані:', updatedVehicle);
+      const result = await updateVehicle({ id: vehicleId, data: updatedVehicle }).unwrap();
+      console.log('Оголошення оновлено:', result);
 
-        if (imageFile && vehicle.id) {
-          dispatch(addVehicleImage({ id: vehicle.id, image: imageFile }))
-            .then(() => console.log('Image uploaded successfully'))
-            .catch((error: any) => console.error('Error uploading image:', error));
-        }
+      // Завантаження нових зображень
+      const imageUploadPromises = images
+        .filter((image): image is File => image !== null)
+        .map(image => {
+          return addVehicleImage({ vehicleId: vehicleId, image }).unwrap();
+        });
 
-        navigate(routes.MY_LISTINGS);
-      })
-      .catch((error: any) => {
-        console.error('Помилка при оновленні оголошення:', error);
-      });
+      try {
+        await Promise.all(imageUploadPromises);
+        console.log('Всі зображення успішно завантажено');
+      } catch (imageError) {
+        console.error('Помилка при завантаженні зображень:', imageError);
+      }
+
+      navigate(routes.MY_LISTINGS);
+    } catch (error: any) {
+      console.error('Помилка при оновленні оголошення:', error);
+    }
   };
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h6">Завантаження оголошення...</Typography>
@@ -150,13 +265,13 @@ const EditListingPage = () => {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h6" color="error">
-          Помилка: {error}
+          Помилка: {error.toString()}
         </Typography>
       </Container>
     );
   }
 
-  if (!currentVehicle) {
+  if (!vehicle) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h6">Оголошення не знайдено</Typography>
@@ -165,23 +280,75 @@ const EditListingPage = () => {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#f5f5f5', py: 6, minHeight: '100vh' }}>
-      <Container maxWidth="lg">
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
-          <Typography variant="h2" gutterBottom align="center">
-            Редагувати оголошення
+    <Box sx={{ py: 3, overflowX: 'hidden' }}>
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+        <Paper 
+          elevation={0} 
+          sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}
+          component="form"
+          id="edit-listing-form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {/* Breadcrumbs */}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Turbosell {'>'} Редагування оголошення
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={3}>
-              <Grid item xs={6}>
+          {/* Заголовок */}
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
+            Редагування оголошення
+          </Typography>
+
+          {/* --- Основна інформація --- */}
+          <Box sx={sectionSx}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Основна інформація
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  bgcolor: '#eaf2ff',
+                  borderRadius: 1,
+                  px: 1.5,
+                  py: 0.5,
+                  fontSize: 15,
+                  color: '#156ff5',
+                  mr: 1,
+                }}
+              >
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-block',
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    bgcolor: '#156ff5',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    lineHeight: '18px',
+                    mr: 1,
+                  }}
+                >
+                  i
+                </Box>
+                Заповнення цих полів є обов'язковим
+              </Box>
+            </Box>
+            <Grid container spacing={1.5}>
+              {/* Марка */}
+              <Grid item xs={4}>
                 <Controller
                   name="brand"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.brand}>
-                      <InputLabel>Марка</InputLabel>
-                      <Select {...field} label="Марка">
+                    <FormControl fullWidth size="small" error={!!errors.brand}>
+                      <InputLabel sx={labelSx}>Марка</InputLabel>
+                      <Select {...field} label="Марка" sx={inputSx}>
                         {brands.map((b) => (
                           <MenuItem key={b} value={b}>
                             {b}
@@ -190,14 +357,15 @@ const EditListingPage = () => {
                       </Select>
                       {errors.brand && (
                         <Typography variant="caption" color="error">
-                          {errors.brand.message as string}
+                          {errors.brand.message}
                         </Typography>
                       )}
                     </FormControl>
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
+              {/* Модель */}
+              <Grid item xs={4}>
                 <Controller
                   name="model"
                   control={control}
@@ -205,33 +373,19 @@ const EditListingPage = () => {
                     <TextField
                       {...field}
                       fullWidth
+                      size="small"
                       label="Модель"
-                      placeholder="Наприклад: X5"
+                      placeholder="Оберіть"
                       error={!!errors.model}
-                      helperText={errors.model?.message as string}
+                      helperText={errors.model?.message}
+                      sx={inputSx}
+                      InputLabelProps={{ sx: labelSx }}
                     />
                   )}
                 />
               </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="price"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Ціна ($)"
-                      type="number"
-                      error={!!errors.price}
-                      helperText={errors.price?.message as string}
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={6}>
+              {/* Рік */}
+              <Grid item xs={4}>
                 <Controller
                   name="year"
                   control={control}
@@ -239,16 +393,20 @@ const EditListingPage = () => {
                     <TextField
                       {...field}
                       fullWidth
-                      label="Рік випуску"
+                      size="small"
+                      label="Рік"
+                      placeholder="Оберіть"
                       type="number"
                       error={!!errors.year}
-                      helperText={errors.year?.message as string}
+                      helperText={errors.year?.message}
+                      sx={inputSx}
+                      InputLabelProps={{ sx: labelSx }}
                     />
                   )}
                 />
               </Grid>
-
-              <Grid item xs={6}>
+              {/* Пробіг */}
+              <Grid item xs={4}>
                 <Controller
                   name="mileage"
                   control={control}
@@ -256,189 +414,439 @@ const EditListingPage = () => {
                     <TextField
                       {...field}
                       fullWidth
-                      label="Пробіг (км)"
+                      size="small"
+                      label="Пробіг"
+                      placeholder="тис.км"
                       type="number"
                       error={!!errors.mileage}
-                      helperText={errors.mileage?.message as string}
+                      helperText={errors.mileage?.message}
+                      sx={inputSx}
+                      InputLabelProps={{ sx: labelSx }}
                     />
                   )}
                 />
               </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="currency"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel>Валюта</InputLabel>
-                      <Select {...field} label="Валюта">
-                        <MenuItem value="USD">USD</MenuItem>
-                        <MenuItem value="EUR">EUR</MenuItem>
-                        <MenuItem value="UAH">UAH</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Опис"
-                      multiline
-                      rows={4}
-                      error={!!errors.description}
-                      helperText={errors.description?.message as string}
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="fuel_type"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.fuel_type}>
-                      <InputLabel>Паливо</InputLabel>
-                      <Select {...field} label="Паливо">
-                        <MenuItem value="petrol">Бензин</MenuItem>
-                        <MenuItem value="diesel">Дизель</MenuItem>
-                        <MenuItem value="gas">Газ</MenuItem>
-                        <MenuItem value="electric">Електро</MenuItem>
-                      </Select>
-                      {errors.fuel_type && (
-                        <Typography variant="caption" color="error">
-                          {errors.fuel_type.message as string}
-                        </Typography>
-                      )}
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="transmission"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.transmission}>
-                      <InputLabel>Коробка передач</InputLabel>
-                      <Select {...field} label="Коробка передач">
-                        <MenuItem value="automatic">Автомат</MenuItem>
-                        <MenuItem value="manual">Механіка</MenuItem>
-                      </Select>
-                      {errors.transmission && (
-                        <Typography variant="caption" color="error">
-                          {errors.transmission.message as string}
-                        </Typography>
-                      )}
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={6}>
+              {/* Тип кузова */}
+              <Grid item xs={4}>
                 <Controller
                   name="body_type"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel>Тип кузова</InputLabel>
-                      <Select {...field} label="Тип кузова">
-                        <MenuItem value="Sedan">Седан</MenuItem>
-                        <MenuItem value="SUV">SUV</MenuItem>
-                        <MenuItem value="Hatchback">Хетчбек</MenuItem>
-                        <MenuItem value="Coupe">Купе</MenuItem>
-                        <MenuItem value="Convertible">Кабріолет</MenuItem>
-                        <MenuItem value="Minivan">Мінівен</MenuItem>
+                    <FormControl fullWidth size="small">
+                      <InputLabel sx={labelSx}>Тип кузова</InputLabel>
+                      <Select {...field} label="Тип кузова" sx={inputSx}>
+                        {bodyTypes.map((type) => (
+                          <MenuItem key={type} value={type}>
+                            {type}
+                          </MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
                   )}
                 />
               </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="drive_type"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel>Тип приводу</InputLabel>
-                      <Select {...field} label="Тип приводу">
-                        <MenuItem value="FWD">Передній</MenuItem>
-                        <MenuItem value="RWD">Задній</MenuItem>
-                        <MenuItem value="AWD">Повний</MenuItem>
-                        <MenuItem value="4WD">4WD</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
+              {/* Регіон */}
+              <Grid item xs={4}>
                 <Controller
                   name="location"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.location}>
+                      <InputLabel sx={labelSx}>Регіон</InputLabel>
+                      <Select {...field} label="Регіон" sx={inputSx}>
+                        <MenuItem value="Київська">Київська</MenuItem>
+                        <MenuItem value="Львівська">Львівська</MenuItem>
+                        <MenuItem value="Одеська">Одеська</MenuItem>
+                      </Select>
+                      {errors.location && (
+                        <Typography variant="caption" color="error">
+                          {errors.location.message}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              {/* Номер авто */}
+              <Grid item xs={4}>
+                <Controller
+                  name="plate_number"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Місцезнаходження"
-                      error={!!errors.location}
-                      helperText={errors.location?.message as string}
+                      size="small"
+                      label="Номер авто"
+                      placeholder="AA1234BB"
+                      error={!!errors.plate_number}
+                      helperText={errors.plate_number?.message}
+                      sx={inputSx}
+                      InputLabelProps={{ sx: labelSx }}
                     />
                   )}
                 />
               </Grid>
-
-              <Grid item xs={12}>
-                <Box>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    style={{ display: 'none' }}
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload">
-                    <Button variant="outlined" component="span" startIcon={<PhotoCamera />} sx={{ mb: 1 }}>
-                      Змінити фото
-                    </Button>
-                  </label>
-                  {imageFile?.name && (
-                    <Typography variant="body2" sx={{ ml: 1, display: 'inline-block' }}>
-                      {imageFile.name}
-                    </Typography>
+              {/* Коробка передач */}
+              <Grid item xs={4}>
+                <Controller
+                  name="transmission"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.transmission}>
+                      <InputLabel sx={labelSx}>Коробка передач</InputLabel>
+                      <Select {...field} label="Коробка передач" sx={inputSx}>
+                        <MenuItem value=""><em>Оберіть</em></MenuItem>
+                        {transmissions.map((t) => (
+                          <MenuItem key={t} value={t}>
+                            {t}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.transmission && (
+                        <Typography variant="caption" color="error">
+                          {errors.transmission.message}
+                        </Typography>
+                      )}
+                    </FormControl>
                   )}
-                </Box>
+                />
               </Grid>
-
-              {previewImage && (
-                <Grid item xs={12}>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle1">Попередній перегляд:</Typography>
-                    <img
-                      src={previewImage}
-                      alt="Попередній перегляд"
-                      style={{ maxWidth: '100%', maxHeight: '300px' }}
+              {/* Привід */}
+              <Grid item xs={4}>
+                <Controller
+                  name="drive_type"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.drive_type}>
+                      <InputLabel sx={labelSx}>Привід</InputLabel>
+                      <Select {...field} label="Привід" sx={inputSx}>
+                        <MenuItem value=""><em>Оберіть</em></MenuItem>
+                        {driveTypes.map((d) => (
+                          <MenuItem key={d} value={d}>
+                            {d}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.drive_type && (
+                        <Typography variant="caption" color="error">
+                          {errors.drive_type.message}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              {/* Стан */}
+              <Grid item xs={4}>
+                <Controller
+                  name="is_new"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small">
+                      <InputLabel sx={labelSx}>Стан</InputLabel>
+                      <Select {...field} label="Стан" sx={inputSx}>
+                        <MenuItem value="true">Нова</MenuItem>
+                        <MenuItem value="false">Б/У</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              {/* Ціна та валюта */}
+              <Grid item xs={4}>
+                <Controller
+                  name="price"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      size="small"
+                      label="Ціна"
+                      placeholder="Оберіть"
+                      type="number"
+                      error={!!errors.price}
+                      helperText={errors.price?.message}
+                      sx={inputSx}
+                      InputLabelProps={{ sx: labelSx }}
                     />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <Controller
+                  name="currency"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small">
+                      <InputLabel sx={labelSx}>Валюта</InputLabel>
+                      <Select {...field} label="Валюта" sx={inputSx}>
+                        {currencies.map((currency) => (
+                          <MenuItem key={currency} value={currency}>
+                            {currency}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={6} />
+            </Grid>
+          </Box>
+
+          {/* --- VIN код --- */}
+          <Box sx={vinSectionSx}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              Перевірені VIN–коди підвищують шанси на швидкий продаж.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Автоматична безкоштовна перевірка авто за державними та дилерськими реєстрами підвищує рейтинг оголошення в пошуку.
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Controller
+                name="vin_code"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="VIN–код"
+                    placeholder="VIN"
+                    size="small"
+                    sx={vinInputSx}
+                    InputLabelProps={{ sx: labelSx }}
+                    error={!!errors.vin_code}
+                    helperText={errors.vin_code?.message}
+                  />
+                )}
+              />
+              <Button
+                variant="outlined"
+                sx={{
+                  minWidth: 40,
+                  height: 40,
+                  borderRadius: 1,
+                  ml: 1,
+                  p: 0,
+                  borderColor: '#bdbdbd',
+                  color: '#757575',
+                }}
+                tabIndex={-1}
+              >
+                <PhotoCamera sx={{ fontSize: 22 }} />
+              </Button>
+            </Box>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Ви власник авто?
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Вказуйте, що ви власник — це приваблює більше покупців.
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isOwner}
+                  onChange={e => setIsOwner(e.target.checked)}
+                  size="small"
+                />
+              }
+              label={<Typography sx={{ fontSize: 15 }}>Я власник авто</Typography>}
+            />
+          </Box>
+
+          {/* --- Горизонтальна лінія після VIN --- */}
+          <Box component="hr" sx={hrSx} />
+
+          {/* --- Фото --- */}
+          <Box sx={sectionSx}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Додайте 2-3 фото з відкритим держ. номером
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 1, display: 'flex', alignItems: 'center' }}
+            >
+              <Box
+                component="span"
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  bgcolor: '#f5f7fa',
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.2,
+                  fontSize: 14,
+                  color: '#156ff5',
+                  mr: 1,
+                }}
+              >
+                Перше фото буде на обкладинці оголошення.
+              </Box>
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: 1 }}>
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((idx) => (
+                <Grid item xs={3} key={idx}>
+                  <Box
+                    sx={{
+                      bgcolor: '#e5e5e5',
+                      borderRadius: 1,
+                      height: 120,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      border: '1px dashed #bdbdbd',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{
+                        opacity: 0,
+                        width: '100%',
+                        height: '100%',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        cursor: 'pointer',
+                      }}
+                      onChange={handleImageChange(idx)}
+                    />
+                    {previews[idx] ? (
+                      <img
+                        src={previews[idx]!}
+                        alt={`Фото ${idx + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          color: '#757575',
+                        }}
+                      >
+                        <PhotoCamera sx={{ fontSize: 40, mb: 1 }} />
+                        <Typography variant="body2" sx={{ fontSize: 14 }}>
+                          Додати фото
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
                 </Grid>
-              )}
+              ))}
             </Grid>
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                color="primary"
+                sx={{ cursor: 'pointer', textDecoration: 'underline', fontSize: 15 }}
+                component="a"
+                href="#"
+              >
+                Як фотографувати автомобіль
+              </Typography>
+            </Box>
+          </Box>
 
-            <Stack direction="row" justifyContent="center" mt={4} spacing={2}>
-              <Button variant="outlined" size="large" onClick={() => navigate(routes.MY_LISTINGS)}>
-                Скасувати
-              </Button>
-              <Button type="submit" variant="contained" size="large">
+          {/* --- Горизонтальна лінія після фото --- */}
+          <Box component="hr" sx={hrSx} />
+
+          {/* --- Опис автомобіля --- */}
+          <Box sx={sectionSx}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Опис автомобіля
+            </Typography>
+            <Box sx={yellowBoxSx}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+                в даному полі забороняється
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                <Box sx={infoIconSx}>i</Box>
+                <Typography variant="body2">
+                  Залишати посилання або контактні дані
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={infoIconSx}>i</Box>
+                <Typography variant="body2">
+                  Пропонувати послуги (прожену під замовлення, є інші авто, допоможу вибрати)
+                </Typography>
+              </Box>
+            </Box>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Опис"
+                  multiline
+                  rows={6}
+                  inputProps={{ maxLength: 2000 }}
+                  sx={{
+                    bgcolor: '#fff',
+                    borderRadius: 1,
+                    fontSize: 15,
+                  }}
+                  helperText={
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Доступно 2000 символів</span>
+                      <span>{field.value?.length || 0}/2000</span>
+                    </Box>
+                  }
+                />
+              )}
+            />
+          </Box>
+
+          {/* --- Угода та кнопка --- */}
+          <Box sx={{ mt: 4 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={agree}
+                  onChange={e => setAgree(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2" color="text.secondary">
+                  я згоден з умовами{' '}
+                  <a href="/terms" style={{ color: '#156ff5' }} target="_blank" rel="noopener noreferrer">
+                    Угода про надання послуг
+                  </a>
+                </Typography>
+              }
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+              Ваші персональні дані будуть оброблені та захищені згідно з{' '}
+              <a href="/privacy" style={{ color: '#156ff5' }} target="_blank" rel="noopener noreferrer">
+                Політикою приватності
+              </a>
+            </Typography>
+            <Stack direction="row" justifyContent="flex-start">
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={!agree}
+                sx={{
+                  bgcolor: !agree ? '#bdbdbd' : undefined,
+                  color: !agree ? '#fff' : undefined,
+                  boxShadow: 'none',
+                  minWidth: 220,
+                  fontWeight: 500,
+                  fontSize: 16,
+                  textTransform: 'none',
+                }}
+              >
                 Зберегти зміни
               </Button>
             </Stack>

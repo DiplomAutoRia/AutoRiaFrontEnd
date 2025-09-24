@@ -209,7 +209,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
+      <div className="hidden md:block w-1/2 bg-blue-500 max-h-screen">
         <img src="/locales/images/Login.png" alt="Login" className="w-full h-full object-cover" />
       </div>
     </div>

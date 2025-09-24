@@ -71,7 +71,7 @@ const MyListingsPage = () => {
           <Typography variant="h6" sx={{ mb: 2 }}>
             У вас ще немає оголошень
           </Typography>
-          <Button variant="contained" onClick={() => navigate(routes.CREATE)}>
+          <Button variant="contained" onClick={() => navigate(routes.VEHICLE_CREATE)}>
             Створити оголошення
           </Button>
         </Box>
