@@ -87,7 +87,7 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({
                 }
               }}
               sx={{
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
               }}
             >
               <MenuItem value="">Всі</MenuItem>

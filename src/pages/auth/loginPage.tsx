@@ -4,6 +4,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Phone, Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
 import { loginSchema } from '../../common/utils/zod-validation';
@@ -25,10 +42,14 @@ export default function LoginPage() {
     },
   });
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error, user } = useSelector((state: RootState) => state.auth);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -45,26 +66,243 @@ export default function LoginPage() {
     );
   };
 
+  if (isMobile) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(to bottom, #3b82f6, #2563eb)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        }}
+      >
+        {/* Frame 767 as background */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 384,
+            height: 320,
+            backgroundImage: `url('/assets/Frame 767.png')`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Content */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 3, zIndex: 10 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: '16px 16px 0 0',
+              backgroundColor: 'white',
+              maxHeight: '85vh',
+              overflow: 'auto',
+            }}
+          >
+            {showPhoneForm ? (
+              <PhoneLoginForm onBack={() => setShowPhoneForm(false)} />
+            ) : (
+              <>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  textAlign="center"
+                  fontWeight="bold"
+                  color="text.primary"
+                  mb={1}
+                >
+                  Увійти в Turbosell
+                </Typography>
+
+                <Typography variant="body2" textAlign="center" color="text.secondary" mb={3}>
+                  Купуйте й продавайте авто онлайн
+                </Typography>
+
+                <Stack spacing={2} mb={3}>
+                  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+                    <GoogleLogin
+                      onSuccess={(credentialResponse: { credential?: string }) => {
+                        if (credentialResponse.credential) {
+                          dispatch(googleAuth(credentialResponse.credential));
+                        }
+                      }}
+                      onError={() => {}}
+                      render={(renderProps: { onClick: () => void; disabled: boolean }) => (
+                        <Button
+                          onClick={renderProps.onClick}
+                          disabled={renderProps.disabled}
+                          variant="outlined"
+                          fullWidth
+                          startIcon={
+                            <img
+                              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                              alt="Google"
+                              style={{ width: 20, height: 20 }}
+                            />
+                          }
+                          sx={{ py: 1.5, textTransform: 'none' }}
+                        >
+                          Увійти через Google
+                        </Button>
+                      )}
+                    />
+                  </GoogleOAuthProvider>
+
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    startIcon={<Phone />}
+                    onClick={() => setShowPhoneForm(true)}
+                    sx={{ py: 1.5, textTransform: 'none' }}
+                  >
+                    Увійти через номер телефону
+                  </Button>
+                </Stack>
+
+                <Divider sx={{ my: 3 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Або
+                  </Typography>
+                </Divider>
+
+                <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+                  <TextField
+                    fullWidth
+                    label="Телефон або e-mail"
+                    margin="normal"
+                    error={!!errors.contact}
+                    helperText={errors.contact?.message}
+                    {...register('contact')}
+                    sx={{ mb: 1 }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Пароль"
+                    type={showPassword ? 'text' : 'password'}
+                    margin="normal"
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    {...register('password')}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ mb: 1 }}
+                  />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <FormControlLabel
+                      control={<Checkbox size="small" />}
+                      label={<Typography variant="body2">Запам'ятати мене</Typography>}
+                    />
+                    <Link to={routes.FORGOT_PASSWORD}>
+                      <Typography variant="body2" color="primary">
+                        Забули пароль?
+                      </Typography>
+                    </Link>
+                  </Box>
+
+                  {error && (
+                    <Paper sx={{ p: 2, mb: 2, bgcolor: 'error.50', border: 1, borderColor: 'error.200' }}>
+                      <Typography variant="body2" color="error">
+                        {error}
+                      </Typography>
+                    </Paper>
+                  )}
+
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    disabled={loading}
+                    size="large"
+                    sx={{ mb: 2, py: 1.5, textTransform: 'none' }}
+                  >
+                    {loading ? 'Входимо...' : 'Увійти'}
+                  </Button>
+
+                  <Box textAlign="center">
+                    <Link to={routes.REGISTER}>
+                      <Typography variant="body2" color="primary">
+                        Зареєструватися
+                      </Typography>
+                    </Link>
+                  </Box>
+
+                  <Typography variant="caption" textAlign="center" color="text.secondary" display="block" mt={2}>
+                    Під час входу ви погоджуєтеся з нашими{' '}
+                    <Link to="/terms">
+                      <Typography component="span" variant="caption" color="primary">
+                        Умовами користування
+                      </Typography>
+                    </Link>
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </Paper>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Desktop version
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
+    <Box sx={{ minHeight: '100vh', height: '100vh', display: 'flex', overflow: 'hidden' }}>
+      {/* Left side - Form */}
+      <Box
+        sx={{
+          width: { md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 4,
+          position: 'relative',
+          bgcolor: 'white',
+        }}
+      >
         <img
-          src="/locales/images/Logo2.png"
+          src="/assets/images/Logo2.png"
           alt="Logo"
-          className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
+          style={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            height: 80,
+            cursor: 'pointer',
+            zIndex: 50,
+          }}
           onClick={() => navigate(routes.HOME)}
         />
 
-        <div className="w-full max-w-md mx-auto">
+        <Container maxWidth="sm">
           {showPhoneForm ? (
             <PhoneLoginForm onBack={() => setShowPhoneForm(false)} />
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-black text-center mb-2">Увійти в Turbosell</h1>
+              <Typography variant="h3" component="h1" textAlign="center" fontWeight="bold" color="text.primary" mb={1}>
+                Увійти в Turbosell
+              </Typography>
 
-              <p className="text-gray-600 text-center mb-6">Купуйте й продавайте авто онлайн</p>
+              <Typography variant="h6" textAlign="center" color="text.secondary" mb={4}>
+                Купуйте й продавайте авто онлайн
+              </Typography>
 
-              <div className="mb-6 flex flex-col gap-3">
+              <Stack spacing={2} mb={4}>
                 <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
                   <GoogleLogin
                     onSuccess={(credentialResponse: { credential?: string }) => {
@@ -74,144 +312,142 @@ export default function LoginPage() {
                     }}
                     onError={() => {}}
                     render={(renderProps: { onClick: () => void; disabled: boolean }) => (
-                      <button
+                      <Button
                         onClick={renderProps.onClick}
                         disabled={renderProps.disabled}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
+                        variant="outlined"
+                        fullWidth
+                        startIcon={
+                          <img
+                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                            alt="Google"
+                            style={{ width: 20, height: 20 }}
+                          />
+                        }
+                        sx={{ py: 1.5, textTransform: 'none' }}
                       >
-                        <img
-                          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                          alt="Google"
-                          className="w-5 h-5"
-                        />
                         Вхід через Google
-                      </button>
+                      </Button>
                     )}
                   />
                 </GoogleOAuthProvider>
 
-                <button
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<Phone />}
                   onClick={() => setShowPhoneForm(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
+                  sx={{ py: 1.5, textTransform: 'none' }}
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
                   Увійти через номер
-                </button>
-              </div>
+                </Button>
+              </Stack>
 
-              <div className="flex items-center mb-6">
-                <div className="flex-1 border-t border-gray-300"></div>
-                <span className="px-3 text-gray-500">або</span>
-                <div className="flex-1 border-t border-gray-300"></div>
-              </div>
+              <Divider sx={{ my: 4 }}>
+                <Typography variant="body2" color="text.secondary">
+                  або
+                </Typography>
+              </Divider>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Телефон або e-mail"
-                    className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.contact ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    {...register('contact')}
-                  />
-                  {errors.contact && <p className="mt-1 text-sm text-red-600">{errors.contact.message}</p>}
-                </div>
+              <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+                <TextField
+                  fullWidth
+                  label="Телефон або e-mail"
+                  margin="normal"
+                  error={!!errors.contact}
+                  helperText={errors.contact?.message}
+                  {...register('contact')}
+                  sx={{ mb: 1 }}
+                />
 
-                <div>
-                  <input
-                    type="password"
-                    placeholder="Пароль"
-                    className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.password ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    {...register('password')}
-                  />
-                  {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+                <TextField
+                  fullWidth
+                  label="Пароль"
+                  type={showPassword ? 'text' : 'password'}
+                  margin="normal"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  {...register('password')}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ mb: 1 }}
+                />
 
-                  <div className="flex justify-between items-center mt-2">
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
-                      <input type="checkbox" className="w-4 h-4 text-blue-600 rounded" />
-                      Запам'ятати мене
-                    </label>
-
-                    <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
-                      Забули пароль?
-                    </Link>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {loading ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Завантаження...
-                    </>
-                  ) : (
-                    'Увійти'
-                  )}
-                </button>
-
-                <div className="text-center">
-                  <Link to="/register" className="text-blue-600 font-medium hover:underline">
-                    Зареєструватися
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <FormControlLabel control={<Checkbox />} label="Запам'ятати мене" />
+                  <Link to={routes.FORGOT_PASSWORD}>
+                    <Typography color="primary">Забули пароль?</Typography>
                   </Link>
-                </div>
+                </Box>
 
                 {error && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-                    <p className="text-red-700 text-sm">{error}</p>
-                  </div>
+                  <Paper sx={{ p: 2, mb: 3, bgcolor: 'error.50', border: 1, borderColor: 'error.200' }}>
+                    <Typography color="error">{error}</Typography>
+                  </Paper>
                 )}
 
-                <p className="text-xs text-gray-500 text-center mt-4">
-                  Під час входу ви погоджуєтеся з {'Умовами користування'}
-                </p>
-              </form>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={loading}
+                  size="large"
+                  sx={{ mb: 3, py: 1.5, textTransform: 'none' }}
+                >
+                  {loading ? 'Входимо...' : 'Увійти'}
+                </Button>
+
+                <Box textAlign="center">
+                  <Link to={routes.REGISTER}>
+                    <Typography color="primary">Зареєструватися</Typography>
+                  </Link>
+                </Box>
+
+                <Typography variant="caption" textAlign="center" color="text.secondary" display="block" mt={2}>
+                  Під час входу ви погоджуєтеся з нашими{' '}
+                  <Link to="/terms">
+                    <Typography component="span" variant="caption" color="primary">
+                      Умовами користування
+                    </Typography>
+                  </Link>
+                </Typography>
+              </Box>
             </>
           )}
-        </div>
-      </div>
+        </Container>
+      </Box>
 
-      <div className="hidden md:block w-1/2 bg-blue-500 max-h-screen">
-        <img src="/locales/images/Login.png" alt="Login" className="w-full h-full object-cover" />
-      </div>
-    </div>
+      {/* Right side - Blue gradient with illustration */}
+      <Box
+        sx={{
+          width: { md: '50%' },
+          display: { xs: 'none', md: 'flex' },
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          position: 'relative',
+          p: 4,
+        }}
+      >
+        <Box
+          component="img"
+          src="/assets/images/Login.png"
+          alt="Login illustration"
+          sx={{
+            maxWidth: '80%',
+            height: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      </Box>
+    </Box>
   );
 }

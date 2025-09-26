@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import { Message as MessageIcon, Person, ArrowBack, Send } from '@mui/icons-material';
+import { ArrowBack, Message as MessageIcon, Person, Send } from '@mui/icons-material';
 import {
   Alert,
   Avatar,
@@ -20,9 +20,13 @@ import {
   Typography,
 } from '@mui/material';
 
-import { useGetConversationsQuery, useGetConversationQuery, useCreateMessageMutation } from '../../redux/api/messagesApi';
-import { useAddNotification } from '../notifications/NotificationSystem';
+import {
+  useCreateMessageMutation,
+  useGetConversationQuery,
+  useGetConversationsQuery,
+} from '../../redux/api/messagesApi';
 import type { RootState } from '../../redux/store';
+import { useAddNotification } from '../notifications/NotificationSystem';
 
 const ProfileChat: React.FC = () => {
   const navigate = useNavigate();
@@ -98,7 +102,7 @@ const ProfileChat: React.FC = () => {
 
     try {
       // Find the current conversation to get the receiver ID
-      const currentConversation = conversations?.find(c => c.id === selectedConversation);
+      const currentConversation = conversations?.find((c) => c.id === selectedConversation);
       if (!currentConversation) return;
 
       // Extract receiver ID from conversation - we need to get the other user's ID
@@ -109,10 +113,10 @@ const ProfileChat: React.FC = () => {
         conversation: selectedConversation,
         text: messageText.trim(),
       }).unwrap();
-      
+
       setMessageText('');
       refetchMessages();
-      
+
       // Додаємо нотифікацію про успішне надсилання повідомлення
       notifySystem('Повідомлення надіслано', 'Ваше повідомлення успішно надіслано');
     } catch (error) {
@@ -245,7 +249,7 @@ const ProfileChat: React.FC = () => {
   const renderMessages = () => {
     if (!selectedConversation) return null;
 
-    const currentConversation = conversations?.find(c => c.id === selectedConversation);
+    const currentConversation = conversations?.find((c) => c.id === selectedConversation);
 
     if (messagesLoading) {
       return (
@@ -358,11 +362,7 @@ const ProfileChat: React.FC = () => {
             onKeyPress={handleKeyPress}
             disabled={isSending}
           />
-          <IconButton
-            color="primary"
-            onClick={handleSendMessage}
-            disabled={!messageText.trim() || isSending}
-          >
+          <IconButton color="primary" onClick={handleSendMessage} disabled={!messageText.trim() || isSending}>
             <Send />
           </IconButton>
         </Box>
@@ -381,9 +381,7 @@ const ProfileChat: React.FC = () => {
     >
       {selectedConversation ? (
         // Messages view
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {renderMessages()}
-        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>{renderMessages()}</Box>
       ) : (
         // Conversations list view
         <>
@@ -400,18 +398,12 @@ const ProfileChat: React.FC = () => {
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               Чати
             </Typography>
-            <Button 
-              variant="outlined" 
-              size="small"
-              onClick={handleViewAllMessages}
-            >
+            <Button variant="outlined" size="small" onClick={handleViewAllMessages}>
               Всі повідомлення
             </Button>
           </Box>
-          
-          <Box sx={{ flex: 1, overflow: 'auto' }}>
-            {renderConversationList()}
-          </Box>
+
+          <Box sx={{ flex: 1, overflow: 'auto' }}>{renderConversationList()}</Box>
         </>
       )}
     </Paper>

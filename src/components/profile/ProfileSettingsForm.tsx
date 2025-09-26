@@ -8,9 +8,9 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { Avatar, Box, Button, Checkbox, FormControlLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 
 import { profileSchema } from '../../common/utils/zod-validation';
-import { useAddNotification } from '../notifications/NotificationSystem';
 import { updateUserProfile } from '../../redux/auth/authSlice';
 import type { RootState } from '../../redux/store';
+import { useAddNotification } from '../notifications/NotificationSystem';
 
 const ProfileSettingsForm: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -401,120 +401,120 @@ const ProfileSettingsForm: React.FC = () => {
             Розсилки
           </Typography>
 
-        <Stack spacing={3}>
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={mailingSettings.informational}
-                  onChange={() => handleMailingToggle('informational')}
-                  sx={{ 
-                    '& .MuiSvgIcon-root': { 
-                      fontSize: 20,
-                      transform: 'scale(1.5)'
-                    } 
-                  }}
-                />
-              }
-              label="Інформаційні сповіщення"
-              sx={{ alignItems: 'flex-start' }}
-            />
-            <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
-              Про акції, нові сервіси та зміни в їх роботі
-            </Typography>
-          </Box>
+          <Stack spacing={3}>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mailingSettings.informational}
+                    onChange={() => handleMailingToggle('informational')}
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 20,
+                        transform: 'scale(1.5)',
+                      },
+                    }}
+                  />
+                }
+                label="Інформаційні сповіщення"
+                sx={{ alignItems: 'flex-start' }}
+              />
+              <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
+                Про акції, нові сервіси та зміни в їх роботі
+              </Typography>
+            </Box>
 
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={mailingSettings.purchaseHelp}
-                  onChange={() => handleMailingToggle('purchaseHelp')}
-                  sx={{ 
-                    '& .MuiSvgIcon-root': { 
-                      fontSize: 20,
-                      transform: 'scale(1.5)'
-                    } 
-                  }}
-                />
-              }
-              label="Допомога при купівлі"
-              sx={{ alignItems: 'flex-start' }}
-            />
-            <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
-              Повідомлення про зниження ціни, відповіді на коментарі, торг та обмін. 
-              А також інформація по заявкам на замовлення авто, trade-in та тест-драйв
-            </Typography>
-          </Box>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mailingSettings.purchaseHelp}
+                    onChange={() => handleMailingToggle('purchaseHelp')}
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 20,
+                        transform: 'scale(1.5)',
+                      },
+                    }}
+                  />
+                }
+                label="Допомога при купівлі"
+                sx={{ alignItems: 'flex-start' }}
+              />
+              <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
+                Повідомлення про зниження ціни, відповіді на коментарі, торг та обмін. А також інформація по заявкам на
+                замовлення авто, trade-in та тест-драйв
+              </Typography>
+            </Box>
 
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={mailingSettings.autoNews}
-                  onChange={() => handleMailingToggle('autoNews')}
-                  sx={{ 
-                    '& .MuiSvgIcon-root': { 
-                      fontSize: 20,
-                      transform: 'scale(1.5)'
-                    } 
-                  }}
-                />
-              }
-              label="Автоновини"
-              sx={{ alignItems: 'flex-start' }}
-            />
-            <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
-              Онлайн-журнал, новини, поради автомобілям, дослідження Аналітичного центру
-            </Typography>
-          </Box>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mailingSettings.autoNews}
+                    onChange={() => handleMailingToggle('autoNews')}
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 20,
+                        transform: 'scale(1.5)',
+                      },
+                    }}
+                  />
+                }
+                label="Автоновини"
+                sx={{ alignItems: 'flex-start' }}
+              />
+              <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
+                Онлайн-журнал, новини, поради автомобілям, дослідження Аналітичного центру
+              </Typography>
+            </Box>
 
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={mailingSettings.newOffers}
-                  onChange={() => handleMailingToggle('newOffers')}
-                  sx={{ 
-                    '& .MuiSvgIcon-root': { 
-                      fontSize: 20,
-                      transform: 'scale(1.5)'
-                    } 
-                  }}
-                />
-              }
-              label="Нові пропозиції авто"
-              sx={{ alignItems: 'flex-start' }}
-            />
-            <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
-              Свіжододані авто з пробігом за заданими вами параметрами
-            </Typography>
-          </Box>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mailingSettings.newOffers}
+                    onChange={() => handleMailingToggle('newOffers')}
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 20,
+                        transform: 'scale(1.5)',
+                      },
+                    }}
+                  />
+                }
+                label="Нові пропозиції авто"
+                sx={{ alignItems: 'flex-start' }}
+              />
+              <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
+                Свіжододані авто з пробігом за заданими вами параметрами
+              </Typography>
+            </Box>
 
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={mailingSettings.carReviews}
-                  onChange={() => handleMailingToggle('carReviews')}
-                  sx={{ 
-                    '& .MuiSvgIcon-root': { 
-                      fontSize: 20,
-                      transform: 'scale(1.5)'
-                    } 
-                  }}
-                />
-              }
-              label="Відгуки про автомобіль"
-              sx={{ alignItems: 'flex-start' }}
-            />
-            <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
-              Відгуки власників про марки/моделі, що вас цікавлять
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
-    </Paper>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mailingSettings.carReviews}
+                    onChange={() => handleMailingToggle('carReviews')}
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 20,
+                        transform: 'scale(1.5)',
+                      },
+                    }}
+                  />
+                }
+                label="Відгуки про автомобіль"
+                sx={{ alignItems: 'flex-start' }}
+              />
+              <Typography variant="body2" sx={{ ml: 7, mt: 0.2, color: 'text.secondary' }}>
+                Відгуки власників про марки/моделі, що вас цікавлять
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
+      </Paper>
     </>
   );
 };

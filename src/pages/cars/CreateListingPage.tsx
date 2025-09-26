@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PhotoCamera } from '@mui/icons-material';
-import { useAddNotification } from '../../components/notifications/NotificationSystem';
 import {
   Box,
   Button,
@@ -24,6 +23,7 @@ import {
 } from '@mui/material';
 
 import { carListingSchema } from '../../common/utils/zod-validation';
+import { useAddNotification } from '../../components/notifications/NotificationSystem';
 import { getModelsForBrand } from '../../models/car-models';
 import { useAddVehicleImageMutation, useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
@@ -406,7 +406,7 @@ const CreateListingPage = () => {
       transmission: undefined,
       body_type: undefined,
       drive_type: undefined,
-      is_new: "true",
+      is_new: 'true',
       plate_number: '',
       color: undefined,
       engine_volume: 0,
@@ -465,8 +465,6 @@ const CreateListingPage = () => {
     console.error('Validation errors:', errors);
   };
 
-
-
   const onSubmit = async (data: any) => {
     try {
       // Отримуємо тип транспорту з форми
@@ -514,7 +512,7 @@ const CreateListingPage = () => {
         engine_power: data.engine_power ? parseInt(data.engine_power) : undefined,
         vin_code: data.vin_code || undefined,
       };
-      
+
       console.log('Відправляємо дані на сервер:', newVehicle);
       const vehicle = await createVehicle(newVehicle).unwrap();
       console.log('Оголошення створено:', vehicle);

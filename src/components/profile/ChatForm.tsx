@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Message as MessageIcon, Person, ArrowBack, Send } from '@mui/icons-material';
+import { ArrowBack, Message as MessageIcon, Person, Send } from '@mui/icons-material';
 import {
   Alert,
   Avatar,
@@ -29,7 +30,6 @@ import {
   useGetConversationsQuery,
 } from '../../redux/api/messagesApi';
 import type { RootState } from '../../redux/store';
-import { useSelector } from 'react-redux';
 
 interface ChatFormProps {
   compact?: boolean;
@@ -53,11 +53,15 @@ const ChatForm: React.FC<ChatFormProps> = ({ compact = false }) => {
   });
 
   // Get selected conversation messages
-  const { data: messages, isLoading: messagesLoading, error: messagesError, refetch } = 
-    useGetConversationQuery(selectedConversationId!, { skip: !selectedConversationId });
+  const {
+    data: messages,
+    isLoading: messagesLoading,
+    error: messagesError,
+    refetch,
+  } = useGetConversationQuery(selectedConversationId!, { skip: !selectedConversationId });
 
-  const { data: conversationInfo } = useGetConversationInfoQuery(selectedConversationId!, { 
-    skip: !selectedConversationId 
+  const { data: conversationInfo } = useGetConversationInfoQuery(selectedConversationId!, {
+    skip: !selectedConversationId,
   });
 
   const [sendMessage, { isLoading: isSending }] = useCreateMessageMutation();
@@ -126,7 +130,7 @@ const ChatForm: React.FC<ChatFormProps> = ({ compact = false }) => {
 
   const allMessages = React.useMemo(() => {
     if (!selectedConversationId) return [];
-    
+
     const apiMessages = messages || [];
     const combined = [...apiMessages, ...localMessages];
 
@@ -494,18 +498,12 @@ const ChatForm: React.FC<ChatFormProps> = ({ compact = false }) => {
               Чат
             </Typography>
             {compact && (
-              <Button 
-                variant="outlined" 
-                size="small"
-                onClick={handleViewAllMessages}
-              >
+              <Button variant="outlined" size="small" onClick={handleViewAllMessages}>
                 Всі повідомлення
               </Button>
             )}
           </Box>
-          <Box sx={{ flex: 1, overflow: 'auto' }}>
-            {renderConversationList()}
-          </Box>
+          <Box sx={{ flex: 1, overflow: 'auto' }}>{renderConversationList()}</Box>
         </>
       ) : (
         renderConversationView()

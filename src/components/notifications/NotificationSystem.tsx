@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { Notifications as NotificationsIcon, Close } from '@mui/icons-material';
+import { Notifications as NotificationsIcon } from '@mui/icons-material';
 import {
+  Badge,
   Box,
+  Button,
   IconButton,
-  Paper,
-  Typography,
   List,
   ListItem,
-  ListItemText,
   ListItemIcon,
-  Badge,
+  ListItemText,
+  Paper,
   Slide,
-  Alert,
-  Button,
+  Typography,
 } from '@mui/material';
 
 import type { RootState } from '../../redux/store';
@@ -74,14 +73,12 @@ export const useNotificationSystem = () => {
   };
 
   const markAsRead = (id: string) => {
-    const updatedNotifications = notifications.map(n =>
-      n.id === id ? { ...n, read: true } : n
-    );
+    const updatedNotifications = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
     saveNotifications(updatedNotifications);
   };
 
   const markAllAsRead = () => {
-    const updatedNotifications = notifications.map(n => ({ ...n, read: true }));
+    const updatedNotifications = notifications.map((n) => ({ ...n, read: true }));
     saveNotifications(updatedNotifications);
   };
 
@@ -90,7 +87,7 @@ export const useNotificationSystem = () => {
   };
 
   const getUnreadCount = () => {
-    return notifications.filter(n => !n.read).length;
+    return notifications.filter((n) => !n.read).length;
   };
 
   return {
@@ -145,11 +142,7 @@ export const NotificationBell: React.FC = () => {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <IconButton
-        color="inherit"
-        onClick={handleBellClick}
-        sx={{ position: 'relative' }}
-      >
+      <IconButton color="inherit" onClick={handleBellClick} sx={{ position: 'relative' }}>
         <Badge badgeContent={unreadCount} color="error">
           <NotificationsIcon />
         </Badge>

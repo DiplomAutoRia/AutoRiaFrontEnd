@@ -94,20 +94,20 @@ const VehiclesPage: React.FC = () => {
   // Effect to handle URL parameter changes when navigating between new/used vehicles
   useEffect(() => {
     const isNewParam = searchParams.get('is_new');
-    
+
     if (isNewParam !== null) {
       const isNewValue = isNewParam === 'true';
       if (filters.is_new !== isNewValue) {
-        setFilters(prevFilters => ({
+        setFilters((prevFilters) => ({
           ...prevFilters,
           is_new: isNewValue,
-          page: 1 // Reset to first page when changing filter
+          page: 1, // Reset to first page when changing filter
         }));
         setCurrentPage(1);
       }
     } else if (filters.is_new !== undefined) {
       // If is_new parameter is removed from URL, remove the filter
-      setFilters(prevFilters => {
+      setFilters((prevFilters) => {
         const newFilters = { ...prevFilters };
         delete newFilters.is_new;
         return { ...newFilters, page: 1 };

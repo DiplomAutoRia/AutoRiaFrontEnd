@@ -54,7 +54,7 @@ const Navbar = () => {
     <AppBar position="static">
       <Toolbar className="container mx-auto px-4 max-w-7xl justify-between">
         <Link to={routes.HOME} className="flex items-center">
-          <img src="/locales/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto" />
+          <img src="/assets/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto" />
         </Link>
 
         <div className="flex items-center space-x-6">
@@ -84,7 +84,10 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <button onClick={handleMessages} className="relative p-2 hover:bg-blue-700 rounded-full transition-colors">
+              <button
+                onClick={handleMessages}
+                className="relative p-2 hover:bg-blue-700 rounded-full transition-colors"
+              >
                 <MessageCircle size={20} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -92,13 +95,13 @@ const Navbar = () => {
                   </span>
                 )}
               </button>
-              
+
               <button onClick={handleFavorites} className="p-2 hover:bg-blue-700 rounded-full transition-colors">
                 <Heart size={20} />
               </button>
-              
+
               <NotificationBell />
-              
+
               <button
                 onClick={handleProfile}
                 className="flex items-center space-x-2 px-3 py-2 hover:bg-blue-700 rounded-full transition-colors"
@@ -137,7 +140,7 @@ const Navbar = () => {
       <div className="md:hidden flex items-center justify-between px-4">
         <div className="flex items-center">
           <Link to={routes.HOME} className="flex items-center">
-            <img src="/locales/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto mr-4" />
+            <img src="/assets/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto mr-4" />
           </Link>
         </div>
 
@@ -184,7 +187,7 @@ const Navbar = () => {
 
             {user ? (
               <>
-                <button 
+                <button
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
                   onClick={() => {
                     handleMessages();
@@ -194,7 +197,7 @@ const Navbar = () => {
                   <MessageCircle size={16} />
                   <span>Повідомлення {unreadCount > 0 && `(${unreadCount})`}</span>
                 </button>
-                <button 
+                <button
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
                   onClick={() => {
                     handleFavorites();
@@ -204,7 +207,7 @@ const Navbar = () => {
                   <Heart size={16} />
                   <span>Обране</span>
                 </button>
-                <button 
+                <button
                   className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
                   onClick={() => setMobileMenuOpen(false)}
                 >

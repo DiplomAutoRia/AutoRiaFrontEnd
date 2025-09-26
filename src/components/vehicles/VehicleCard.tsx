@@ -4,17 +4,14 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  CalendarToday,
+  ConfirmationNumber,
   DirectionsCar,
   Favorite,
   FavoriteBorder,
-  LocalGasStation,
   LocationOn,
   Share,
   Speed,
   Visibility,
-  Directions,
-  ConfirmationNumber,
 } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, CardMedia, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 
@@ -208,12 +205,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               <Typography variant="body2" color="text.secondary" component="span" sx={{ mx: 0.5 }}>
                 |
               </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                component="span"
-                sx={{ fontSize: '0.9rem' }}
-              >
+              <Typography variant="body2" color="text.secondary" component="span" sx={{ fontSize: '0.9rem' }}>
                 {formatPrice(vehicle.price * (vehicle.currency === 'USD' ? 40 : 43), 'UAH')} грн
               </Typography>
             </>
@@ -252,7 +244,11 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <LocationOn fontSize="small" color="action" />
                 <Typography variant="body2">
-                  {vehicle.location.split(',').map(part => part.trim()).slice(0, 2).join(', ')}
+                  {vehicle.location
+                    .split(',')
+                    .map((part) => part.trim())
+                    .slice(0, 2)
+                    .join(', ')}
                 </Typography>
               </Stack>
             )}

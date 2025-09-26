@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Settings, Delete } from '@mui/icons-material';
+import { Delete, Settings } from '@mui/icons-material';
 import { Box, Button, Card, CardMedia, Container, IconButton, Stack, Typography } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 import type { VehicleFilters } from '../../models/vehicle';
-import { useGetMyVehiclesQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
+import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 import Filter from '../ui/filter';
 
@@ -71,11 +71,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({ title = 'Мої о�
         </Typography>
 
         {showCreateButton && (
-          <Button 
-            variant="contained" 
-            onClick={() => navigate('/vehicles/create')}
-            sx={{ borderRadius: 0 }}
-          >
+          <Button variant="contained" onClick={() => navigate('/vehicles/create')} sx={{ borderRadius: 0 }}>
             Створити оголошення
           </Button>
         )}
@@ -142,8 +138,8 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({ title = 'Мої о�
                   sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     '&:hover': {
-                      backgroundColor: 'white'
-                    }
+                      backgroundColor: 'white',
+                    },
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -159,8 +155,8 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({ title = 'Мої о�
                   sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     '&:hover': {
-                      backgroundColor: 'white'
-                    }
+                      backgroundColor: 'white',
+                    },
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -183,9 +179,7 @@ const UserListingsGrid: React.FC<UserListingsGridProps> = ({ title = 'Мої о�
                   backgroundColor: '#f5f5f5',
                   flexShrink: 0,
                 }}
-                image={
-                  vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/locales/images/car.png'
-                }
+                image={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/assets/images/car.png'}
                 alt={`${vehicle.brand} ${vehicle.model}`}
               />
 

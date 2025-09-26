@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Box, Card, CardMedia, CircularProgress, Pagination, Stack, Typography, Chip } from '@mui/material';
-import { Speed, DirectionsCar, ConfirmationNumber, LocationOn } from '@mui/icons-material';
+import { ConfirmationNumber, DirectionsCar, LocationOn, Speed } from '@mui/icons-material';
+import { Box, Card, CardMedia, CircularProgress, Pagination, Stack, Typography } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
@@ -120,9 +120,7 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
                   objectFit: 'cover',
                   backgroundColor: '#f5f5f5',
                 }}
-                image={vehicle.images && vehicle.images.length > 0 
-                  ? vehicle.images[0].image 
-                  : '/locales/images/car.png'}
+                image={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/assets/images/car.png'}
                 alt={`${vehicle.brand} ${vehicle.model}`}
               />
               {vehicle.vin_code && (
@@ -193,12 +191,7 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
                     <Typography variant="body2" color="text.secondary" component="span" sx={{ mx: 0.5 }}>
                       |
                     </Typography>
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      component="span"
-                      sx={{ fontSize: '0.9rem' }}
-                    >
+                    <Typography variant="body2" color="text.secondary" component="span" sx={{ fontSize: '0.9rem' }}>
                       {formatPrice(vehicle.price * (vehicle.currency === 'USD' ? 40 : 43), 'UAH')} грн
                     </Typography>
                   </>
@@ -237,7 +230,11 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
                     <Stack direction="row" alignItems="center" spacing={0.5}>
                       <LocationOn fontSize="small" color="action" />
                       <Typography variant="body2">
-                        {vehicle.location.split(',').map(part => part.trim()).slice(0, 2).join(', ')}
+                        {vehicle.location
+                          .split(',')
+                          .map((part) => part.trim())
+                          .slice(0, 2)
+                          .join(', ')}
                       </Typography>
                     </Stack>
                   )}

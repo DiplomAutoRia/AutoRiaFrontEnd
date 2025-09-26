@@ -32,9 +32,7 @@ const MainPage = () => {
           <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
             TurboSell - купівля та продаж авто в Україні
           </h1>
-          <p className="text-xl text-center text-gray-600 mb-8">
-            Купуйте й продавайте авто онлайн
-          </p>
+          <p className="text-xl text-center text-gray-600 mb-8">Купуйте й продавайте авто онлайн</p>
 
           {/* New Filter Component */}
           <Filter onSearch={handleSearch} />
@@ -60,7 +58,7 @@ const MainPage = () => {
                   alt={brandName}
                   className="w-[44px] h-[44px] object-contain"
                   onError={(e) => {
-                    e.currentTarget.src = '/locales/images/car.png';
+                    e.currentTarget.src = '/assets/images/car.png';
                   }}
                 />
               </div>
