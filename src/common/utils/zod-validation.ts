@@ -54,7 +54,7 @@ export const registerSchema = z.object({
       },
       { message: 'Введіть коректну пошту (наприклад user@gmail.com) або номер телефону (наприклад +380123456789)' },
     ),
-  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Потрібно прийняти умови' }) }),
+  acceptTerms: z.boolean().refine((val) => val === true, { message: 'Потрібно прийняти умови' }),
 });
 
 export const confirmSchema = z

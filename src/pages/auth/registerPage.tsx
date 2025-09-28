@@ -28,6 +28,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -35,7 +36,7 @@ export default function RegisterPage() {
       firstName: '',
       lastName: '',
       contact: '',
-      acceptTerms: true,
+      acceptTerms: false,
     },
   });
 
@@ -45,6 +46,8 @@ export default function RegisterPage() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error, registerStep, user } = useSelector((state: RootState) => state.auth);
+
+  const acceptTerms = watch('acceptTerms');
 
   useEffect(() => {
     if (user) {
@@ -107,12 +110,12 @@ export default function RegisterPage() {
           />
 
           {/* Content */}
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 3, zIndex: 10 }}>
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 3, zIndex: 10 }}>
             <Paper
               elevation={0}
               sx={{
                 p: 3,
-                borderRadius: '16px 16px 0 0',
+                borderRadius: '16px',
                 backgroundColor: 'white',
                 maxHeight: '85vh',
                 overflow: 'auto',
@@ -325,7 +328,7 @@ export default function RegisterPage() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading}
+                disabled={loading || !acceptTerms}
                 size="large"
                 sx={{ mb: 3, py: 1.5, textTransform: 'none' }}
               >
@@ -480,7 +483,7 @@ export default function RegisterPage() {
               type="submit"
               fullWidth
               variant="contained"
-              disabled={loading}
+              disabled={loading || !acceptTerms}
               size="large"
               sx={{ mb: 3, py: 1.5, textTransform: 'none' }}
             >
