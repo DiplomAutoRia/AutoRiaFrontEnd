@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { AppBar, Toolbar } from '@mui/material';
+import { AppBar, Toolbar, useMediaQuery, useTheme } from '@mui/material';
 import { Bell, Heart, Menu as MenuIcon, MessageCircle, User, X } from 'lucide-react';
 
 import { useGetUnreadCountQuery } from '../redux/api/messagesApi';
@@ -16,6 +16,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
     skip: !user,
@@ -49,6 +51,145 @@ const Navbar = () => {
     if (!user) return '';
     return `${user.first_name?.[0]?.toUpperCase() || ''}${user.last_name?.[0]?.toUpperCase() || ''}`;
   };
+
+  if (isMobile) {
+    return (
+      <AppBar position="static" sx={{ backgroundColor: '#3b82f6' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', px: 2 }}>
+          {/* Logo */}
+          <Link to={routes.HOME} style={{ textDecoration: 'none' }}>
+            <img src="/assets/images/logo.png" alt="AutoRia Logo" style={{ height: '32px', width: 'auto' }} />
+          </Link>
+
+          {/* Icons */}
+          <div className="flex items-center space-x-3">
+            {user ? (
+              <>
+                <button
+                  onClick={handleMessages}
+                  className="relative p-1 hover:bg-blue-700 rounded-full transition-colors"
+                >
+                  <MessageCircle size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                <button onClick={handleFavorites} className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  <Heart size={20} />
+                </button>
+
+                <NotificationBell />
+
+                <button onClick={toggleMobileMenu} className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  {mobileMenuOpen ? <X size={20} /> : <MenuIcon size={20} />}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  <MessageCircle size={20} />
+                </button>
+
+                <button className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  <Heart size={20} />
+                </button>
+
+                <button className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  <Bell size={20} />
+                </button>
+
+                <button onClick={toggleMobileMenu} className="p-1 hover:bg-blue-700 rounded-full transition-colors">
+                  {mobileMenuOpen ? <X size={20} /> : <MenuIcon size={20} />}
+                </button>
+              </>
+            )}
+          </div>
+        </Toolbar>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="bg-blue-700 p-4">
+            <div className="space-y-3">
+              <Link
+                to={`${routes.VEHICLES}?is_new=false`}
+                className="block py-2 hover:bg-blue-600 rounded px-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Вживані авто
+              </Link>
+              <Link
+                to={`${routes.VEHICLES}?is_new=true`}
+                className="block py-2 hover:bg-blue-600 rounded px-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Нові авто
+              </Link>
+              <Link
+                to={routes.VEHICLE_CREATE}
+                className="block py-2 hover:bg-blue-600 rounded px-2"
+                onClick={(e) => {
+                  if (!user) {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    navigate(routes.LOGIN);
+                  } else {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+              >
+                Продати авто
+              </Link>
+              <Link
+                to="#"
+                className="block py-2 hover:bg-blue-600 rounded px-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Пошук
+              </Link>
+
+              {user ? (
+                <>
+                  <button
+                    className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
+                    onClick={() => {
+                      handleProfile();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <div className="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold text-xs">
+                      {getUserInitials()}
+                    </div>
+                    <span>Профіль</span>
+                  </button>
+                  <button
+                    className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Вийти
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to={routes.LOGIN}
+                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User size={16} />
+                  <span>Увійти в кабінет</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </AppBar>
+    );
+  }
 
   return (
     <AppBar position="static">
@@ -136,119 +277,6 @@ const Navbar = () => {
           )}
         </div>
       </Toolbar>
-
-      <div className="md:hidden flex items-center justify-between px-4">
-        <div className="flex items-center">
-          <Link to={routes.HOME} className="flex items-center">
-            <img src="/assets/images/logo.png" alt="AutoRia Logo" className="h-8 w-auto mr-4" />
-          </Link>
-        </div>
-
-        <button onClick={toggleMobileMenu} className="p-2 hover:bg-blue-700 rounded-full transition-colors">
-          {mobileMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
-        </button>
-      </div>
-
-      {mobileMenuOpen && (
-        <div className="md:hidden mt-4 bg-blue-700 rounded-lg p-4">
-          <div className="space-y-3">
-            <Link
-              to={`${routes.VEHICLES}?is_new=false`}
-              className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Вживані авто
-            </Link>
-            <Link
-              to={`${routes.VEHICLES}?is_new=true`}
-              className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Нові авто
-            </Link>
-            <Link
-              to={routes.VEHICLE_CREATE}
-              className="block py-2 hover:bg-blue-600 rounded px-2"
-              onClick={(e) => {
-                if (!user) {
-                  e.preventDefault();
-                  setMobileMenuOpen(false);
-                  navigate(routes.LOGIN);
-                } else {
-                  setMobileMenuOpen(false);
-                }
-              }}
-            >
-              Продати авто
-            </Link>
-            <Link to="#" className="block py-2 hover:bg-blue-600 rounded px-2" onClick={() => setMobileMenuOpen(false)}>
-              Пошук
-            </Link>
-
-            {user ? (
-              <>
-                <button
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                  onClick={() => {
-                    handleMessages();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <MessageCircle size={16} />
-                  <span>Повідомлення {unreadCount > 0 && `(${unreadCount})`}</span>
-                </button>
-                <button
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                  onClick={() => {
-                    handleFavorites();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <Heart size={16} />
-                  <span>Обране</span>
-                </button>
-                <button
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Bell size={16} />
-                  <span>Сповіщення</span>
-                </button>
-                <button
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                  onClick={() => {
-                    handleProfile();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <div className="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold text-xs">
-                    {getUserInitials()}
-                  </div>
-                  <span>Профіль</span>
-                </button>
-                <button
-                  className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Вийти
-                </button>
-              </>
-            ) : (
-              <Link
-                to={routes.LOGIN}
-                className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <User size={16} />
-                <span>Увійти в кабінет</span>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
     </AppBar>
   );
 };
