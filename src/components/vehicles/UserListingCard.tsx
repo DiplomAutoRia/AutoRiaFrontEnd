@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ConfirmationNumber, DirectionsCar, Favorite, LocationOn, Settings, Speed } from '@mui/icons-material';
-import { Box, Button, Card, CardMedia, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardMedia, IconButton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
@@ -22,6 +22,8 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
   onFavoriteClick,
 }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'UAH') {
@@ -37,11 +39,12 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
     <Card
       sx={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         position: 'relative',
         borderRadius: 0,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        height: 200,
+        height: isMobile ? 'auto' : 200,
         '&:hover': {
           boxShadow: 3,
           transform: 'translateY(-2px)',

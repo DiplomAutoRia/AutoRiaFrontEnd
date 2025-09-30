@@ -36,20 +36,16 @@ interface VehicleFiltersProps {
   resultsCount?: number;
 }
 
-const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({
-  filters,
-  onFiltersChange,
-  onReset,
-  resultsCount = 0,
-}) => {
+const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({ filters, onFiltersChange, onReset }) => {
   const { t } = useTranslation();
   const [showAllBodyTypes, setShowAllBodyTypes] = useState(false);
 
   const handleFilterChange = (key: keyof VehicleFilters, value: string | number | string[] | boolean | undefined) => {
-    onFiltersChange({
+    const newFilters = {
       ...filters,
       [key]: value,
-    });
+    };
+    onFiltersChange(newFilters);
   };
 
   const handleArrayFilterChange = (key: keyof VehicleFilters, value: string, checked: boolean) => {
@@ -503,8 +499,8 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({
           </Box>
         </Box>
 
-        {/* Кнопки внизу фільтрів */}
-        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Кнопка скидання фільтрів */}
+        <Box sx={{ mt: 3 }}>
           <Typography
             onClick={onReset}
             sx={{
@@ -523,24 +519,6 @@ const VehicleFiltersComponent: React.FC<VehicleFiltersProps> = ({
             <RestartAltIcon fontSize="small" />
             Скинути фільтри
           </Typography>
-
-          <Button
-            variant="contained"
-            onClick={() => onFiltersChange(filters)}
-            size="small"
-            sx={{
-              borderRadius: 0,
-              fontWeight: 'bold',
-              fontSize: '0.875rem',
-              py: 1,
-              bgcolor: '#156ff5',
-              '&:hover': {
-                bgcolor: '#115cc9',
-              },
-            }}
-          >
-            Підібрати ({resultsCount})
-          </Button>
         </Box>
       </Box>
     </Paper>

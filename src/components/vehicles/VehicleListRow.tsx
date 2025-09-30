@@ -101,8 +101,7 @@ const VehicleListRow: React.FC<VehicleListRowProps> = ({
         sx={{
           display: 'grid',
           gap: 2,
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
-          ...(isMobile && { gridTemplateColumns: '1fr' }),
+          gridTemplateColumns: '1fr',
         }}
       >
         {vehicles.map((vehicle) => (

@@ -22,348 +22,54 @@ import {
   Typography,
 } from '@mui/material';
 
+import {
+  hrSx,
+  infoIconSx,
+  inputSx,
+  labelSx,
+  sectionSx,
+  vinInputSx,
+  vinSectionSx,
+  yellowBoxSx,
+} from '../../common/constants/vehicle_style_const';
+import {
+  MAX_IMAGES,
+  accidentHistory,
+  airConditioningTypes,
+  bodyTypes,
+  brands,
+  colors,
+  currencies,
+  doorCounts,
+  driveTypes,
+  ecoStandards,
+  engineVolumes,
+  fuels,
+  headlightTypes,
+  importedFrom,
+  interiorColors,
+  interiorMaterials,
+  paintTypes,
+  powerWindowTypes,
+  regions,
+  seatAdjustments,
+  seatCounts,
+  seatHeating,
+  seatMemory,
+  seatVentilation,
+  spareWheelTypes,
+  steeringAdjustment,
+  steeringTypes,
+  technicalConditions,
+  transmissions,
+  vehicleTypes,
+} from '../../common/constants/vehicles_const';
 import { carListingSchema } from '../../common/utils/zod-validation';
 import { useAddNotification } from '../../components/notifications/NotificationSystem';
 import { getModelsForBrand } from '../../models/car-models';
 import { useAddVehicleImageMutation, useCreateVehicleMutation } from '../../redux/api/vehiclesApi';
 import type { RootState } from '../../redux/store';
 import { routes } from '../../routes';
-
-const brands = [
-  'Acura',
-  'Alfa Romeo',
-  'Aston Martin',
-  'Audi',
-  'Bentley',
-  'BMW',
-  'Bugatti',
-  'Buick',
-  'Cadillac',
-  'Chevrolet',
-  'Chrysler',
-  'Citroën',
-  'Dacia',
-  'Daewoo',
-  'Daihatsu',
-  'Dodge',
-  'Ferrari',
-  'Fiat',
-  'Ford',
-  'Genesis',
-  'Honda',
-  'Hummer',
-  'Hyundai',
-  'Infiniti',
-  'Jaguar',
-  'Jeep',
-  'Kia',
-  'Lamborghini',
-  'Lancia',
-  'Land Rover',
-  'Lexus',
-  'Lincoln',
-  'Lotus',
-  'Maserati',
-  'Maybach',
-  'Mazda',
-  'McLaren',
-  'Mercedes-Benz',
-  'Mini',
-  'Mitsubishi',
-  'Morgan',
-  'Nissan',
-  'Opel',
-  'Peugeot',
-  'Pontiac',
-  'Porsche',
-  'Renault',
-  'Rolls-Royce',
-  'Saab',
-  'Seat',
-  'Skoda',
-  'Smart',
-  'Subaru',
-  'Suzuki',
-  'Tesla',
-  'Toyota',
-  'Vauxhall',
-  'Volkswagen',
-  'Volvo',
-  'ZAZ',
-  'ВАЗ (Lada)',
-  'ГАЗ',
-  'УАЗ',
-];
-
-const fuels = ['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'];
-const transmissions = ['manual', 'automatic', 'cvt', 'robotic', 'other'];
-const bodyTypes = ['sedan', 'hatchback', 'suv', 'wagon', 'coupe', 'convertible', 'pickup', 'van', 'minivan'];
-const driveTypes = ['front', 'rear', 'all', 'full'];
-const colors = [
-  'black',
-  'white',
-  'gray',
-  'red',
-  'blue',
-  'green',
-  'silver',
-  'beige',
-  'brown',
-  'yellow',
-  'orange',
-  'purple',
-  'other',
-];
-const currencies = ['USD', 'EUR', 'UAH'];
-const vehicleTypes = ['Легковий автомобіль', 'Мотоцикл', 'Вантажний автомобіль', 'Автобус', 'Спецтехніка', 'Причіп'];
-
-// Додаткові масиви для характеристик
-const engineVolumes = [
-  '1.0',
-  '1.1',
-  '1.2',
-  '1.3',
-  '1.4',
-  '1.5',
-  '1.6',
-  '1.7',
-  '1.8',
-  '1.9',
-  '2.0',
-  '2.1',
-  '2.2',
-  '2.3',
-  '2.4',
-  '2.5',
-  '2.6',
-  '2.7',
-  '2.8',
-  '2.9',
-  '3.0',
-  '3.5',
-  '4.0',
-  '4.5',
-  '5.0',
-  '5.5',
-  '6.0',
-  '6.5',
-  '7.0',
-  '8.0',
-];
-
-const ecoStandards = ['Euro 1', 'Euro 2', 'Euro 3', 'Euro 4', 'Euro 5', 'Euro 6', 'Euro 6d'];
-
-const doorCounts = ['2', '3', '4', '5'];
-
-const importedFrom = [
-  'Німеччина',
-  'США',
-  'Канада',
-  'Корея',
-  'Японія',
-  'Франція',
-  'Італія',
-  'Великобританія',
-  'Швеція',
-  'Нідерланди',
-  'Бельгія',
-  'Австрія',
-  'Швейцарія',
-  'Чехія',
-  'Польща',
-  'Литва',
-  'Латвія',
-  'Естонія',
-  'Грузія',
-  'Інша країна',
-];
-
-const seatCounts = ['1', '2', '3', '4', '5', '6', '7', '8', '9+'];
-
-const paintTypes = ['Металік', 'Перламутр', 'Матовий', 'Звичайний'];
-
-const technicalConditions = ['Відмінний', 'Хороший', 'Задовільний', 'Потребує ремонту', 'Не на ходу'];
-
-const accidentHistory = ['Не була в ДТП', 'Була в ДТП'];
-
-const regions = [
-  'Київ',
-  'Київська',
-  'Харків',
-  'Харківська',
-  'Одеса',
-  'Одеська',
-  'Дніпро',
-  'Дніпропетровська',
-  'Донецька',
-  'Запорізька',
-  'Львів',
-  'Львівська',
-  'Кривий Ріг',
-  'Миколаїв',
-  'Миколаївська',
-  'Маріуполь',
-  'Луганська',
-  'Вінниця',
-  'Вінницька',
-  'Макіївка',
-  'Сімферополь',
-  'Херсон',
-  'Херсонська',
-  'Полтава',
-  'Полтавська',
-  'Чернігів',
-  'Чернігівська',
-  'Черкаси',
-  'Черкаська',
-  'Житомир',
-  'Житомирська',
-  'Суми',
-  'Сумська',
-  'Хмельницький',
-  'Хмельницька',
-  'Чернівці',
-  'Чернівецька',
-  'Рівне',
-  'Рівненська',
-  'Кропивницький',
-  'Кіровоградська',
-  'Івано-Франківськ',
-  'Івано-Франківська',
-  'Кременчук',
-  'Тернопіль',
-  'Тернопільська',
-  'Луцьк',
-  'Волинська',
-  'Біла Церква',
-  'Краматорськ',
-  'Мелітополь',
-  'Керч',
-  'Нікополь',
-  'Бердянськ',
-  "Слов'янськ",
-  'Ужгород',
-  'Закарпатська',
-  'Алчевськ',
-  'Павлоград',
-  'Сєвєродонецьк',
-  'Євпаторія',
-  'Лисичанськ',
-  "Кам'янське",
-  'Бровари',
-  'Дрогобич',
-  'Конотоп',
-  'Умань',
-  'Мукачево',
-  'Ялта',
-  'Бахмут',
-];
-
-// Додаткові опції
-const interiorMaterials = ['Тканина', 'Шкіра', 'Комбінована', 'Алькантара', 'Велюр'];
-const interiorColors = ['Чорний', 'Сірий', 'Бежевий', 'Коричневий', 'Білий', 'Інший'];
-const steeringTypes = ['Гідропідсилювач', 'Електропідсилювач', 'Без підсилення'];
-const seatAdjustments = ['Механічне', 'Електричне', 'Комбіноване'];
-const seatVentilation = ['Передні', 'Задні', 'Передні і задні', 'Немає'];
-const seatHeating = ['Передні', 'Задні', 'Передні і задні', 'Немає'];
-const seatMemory = ['Водія', 'Пасажира', 'Обидва', 'Немає'];
-const steeringAdjustment = ['По висоті', 'По вильоту', 'По висоті та вильоту'];
-const headlightTypes = ['Галогенні', 'Ксенонові', 'LED', 'Лазерні'];
-const airConditioningTypes = [
-  'Кондиціонер',
-  'Клімат-контроль',
-  'Двозонний клімат',
-  'Тризонний клімат',
-  'Чотиризонний клімат',
-];
-const powerWindowTypes = ['Передні', 'Задні', 'Всі'];
-const spareWheelTypes = ['Повнорозмірне', 'Малорозмірне (докатка)', 'Ремкомплект', 'Немає'];
-
-const MAX_IMAGES = 8;
-
-const inputSx = {
-  bgcolor: '#fff',
-  borderRadius: 1,
-  fontSize: 15,
-  height: 40,
-  '.MuiInputBase-input': { py: 1, px: 1.5, fontSize: 15 },
-  '.MuiSelect-select': { py: 1, px: 1.5, fontSize: 15, height: 'auto' },
-};
-
-const labelSx = {
-  fontSize: 15,
-};
-
-const vinInputSx = {
-  bgcolor: '#fff',
-  borderRadius: 1,
-  fontSize: 15,
-  height: 40,
-  width: '66%', // 1.5 рази ширше за стандартне поле (4/6 від Grid)
-  '.MuiInputBase-input': { py: 1, px: 1.5, fontSize: 15 },
-  mr: 1,
-};
-
-const sectionSx = {
-  mb: 4,
-  borderRadius: 2,
-  p: 3,
-  background: 'transparent', // прибрано фон
-};
-
-const vinSectionSx = {
-  mb: 4,
-  p: 3,
-  backgroundColor: 'white', // тільки тут білий фон
-  borderRadius: 2,
-  border: '1px solid #e0e0e0',
-};
-
-const hrSx = {
-  border: 0,
-  borderTop: '1px solid #e0e0e0',
-  my: 4,
-};
-
-const yellowBoxSx = {
-  background: '#fff9db',
-  border: '1px solid #ffe58f',
-  borderRadius: 1,
-  p: 2,
-  mb: 2,
-};
-
-const infoIconSx = {
-  display: 'inline-block',
-  width: 18,
-  height: 18,
-  borderRadius: '50%',
-  bgcolor: '#bdb76b',
-  color: '#fff',
-  fontWeight: 700,
-  fontSize: 14,
-  textAlign: 'center',
-  lineHeight: '18px',
-  mr: 1,
-};
-
-// const characteristicsFields = [
-//   { name: 'transmission', label: 'Коробка передач', type: 'select', options: transmissions },
-//   { name: 'fuel_type', label: 'Паливо', type: 'select', options: fuels },
-//   { name: 'engine_volume', label: "Об'єм двигуна, л.", type: 'select', options: ['Оберіть'] },
-//   { name: 'engine_power', label: 'Потужність двигуна', type: 'input', unit: 'к.с.' },
-//   { name: 'fuel_consumption_city', label: 'Витрати палива (місто)', type: 'input' },
-//   { name: 'fuel_consumption_highway', label: 'Витрати палива (шосе)', type: 'input' },
-//   { name: 'eco_standard', label: 'Екологічний стандарт', type: 'select', options: ['Оберіть'] },
-//   { name: 'drive_type', label: 'Привід', type: 'select', options: driveTypes },
-//   { name: 'color', label: 'Колір', type: 'select', options: ['Оберіть'] },
-//   { name: 'doors', label: 'Кількість дверей', type: 'select', options: ['Оберіть'] },
-//   { name: 'imported_from', label: 'Пригнаний з', type: 'select', options: ['Оберіть'] },
-//   { name: 'seats', label: 'Кількість місць', type: 'select', options: ['Оберіть'] },
-//   { name: 'paint', label: 'Лакофарбове покриття', type: 'select', options: ['Оберіть'] },
-//   { name: 'technical_condition', label: 'Технічний стан', type: 'select', options: ['Оберіть'] },
-//   { name: 'accident', label: 'Участь в ДТП', type: 'select', options: ['Оберіть'] },
-// ];
 
 const CreateListingPage = () => {
   const navigate = useNavigate();
@@ -377,7 +83,6 @@ const CreateListingPage = () => {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const { notifyNewVehicle } = useAddNotification();
 
-  // Перевірка авторизації
   useEffect(() => {
     if (!user) {
       setTimeout(() => {
@@ -415,21 +120,19 @@ const CreateListingPage = () => {
     },
   });
 
-  // Відстежуємо зміни поля brand для оновлення моделей
   const selectedBrand = watch('brand');
 
   useEffect(() => {
     if (selectedBrand) {
       const models = getModelsForBrand(selectedBrand);
       setAvailableModels(models);
-      // Скидаємо обрану модель при зміні марки
+
       setValue('model', '');
     } else {
       setAvailableModels([]);
     }
   }, [selectedBrand, setValue]);
 
-  // Додаємо обробник для кожної ячейки
   const handleImageChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -467,12 +170,10 @@ const CreateListingPage = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // Отримуємо тип транспорту з форми
       const form = document.getElementById('create-listing-form') as HTMLFormElement;
       const vehicleTypeSelect = form.elements.namedItem('vehicle_type') as HTMLSelectElement;
       const vehicle_type = vehicleTypeSelect?.value || 'Легковий автомобіль';
 
-      // Мапінг українських назв на значення з бази
       const vehicleTypeMapping: Record<string, string> = {
         'Легковий автомобіль': 'car',
         Мотоцикл: 'motorcycle',
@@ -517,13 +218,11 @@ const CreateListingPage = () => {
       const vehicle = await createVehicle(newVehicle).unwrap();
       console.log('Оголошення створено:', vehicle);
 
-      // Додаємо нотифікацію про створення оголошення
       const vehicleTitle = `${data.brand} ${data.model} ${data.year}`;
       notifyNewVehicle(vehicleTitle, vehicle.id);
 
-      // Завантаження всіх зображень
       const imageUploadPromises = images
-        .filter((image): image is File => image !== null) // Фільтруємо тільки дійсні файли
+        .filter((image): image is File => image !== null)
         .map((image) => {
           if (vehicle.id) {
             return addVehicleImage({ vehicleId: vehicle.id, image }).unwrap();
@@ -548,17 +247,14 @@ const CreateListingPage = () => {
     <Box sx={{ py: 3, overflowX: 'hidden' }}>
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
         <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }} component="form" id="create-listing-form">
-          {/* Breadcrumbs */}
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Turbosell {'>'} Створення оголошення
           </Typography>
 
-          {/* Заголовок */}
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
             Створення оголошення
           </Typography>
 
-          {/* --- Основна інформація --- */}
           <Box sx={sectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Основна інформація
@@ -599,8 +295,7 @@ const CreateListingPage = () => {
               </Box>
             </Box>
             <Grid container spacing={1.5}>
-              {/* Тип транспорту */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <FormControl fullWidth size="small">
                   <InputLabel sx={labelSx}>Тип транспорту</InputLabel>
                   <Select name="vehicle_type" defaultValue={vehicleTypes[0]} label="Тип транспорту" sx={inputSx}>
@@ -612,8 +307,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Марка */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="brand"
                   control={control}
@@ -636,8 +330,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Модель */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="model"
                   control={control}
@@ -663,8 +356,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Рік */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="year"
                   control={control}
@@ -684,8 +376,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Пробіг */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="mileage"
                   control={control}
@@ -705,8 +396,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Тип кузова */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="body_type"
                   control={control}
@@ -724,8 +414,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Регіон */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="location"
                   control={control}
@@ -751,8 +440,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Місто */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   size="small"
@@ -762,8 +450,7 @@ const CreateListingPage = () => {
                   InputLabelProps={{ sx: labelSx }}
                 />
               </Grid>
-              {/* Номер авто */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="plate_number"
                   control={control}
@@ -782,8 +469,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Коробка передач */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="transmission"
                   control={control}
@@ -809,8 +495,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Привід */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="drive_type"
                   control={control}
@@ -836,8 +521,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Стан */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Controller
                   name="is_new"
                   control={control}
@@ -857,8 +541,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Ціна та валюта */}
-              <Grid item xs={4}>
+              <Grid item xs={8} sm={4}>
                 <Controller
                   name="price"
                   control={control}
@@ -878,7 +561,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={4} sm={2}>
                 <Controller
                   name="currency"
                   control={control}
@@ -896,11 +579,10 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              <Grid item xs={6} />
+              <Grid item xs={0} sm={6} sx={{ display: { xs: 'none', sm: 'block' } }} />
             </Grid>
           </Box>
 
-          {/* --- VIN код --- */}
           <Box sx={vinSectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
               Перевірені VIN–коди підвищують шанси на швидкий продаж.
@@ -954,10 +636,8 @@ const CreateListingPage = () => {
             />
           </Box>
 
-          {/* --- Горизонтальна лінія після VIN --- */}
           <Box component="hr" sx={hrSx} />
 
-          {/* --- Фото --- */}
           <Box sx={sectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Додайте 2-3 фото з відкритим держ. номером
@@ -982,7 +662,7 @@ const CreateListingPage = () => {
             </Typography>
             <Grid container spacing={2} sx={{ mb: 1 }}>
               {[0, 1, 2, 3, 4, 5, 6, 7].map((idx) => (
-                <Grid item xs={3} key={idx}>
+                <Grid item xs={6} sm={4} md={3} key={idx}>
                   <Box
                     sx={{
                       bgcolor: '#e5e5e5',
@@ -1047,7 +727,7 @@ const CreateListingPage = () => {
                 Як фотографувати автомобіль
               </Typography>
             </Box>
-            {/* --- Відео --- */}
+
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                 Посилання на відеоролик (необов'язково)
@@ -1068,10 +748,8 @@ const CreateListingPage = () => {
             </Box>
           </Box>
 
-          {/* --- Горизонтальна лінія після фото --- */}
           <Box component="hr" sx={hrSx} />
 
-          {/* --- Опис автомобіля --- */}
           <Box sx={sectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Опис автомобіля
@@ -1118,16 +796,14 @@ const CreateListingPage = () => {
             />
           </Box>
 
-          {/* --- Горизонтальна лінія після опису --- */}
           <Box component="hr" sx={hrSx} />
 
-          {/* --- Характеристики авто --- */}
           <Box sx={sectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Характеристики авто
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Controller
                   name="fuel_type"
                   control={control}
@@ -1149,8 +825,7 @@ const CreateListingPage = () => {
                 />
               </Grid>
 
-              {/* Об'єм двигуна */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Controller
                   name="engine_volume"
                   control={control}
@@ -1176,8 +851,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Потужність двигуна */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Controller
                     name="engine_power"
@@ -1198,8 +872,7 @@ const CreateListingPage = () => {
                   <Typography sx={{ ml: 1, fontSize: 15, color: '#757575' }}>к.с.</Typography>
                 </Box>
               </Grid>
-              {/* Витрати палива місто */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   name="fuel_consumption_city"
                   fullWidth
@@ -1208,8 +881,7 @@ const CreateListingPage = () => {
                   placeholder="л/100км"
                 />
               </Grid>
-              {/* Витрати палива шосе */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   name="fuel_consumption_highway"
                   fullWidth
@@ -1218,8 +890,7 @@ const CreateListingPage = () => {
                   placeholder="л/100км"
                 />
               </Grid>
-              {/* Екологічний стандарт */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Екологічний стандарт</InputLabel>
                   <Select name="eco_standard" label="Екологічний стандарт">
@@ -1234,8 +905,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Колір */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <Controller
                   name="color"
                   control={control}
@@ -1261,8 +931,7 @@ const CreateListingPage = () => {
                   )}
                 />
               </Grid>
-              {/* Кількість дверей */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Кількість дверей</InputLabel>
                   <Select name="doors" label="Кількість дверей">
@@ -1277,8 +946,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Пригнаний з */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Пригнаний з</InputLabel>
                   <Select name="imported_from" label="Пригнаний з">
@@ -1293,8 +961,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Кількість місць */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Кількість місць</InputLabel>
                   <Select name="seats" label="Кількість місць">
@@ -1309,8 +976,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Лакофарбове покриття */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Лакофарбове покриття</InputLabel>
                   <Select name="paint" label="Лакофарбове покриття">
@@ -1325,8 +991,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Технічний стан */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Технічний стан</InputLabel>
                   <Select name="technical_condition" label="Технічний стан">
@@ -1341,8 +1006,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* Участь в ДТП */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Участь в ДТП</InputLabel>
                   <Select name="accident" label="Участь в ДТП">
@@ -1360,14 +1024,12 @@ const CreateListingPage = () => {
             </Grid>
           </Box>
 
-          {/* --- Додаткові опції --- */}
           <Box sx={sectionSx}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Додаткові опції
             </Typography>
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              {/* Селекти для додаткових опцій */}
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Матеріал салону</InputLabel>
                   <Select name="interior_material" label="Матеріал салону">
@@ -1382,7 +1044,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Колір салону</InputLabel>
                   <Select name="interior_color" label="Колір салону">
@@ -1397,7 +1059,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Підсилювач керма</InputLabel>
                   <Select name="steering_wheel_heater" label="Підсилювач керма">
@@ -1412,7 +1074,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Регулювання сидінь салону</InputLabel>
                   <Select name="seat_adjustment" label="Регулювання сидінь салону">
@@ -1427,7 +1089,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Вентиляція сидінь</InputLabel>
                   <Select name="seat_ventilation" label="Вентиляція сидінь">
@@ -1442,7 +1104,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Підігрів сидінь</InputLabel>
                   <Select name="seat_heating" label="Підігрів сидінь">
@@ -1457,7 +1119,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Пам'ять положення сидіння</InputLabel>
                   <Select name="seat_memory" label="Пам'ять положення сидіння">
@@ -1472,7 +1134,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Регулювання керма</InputLabel>
                   <Select name="steering_adjustment" label="Регулювання керма">
@@ -1487,7 +1149,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Фари</InputLabel>
                   <Select name="headlights" label="Фари">
@@ -1502,7 +1164,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Кондиціонер</InputLabel>
                   <Select name="air_conditioning" label="Кондиціонер">
@@ -1517,7 +1179,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Електросклопідйомники</InputLabel>
                   <Select name="power_windows" label="Електросклопідйомники">
@@ -1532,7 +1194,7 @@ const CreateListingPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Запасне колесо</InputLabel>
                   <Select name="spare_wheel" label="Запасне колесо">
@@ -1548,10 +1210,9 @@ const CreateListingPage = () => {
                 </FormControl>
               </Grid>
             </Grid>
-            {/* Чекбокси для додаткових опцій */}
+
             <Grid container spacing={2}>
-              {/* Салон та комфорт */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Салон та комфорт</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1570,8 +1231,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="tinted_windows" size="small" />} label="Тоновані вікна" />
                 </Box>
               </Grid>
-              {/* Оптика */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Оптика</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel control={<Checkbox name="fog_lights" size="small" />} label="Протитуманні фари" />
@@ -1587,8 +1247,7 @@ const CreateListingPage = () => {
                   />
                 </Box>
               </Grid>
-              {/* Кузов */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Кузов</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1605,8 +1264,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="euro6" size="small" />} label="Євро-6" />
                 </Box>
               </Grid>
-              {/* Система допомоги паркуванню */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Система допомоги паркуванню</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1622,8 +1280,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="camera_360" size="small" />} label="Камера 360" />
                 </Box>
               </Grid>
-              {/* Безпека */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Безпека</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1645,8 +1302,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="esp" size="small" />} label="Система стабілізації (ESP)" />
                 </Box>
               </Grid>
-              {/* Подушки безпеки */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Подушки безпеки</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel control={<Checkbox name="driver_airbag" size="small" />} label="Водія" />
@@ -1659,8 +1315,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="window_curtains" size="small" />} label="Віконні шторки" />
                 </Box>
               </Grid>
-              {/* Мультимедіа */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Мультимедіа</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel control={<Checkbox name="aux" size="small" />} label="AUX" />
@@ -1673,8 +1328,7 @@ const CreateListingPage = () => {
                   />
                 </Box>
               </Grid>
-              {/* Стан */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Стан</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1690,8 +1344,7 @@ const CreateListingPage = () => {
                   <FormControlLabel control={<Checkbox name="car_on_loan" size="small" />} label="Авто в кредиті" />
                 </Box>
               </Grid>
-              {/* Додаткове обладнання */}
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>Додаткове обладнання</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControlLabel
@@ -1716,7 +1369,6 @@ const CreateListingPage = () => {
             </Grid>
           </Box>
 
-          {/* --- Угода та кнопка --- */}
           <Box sx={{ mt: 4 }}>
             <FormControlLabel
               control={<Checkbox color="primary" checked={agree} onChange={(e) => setAgree(e.target.checked)} />}

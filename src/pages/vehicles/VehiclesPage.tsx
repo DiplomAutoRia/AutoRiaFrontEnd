@@ -142,53 +142,59 @@ const VehiclesPage: React.FC = () => {
     {} as Record<number, number>,
   );
 
+  // Синхронізація URL параметрів з фільтрами
+  useEffect(() => {
+    const isNewParam = searchParams.get('is_new');
+    const brandParam = searchParams.get('brand');
+    const priceMinParam = searchParams.get('price_from');
+    const priceMaxParam = searchParams.get('price_to');
+
+    const shouldUpdate =
+      (isNewParam !== null && filters.is_new !== (isNewParam === 'true')) ||
+      brandParam !== filters.brand ||
+      (priceMinParam && filters.price_min !== parseInt(priceMinParam)) ||
+      (priceMaxParam && filters.price_max !== parseInt(priceMaxParam));
+
+    if (shouldUpdate) {
+      setFilters((prev) => ({
+        ...prev,
+        ...(isNewParam !== null && { is_new: isNewParam === 'true' }),
+        ...(brandParam && { brand: brandParam }),
+        ...(priceMinParam && { price_min: parseInt(priceMinParam) }),
+        ...(priceMaxParam && { price_max: parseInt(priceMaxParam) }),
+      }));
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     const params = new URLSearchParams();
+
     if (searchQuery) {
       params.set('search', searchQuery);
     }
+
     if (filters.brand) {
       params.set('brand', filters.brand);
     }
+
     if (filters.price_min) {
       params.set('price_from', filters.price_min.toString());
     }
+
     if (filters.price_max) {
       params.set('price_to', filters.price_max.toString());
     }
+
     if (filters.is_new !== undefined) {
       params.set('is_new', filters.is_new.toString());
     }
+
     if (currentPage > 1) {
       params.set('page', currentPage.toString());
     }
-    setSearchParams(params);
+
+    setSearchParams(params, { replace: true });
   }, [searchQuery, currentPage, filters.brand, filters.price_min, filters.price_max, filters.is_new, setSearchParams]);
-
-  // Effect to handle URL parameter changes when navigating between new/used vehicles
-  useEffect(() => {
-    const isNewParam = searchParams.get('is_new');
-
-    if (isNewParam !== null) {
-      const isNewValue = isNewParam === 'true';
-      if (filters.is_new !== isNewValue) {
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          is_new: isNewValue,
-          page: 1, // Reset to first page when changing filter
-        }));
-        setCurrentPage(1);
-      }
-    } else if (filters.is_new !== undefined) {
-      // If is_new parameter is removed from URL, remove the filter
-      setFilters((prevFilters) => {
-        const newFilters = { ...prevFilters };
-        delete newFilters.is_new;
-        return { ...newFilters, page: 1 };
-      });
-      setCurrentPage(1);
-    }
-  }, [searchParams.get('is_new')]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -243,7 +249,7 @@ const VehiclesPage: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleMobileTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleMobileTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setMobileActiveTab(newValue);
     let newFilters = { ...filters };
 

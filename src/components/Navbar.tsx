@@ -113,6 +113,41 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="bg-blue-700 p-4">
             <div className="space-y-3">
+              {user ? (
+                <>
+                  <button
+                    className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
+                    onClick={() => {
+                      handleProfile();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <div className="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold text-xs">
+                      {getUserInitials()}
+                    </div>
+                    <span>Профіль</span>
+                  </button>
+                  <button
+                    className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Вийти
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to={routes.LOGIN}
+                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User size={16} />
+                  <span>Увійти в кабінет</span>
+                </Link>
+              )}
+
               <Link
                 to={`${routes.VEHICLES}?is_new=false`}
                 className="block py-2 hover:bg-blue-600 rounded px-2"
@@ -149,41 +184,6 @@ const Navbar = () => {
               >
                 Пошук
               </Link>
-
-              {user ? (
-                <>
-                  <button
-                    className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2 w-full text-left"
-                    onClick={() => {
-                      handleProfile();
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    <div className="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center font-semibold text-xs">
-                      {getUserInitials()}
-                    </div>
-                    <span>Профіль</span>
-                  </button>
-                  <button
-                    className="block py-2 hover:bg-blue-600 rounded px-2 text-left"
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Вийти
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to={routes.LOGIN}
-                  className="block py-2 hover:bg-blue-600 rounded px-2 flex items-center space-x-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User size={16} />
-                  <span>Увійти в кабінет</span>
-                </Link>
-              )}
             </div>
           </div>
         )}
