@@ -1,60 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { createSelector } from '@reduxjs/toolkit';
-
-import { confirmSchema, registerSchema } from '../../common/utils/zod-validation';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  completeRegister,
-  googleAuth,
-  initialRegister,
-  resetRegister,
-  verifyRegister,
-} from '../../redux/auth/authSlice';
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  Paper,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+
+import { type RegisterFormData, registerSchema } from '../../common/utils/zod-validation';
+import RegisterForm from '../../components/auth/RegisterForm';
+import { googleAuth, initialRegister } from '../../redux/auth/authSlice';
 import type { AppDispatch, RootState } from '../../redux/store';
 import { routes } from '../../routes';
 
-type CredentialResponse = {
-  credential?: string;
-  select_by?: string;
-  clientId?: string;
-};
-
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    contact: '',
-    contactType: 'email' as 'email' | 'phone',
-    acceptTerms: false,
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      contact: '',
+      acceptTerms: false,
+    },
   });
 
-  const [confirmData, setConfirmData] = useState({
-    code: '',
-    password: '',
-    repeatPassword: '',
-  });
-
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [confirmTouched, setConfirmTouched] = useState<Record<string, boolean>>({});
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const selectRegisterState = createSelector(
-    (state: RootState) => state.auth,
-    (auth) => ({
-      loading: auth.loading,
-      error: auth.error,
-      registerStep: auth.registerStep,
-      user: auth.user,
-    }),
-  );
-  const { registerStep, user } = useSelector(selectRegisterState);
+  const { loading, error, registerStep, user } = useSelector((state: RootState) => state.auth);
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [confirmErrors, setConfirmErrors] = useState<Record<string, string>>({});
+  const acceptTerms = watch('acceptTerms');
 
   useEffect(() => {
     if (user) {
@@ -62,333 +55,508 @@ export default function RegisterPage() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    if (registerStep === 'done') {
-      navigate(routes.HOME);
-    }
-  }, [registerStep, navigate]);
+  // Тимчасово відключимо перенаправлення, щоб показувати форму підтвердження на тій же сторінці
+  // useEffect(() => {
+  //   if (registerStep === 'verify' && contactInfo) {
+  //     if (contactInfo.type === 'email') {
+  //       navigate(routes.EMAIL_CONFIRMATION);
+  //     } else {
+  //       navigate(routes.PHONE_CONFIRMATION);
+  //     }
+  //   }
+  // }, [registerStep, contactInfo, navigate]);
 
-  const validate = (fieldValues = formData) => {
-    const result = registerSchema.safeParse(fieldValues);
-    if (result.success) return {};
-    const newErrors: Record<string, string> = {};
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) newErrors[err.path[0] as string] = err.message;
-    });
-    return newErrors;
+  const onSubmit = (data: RegisterFormData) => {
+    dispatch(
+      initialRegister({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        contact_info: {
+          type: data.contact.includes('@') ? 'email' : 'phone',
+          value: data.contact,
+        } as { type: 'email' | 'phone'; value: string },
+      }),
+    );
   };
 
-  const validateConfirm = (fields = confirmData) => {
-    const result = confirmSchema.safeParse(fields);
-    if (result.success) return {};
-    const newErrors: Record<string, string> = {};
-    result.error.errors.forEach((err) => {
-      if (err.path[0]) newErrors[err.path[0] as string] = err.message;
-    });
-    return newErrors;
-  };
+  // Якщо потрібно підтвердження, показуємо форму підтвердження з таким самим дизайном
+  if (registerStep === 'verify' || registerStep === 'complete') {
+    if (isMobile) {
+      return (
+        <Box
+          sx={{
+            minHeight: '100vh',
+            background: 'linear-gradient(to bottom, #3b82f6, #2563eb)',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+          }}
+        >
+          {/* Frame 768 as background */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 384,
+              height: 320,
+              backgroundImage: `url('/assets/Frame 768.png')`,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              zIndex: 0,
+            }}
+          />
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      };
-      setErrors(validate(updated));
-      return updated;
-    });
-  };
+          {/* Content */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 3, zIndex: 10 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: '16px',
+                backgroundColor: 'white',
+                maxHeight: '85vh',
+                overflow: 'auto',
+              }}
+            >
+              <Typography
+                variant="h4"
+                component="h1"
+                textAlign="center"
+                fontWeight="bold"
+                color="text.primary"
+                mb={3}
+                sx={{ fontSize: '22px' }}
+              >
+                Підтвердження реєстрації
+              </Typography>
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-  };
-
-  const handleConfirmFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setConfirmTouched((prev) => ({ ...prev, [name]: true }));
-  };
-
-  const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setConfirmData((prev) => {
-      const updated = { ...prev, [name]: value };
-      setConfirmErrors(validateConfirm(updated));
-      return updated;
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors = validate(formData);
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0 && formData.acceptTerms) {
-      dispatch(
-        initialRegister({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          contact_info: {
-            type: formData.contactType,
-            value: formData.contact,
-          },
-        }),
+              <RegisterForm />
+            </Paper>
+          </Box>
+        </Box>
       );
     }
-  };
 
-  const handleConfirmSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors = validateConfirm(confirmData);
-    setConfirmErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      dispatch(
-        verifyRegister({
-          contact_info: formData.contact,
-          code: confirmData.code,
-        }),
-      ).then((res) => {
-        if (res.type.endsWith('/fulfilled')) {
-          dispatch(
-            completeRegister({
-              contact_info: formData.contact,
-              password: confirmData.password,
-              password_confirm: confirmData.repeatPassword,
-            }),
-          ).then((res) => {
-            if (res.type.endsWith('/fulfilled')) {
-            }
-          });
-        }
-      });
-    }
-  };
+    // Desktop version for confirmation
+    return (
+      <Box sx={{ minHeight: '100vh', height: '100vh', display: 'flex', overflow: 'hidden' }}>
+        {/* Left side - Form */}
+        <Box
+          sx={{
+            width: { md: '50%' },
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            p: 4,
+            position: 'relative',
+            bgcolor: 'white',
+          }}
+        >
+          <img
+            src="/assets/images/Logo2.png"
+            alt="Logo"
+            style={{
+              position: 'absolute',
+              top: 16,
+              left: 16,
+              height: 80,
+              cursor: 'pointer',
+              zIndex: 50,
+            }}
+            onClick={() => navigate(routes.HOME)}
+          />
 
-  const handleBack = () => {
-    dispatch(resetRegister());
-  };
+          <Container maxWidth="sm">
+            <Typography variant="h3" component="h1" textAlign="center" fontWeight="bold" color="text.primary" mb={4}>
+              Підтвердження реєстрації
+            </Typography>
 
+            <RegisterForm />
+          </Container>
+        </Box>
+
+        {/* Right side - Blue gradient with illustration */}
+        <Box
+          sx={{
+            width: { md: '50%' },
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            position: 'relative',
+            p: 4,
+          }}
+        >
+          <Box
+            component="img"
+            src="/assets/images/Register.png"
+            alt="Register illustration"
+            sx={{
+              maxWidth: '80%',
+              height: 'auto',
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(to bottom, #3b82f6, #2563eb)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        }}
+      >
+        {/* Frame 768 as background */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 384,
+            height: 320,
+            backgroundImage: `url('/assets/Frame 768.png')`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Content */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 3, zIndex: 10 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: '16px 16px 0 0',
+              backgroundColor: 'white',
+              maxHeight: '85vh',
+              overflow: 'auto',
+            }}
+          >
+            <Typography
+              variant="h4"
+              component="h1"
+              textAlign="center"
+              fontWeight="bold"
+              color="text.primary"
+              mb={3}
+              sx={{ fontSize: '22px' }}
+            >
+              Зареєструватися в Turbosell
+            </Typography>
+
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+              <TextField
+                fullWidth
+                label="Ім'я"
+                margin="normal"
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+                {...register('firstName')}
+                sx={{ mb: 1 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Прізвище"
+                margin="normal"
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                {...register('lastName')}
+                sx={{ mb: 1 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Телефон або e-mail"
+                margin="normal"
+                error={!!errors.contact}
+                helperText={errors.contact?.message}
+                {...register('contact')}
+                sx={{ mb: 1 }}
+              />
+
+              <FormControlLabel
+                control={<Checkbox {...register('acceptTerms')} color="primary" size="small" />}
+                label={
+                  <Typography variant="body2" color="text.secondary">
+                    Я приймаю{' '}
+                    <Link to="/terms">
+                      <Typography component="span" variant="body2" color="primary">
+                        Умови використання
+                      </Typography>
+                    </Link>{' '}
+                    та{' '}
+                    <Link to="/privacy">
+                      <Typography component="span" variant="body2" color="primary">
+                        Політику конфіденційності
+                      </Typography>
+                    </Link>
+                  </Typography>
+                }
+                sx={{ mb: 1, alignItems: 'flex-start' }}
+              />
+              {errors.acceptTerms && (
+                <Typography variant="caption" color="error" display="block" mb={1}>
+                  {errors.acceptTerms.message}
+                </Typography>
+              )}
+
+              {error && (
+                <Paper sx={{ p: 2, mb: 2, bgcolor: 'error.50', border: 1, borderColor: 'error.200' }}>
+                  <Typography variant="body2" color="error">
+                    {error}
+                  </Typography>
+                </Paper>
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                disabled={loading || !acceptTerms}
+                size="large"
+                sx={{ mb: 3, py: 1.5, textTransform: 'none' }}
+              >
+                {loading ? 'Реєструємося...' : 'Зареєструватися'}
+              </Button>
+
+              <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+                <GoogleLogin
+                  onSuccess={(credentialResponse: { credential?: string }) => {
+                    if (credentialResponse.credential) {
+                      dispatch(googleAuth(credentialResponse.credential));
+                    }
+                  }}
+                  onError={() => {}}
+                  render={(renderProps: { onClick: () => void; disabled: boolean }) => (
+                    <Button
+                      onClick={renderProps.onClick}
+                      disabled={renderProps.disabled}
+                      variant="outlined"
+                      fullWidth
+                      startIcon={
+                        <img
+                          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                          alt="Google"
+                          style={{ width: 20, height: 20 }}
+                        />
+                      }
+                      sx={{ py: 1.5, textTransform: 'none', mb: 3 }}
+                    >
+                      Зареєструватися через Google
+                    </Button>
+                  )}
+                />
+              </GoogleOAuthProvider>
+
+              <Box textAlign="center" sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Вже зареєстровані?{' '}
+                  <Link to={routes.LOGIN}>
+                    <Typography component="span" variant="body2" color="primary" fontWeight="medium">
+                      Увійти
+                    </Typography>
+                  </Link>
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Desktop version
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Column - Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
+    <Box sx={{ minHeight: '100vh', height: '100vh', display: 'flex', overflow: 'hidden' }}>
+      {/* Left side - Form */}
+      <Box
+        sx={{
+          width: { md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 4,
+          position: 'relative',
+          bgcolor: 'white',
+        }}
+      >
         <img
-          src="/locales/images/Logo2.png"
+          src="/assets/images/Logo2.png"
           alt="Logo"
-          className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
+          style={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            height: 80,
+            cursor: 'pointer',
+            zIndex: 50,
+          }}
           onClick={() => navigate(routes.HOME)}
         />
 
-        <div className="w-full max-w-md mx-auto">
-          <h1 className="text-3xl font-bold text-black text-center mb-2">Зареєструватись в TurboSell</h1>
+        <Container maxWidth="sm">
+          <Typography variant="h3" component="h1" textAlign="center" fontWeight="bold" color="text.primary" mb={4}>
+            Зареєструватися в Turbosell
+          </Typography>
 
-          <p className="text-gray-600 text-center mb-6">Купуйте й продавайте авто онлайн</p>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            <TextField
+              fullWidth
+              label="Ім'я"
+              margin="normal"
+              error={!!errors.firstName}
+              helperText={errors.firstName?.message}
+              {...register('firstName')}
+              sx={{ mb: 1 }}
+            />
 
-          <div className="mb-6 flex flex-col gap-3">
-            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <TextField
+              fullWidth
+              label="Прізвище"
+              margin="normal"
+              error={!!errors.lastName}
+              helperText={errors.lastName?.message}
+              {...register('lastName')}
+              sx={{ mb: 1 }}
+            />
+
+            <TextField
+              fullWidth
+              label="Телефон або e-mail"
+              margin="normal"
+              error={!!errors.contact}
+              helperText={errors.contact?.message}
+              {...register('contact')}
+              sx={{ mb: 1 }}
+            />
+
+            <FormControlLabel
+              control={<Checkbox {...register('acceptTerms')} color="primary" />}
+              label={
+                <Typography variant="body1" color="text.secondary">
+                  Я приймаю{' '}
+                  <Link to="/terms">
+                    <Typography component="span" variant="body1" color="primary">
+                      Умови використання
+                    </Typography>
+                  </Link>{' '}
+                  та{' '}
+                  <Link to="/privacy">
+                    <Typography component="span" variant="body1" color="primary">
+                      Політику конфіденційності
+                    </Typography>
+                  </Link>
+                </Typography>
+              }
+              sx={{ mb: 1, alignItems: 'center' }}
+            />
+            {errors.acceptTerms && (
+              <Typography variant="body2" color="error" display="block" mb={1}>
+                {errors.acceptTerms.message}
+              </Typography>
+            )}
+
+            {error && (
+              <Paper sx={{ p: 2, mb: 3, bgcolor: 'error.50', border: 1, borderColor: 'error.200' }}>
+                <Typography color="error">{error}</Typography>
+              </Paper>
+            )}
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading || !acceptTerms}
+              size="large"
+              sx={{ mb: 3, py: 1.5, textTransform: 'none' }}
+            >
+              {loading ? 'Реєструємося...' : 'Зареєструватися'}
+            </Button>
+
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
               <GoogleLogin
-                onSuccess={(credentialResponse: CredentialResponse) => {
+                onSuccess={(credentialResponse: { credential?: string }) => {
                   if (credentialResponse.credential) {
                     dispatch(googleAuth(credentialResponse.credential));
                   }
                 }}
                 onError={() => {}}
                 render={(renderProps: { onClick: () => void; disabled: boolean }) => (
-                  <button
+                  <Button
                     onClick={renderProps.onClick}
                     disabled={renderProps.disabled}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
+                    variant="outlined"
+                    fullWidth
+                    startIcon={
+                      <img
+                        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                        alt="Google"
+                        style={{ width: 20, height: 20 }}
+                      />
+                    }
+                    sx={{ py: 1.5, textTransform: 'none', mb: 3 }}
                   >
-                    <img
-                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                      alt="Google"
-                      className="w-5 h-5"
-                    />
-                    Вхід через Google
-                  </button>
+                    Зареєструватися через Google
+                  </Button>
                 )}
               />
             </GoogleOAuthProvider>
-          </div>
 
-          <div className="flex items-center mb-6">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-3 text-gray-500">або</span>
-            <div className="flex-1 border-t border-gray-300"></div>
-          </div>
-
-          {registerStep === 'initial' ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Імʼя"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.firstName && (touched.firstName || formData.firstName) ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.firstName && (touched.firstName || formData.firstName) && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  placeholder="Прізвище"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.lastName && (touched.lastName || formData.lastName) ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.lastName && (touched.lastName || formData.lastName) && (
-                  <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  placeholder="Пошта або номер телефону"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.contact && (touched.contact || formData.contact) ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.contact && (touched.contact || formData.contact) && (
-                  <p className="mt-1 text-sm text-red-600">{errors.contact}</p>
-                )}
-              </div>
-
-              <label className="flex items-center gap-2 text-sm text-gray-700 mb-4">
-                <input
-                  type="checkbox"
-                  name="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-blue-600 rounded"
-                />
-                Я приймаю умови використання та Політику конфіденційності
-              </label>
-
-              <button
-                type="submit"
-                disabled={!formData.acceptTerms}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Продовжити
-              </button>
-
-              <div className="text-center">
-                <Link to="/login" className="text-blue-600 font-medium hover:underline">
-                  Вже зареєстровані?
+            <Box textAlign="center">
+              <Typography variant="body1" color="text.secondary">
+                Вже зареєстровані?{' '}
+                <Link to={routes.LOGIN}>
+                  <Typography component="span" variant="body1" color="primary" fontWeight="medium">
+                    Увійти
+                  </Typography>
                 </Link>
-              </div>
-            </form>
-          ) : (
-            <form onSubmit={handleConfirmSubmit} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Код підтвердження"
-                  name="code"
-                  value={confirmData.code}
-                  onChange={handleConfirmChange}
-                  onFocus={handleConfirmFocus}
-                  onBlur={handleConfirmFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.code && (confirmTouched.code || confirmData.code)
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                />
-                {confirmErrors.code && (confirmTouched.code || confirmData.code) && (
-                  <p className="mt-1 text-sm text-red-600">{confirmErrors.code}</p>
-                )}
-              </div>
+              </Typography>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
 
-              <div>
-                <input
-                  type="password"
-                  placeholder="Пароль"
-                  name="password"
-                  value={confirmData.password}
-                  onChange={handleConfirmChange}
-                  onFocus={handleConfirmFocus}
-                  onBlur={handleConfirmFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.password && (confirmTouched.password || confirmData.password)
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                />
-                {confirmErrors.password && (confirmTouched.password || confirmData.password) && (
-                  <p className="mt-1 text-sm text-red-600">{confirmErrors.password}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  type="password"
-                  placeholder="Повторіть пароль"
-                  name="repeatPassword"
-                  value={confirmData.repeatPassword}
-                  onChange={handleConfirmChange}
-                  onFocus={handleConfirmFocus}
-                  onBlur={handleConfirmFocus}
-                  autoComplete="off"
-                  className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword)
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                />
-                {confirmErrors.repeatPassword && (confirmTouched.repeatPassword || confirmData.repeatPassword) && (
-                  <p className="mt-1 text-sm text-red-600">{confirmErrors.repeatPassword}</p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Завершити реєстрацію
-              </button>
-
-              <div className="flex justify-between items-center mt-2">
-                <Link to="/login" className="text-blue-600 text-sm hover:underline">
-                  Вже зареєстровані
-                </Link>
-                <button type="button" onClick={handleBack} className="text-blue-600 text-sm hover:underline">
-                  Вказати інші дані
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
-
-      <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
-        <img src="/locales/images/Register.png" alt="Register" className="w-full h-full object-cover" />
-      </div>
-    </div>
+      {/* Right side - Blue gradient with illustration */}
+      <Box
+        sx={{
+          width: { md: '50%' },
+          display: { xs: 'none', md: 'flex' },
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          position: 'relative',
+          p: 4,
+        }}
+      >
+        <Box
+          component="img"
+          src="/assets/images/Register.png"
+          alt="Register illustration"
+          sx={{
+            maxWidth: '80%',
+            height: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      </Box>
+    </Box>
   );
 }

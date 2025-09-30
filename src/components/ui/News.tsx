@@ -38,7 +38,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
             id: index + 1,
             title: article.title || 'Без назви',
             description: article.description || 'Опис відсутній',
-            image: article.urlToImage || '/locales/images/car.png',
+            image: article.urlToImage || '/assets/images/car.png',
             date: new Date(article.publishedAt).toLocaleDateString('uk-UA'),
             source: article.source?.name || 'Невідоме джерело',
             url: article.url || '#',
@@ -52,7 +52,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
               title: 'Нова електрична модель від Tesla',
               description:
                 'Tesla анонсувала нову модель електричного автомобіля з автономним водінням та покращеною батареєю.',
-              image: '/locales/images/car.png',
+              image: '/assets/images/car.png',
               date: '02.09.2025',
               source: 'AutoNews',
               url: 'https://www.tesla.com/blog/new-model-announcement',
@@ -61,7 +61,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
               id: 2,
               title: 'BMV представляє оновлену серію 5',
               description: 'Компанія BMW представила оновлену серію 5 з новим дизайном та покращеними технологіями.',
-              image: '/locales/images/car.png',
+              image: '/assets/images/car.png',
               date: '01.09.2025',
               source: 'Car Magazine',
               url: 'https://www.bmw.com/en/innovation/new-5-series',
@@ -70,7 +70,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
               id: 3,
               title: 'Зростання продажів електромобілів в Україні',
               description: 'За останній рік продажі електромобілів в Україні зросли на 45% порівняно з минулим роком.',
-              image: '/locales/images/car.png',
+              image: '/assets/images/car.png',
               date: '31.08.2025',
               source: 'Auto Review',
               url: 'https://www.autonews.com/ukraine-ev-sales-growth',
@@ -80,7 +80,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
               title: 'Нові правила техогляду для автомобілів',
               description:
                 'З 1 жовтня запроваджуються нові правила проходження технічного огляду для всіх автомобілів.',
-              image: '/locales/images/car.png',
+              image: '/assets/images/car.png',
               date: '30.08.2025',
               source: 'Transport News',
               url: 'https://www.transport.gov.ua/new-inspection-rules',
@@ -89,7 +89,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
               id: 5,
               title: 'Audi запускає нову лінійку гібридних авто',
               description: 'Audi представила нову лінійку гібридних автомобілів з покращеною ефективністю палива.',
-              image: '/locales/images/car.png',
+              image: '/assets/images/car.png',
               date: '29.08.2025',
               source: 'Auto World',
               url: 'https://www.audi.com/en/experience-audi/hybrid-models',
@@ -141,7 +141,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
                 alt={news[0].title}
                 className="w-full h-96 object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = '/locales/images/car.png';
+                  e.currentTarget.src = '/assets/images/car.png';
                 }}
               />
             </div>
@@ -174,7 +174,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
                   alt={item.title}
                   className="w-full h-40 object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = '/locales/images/car.png';
+                    e.currentTarget.src = '/assets/images/car.png';
                   }}
                 />
               </div>
@@ -208,7 +208,7 @@ const News: React.FC<NewsProps> = ({ limit = 5 }) => {
                   alt={item.title}
                   className="w-full h-40 object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = '/locales/images/car.png';
+                    e.currentTarget.src = '/assets/images/car.png';
                   }}
                 />
               </div>

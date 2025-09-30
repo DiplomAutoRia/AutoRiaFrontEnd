@@ -291,11 +291,11 @@ export default function RegisterForm({ onInitialSubmit, onConfirmSubmit, onBack 
         }
       />
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" variant="contained" size="large" className="w-full" sx={{ py: 1.5, textTransform: 'none' }}>
         {t('auth.register.completeRegistration')}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
         <Link to={routes.LOGIN} style={{ color: '#1976d2', textDecoration: 'none' }}>
           <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
             {t('auth.register.alreadyRegistered')}

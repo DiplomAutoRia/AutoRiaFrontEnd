@@ -54,7 +54,7 @@ export const registerSchema = z.object({
       },
       { message: 'Введіть коректну пошту (наприклад user@gmail.com) або номер телефону (наприклад +380123456789)' },
     ),
-  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Потрібно прийняти умови' }) }),
+  acceptTerms: z.boolean().refine((val) => val === true, { message: 'Потрібно прийняти умови' }),
 });
 
 export const confirmSchema = z
@@ -118,7 +118,8 @@ export const carListingSchema = z.object({
     })
     .optional(),
   is_new: z.string().optional(),
-  plate_number: z.string()
+  plate_number: z
+    .string()
     .max(20, 'Номер авто не може перевищувати 20 символів')
     .regex(/^[A-Z0-9\s-]*$/, 'Номер авто може містити тільки літери, цифри, пробіли та дефіси')
     .optional(),
@@ -332,3 +333,17 @@ export const resetPasswordSchema = z
     message: 'Паролі не співпадають',
     path: ['confirm_password'],
   });
+
+// Export types
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type ConfirmFormData = z.infer<typeof confirmSchema>;
+export type CarListingFormData = z.infer<typeof carListingSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+export type CommentFormData = z.infer<typeof commentSchema>;
+export type ReportFormData = z.infer<typeof reportSchema>;
+export type VehicleFiltersFormData = z.infer<typeof vehicleFiltersSchema>;
+export type MessageFormData = z.infer<typeof messageSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

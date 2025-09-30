@@ -22,7 +22,8 @@
       "Bash(uvicorn:*)",
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(xargs sed:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useForm, Controller } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { routes } from '../../routes';
-import { useGetVehicleQuery, useUpdateVehicleMutation, useAddVehicleImageMutation } from '../../redux/api/vehiclesApi';
-import type { RootState } from '../../redux/store';
+import { PhotoCamera } from '@mui/icons-material';
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   FormControl,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -19,21 +19,17 @@ import {
   Stack,
   TextField,
   Typography,
-  FormControlLabel,
-  Checkbox,
 } from '@mui/material';
-import { PhotoCamera } from '@mui/icons-material';
 
 import { carListingSchema } from '../../common/utils/zod-validation';
+import { useAddVehicleImageMutation, useGetVehicleQuery, useUpdateVehicleMutation } from '../../redux/api/vehiclesApi';
+import { routes } from '../../routes';
 
 const brands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Toyota', 'Honda'];
-const fuels = ['petrol', 'diesel', 'electric', 'hybrid', 'gas', 'other'];
 const transmissions = ['manual', 'automatic', 'cvt', 'robotic', 'other'];
 const bodyTypes = ['sedan', 'hatchback', 'suv', 'wagon', 'coupe', 'convertible', 'pickup', 'van', 'minivan'];
 const driveTypes = ['front', 'rear', 'all', 'full'];
-const colors = ['black', 'white', 'gray', 'red', 'blue', 'green', 'other'];
 const currencies = ['USD', 'EUR', 'UAH', 'GBP', 'PLN'];
-const vehicleTypes = ['Легковий автомобіль', 'Мотоцикл', 'Вантажний автомобіль', 'Автобус', 'Спецтехніка', 'Причіп'];
 
 const MAX_IMAGES = 8;
 
@@ -106,21 +102,22 @@ const infoIconSx = {
 const EditListingPage = () => {
   const navigate = useNavigate();
   const { id: vehicleId } = useParams();
-  const user = useSelector((state: RootState) => state.auth.user);
-  
+
   const { data: vehicle, isLoading, error } = useGetVehicleQuery(vehicleId!, { skip: !vehicleId });
   const [updateVehicle] = useUpdateVehicleMutation();
   const [addVehicleImage] = useAddVehicleImageMutation();
-  
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const [images, setImages] = useState<(File | null)[]>(Array(MAX_IMAGES).fill(null));
   const [previews, setPreviews] = useState<(string | null)[]>(Array(MAX_IMAGES).fill(null));
-  const [vin, setVin] = useState('');
   const [isOwner, setIsOwner] = useState(false);
   const [agree, setAgree] = useState(false);
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
     resolver: zodResolver(carListingSchema),
     defaultValues: {
       brand: '',
@@ -166,9 +163,9 @@ const EditListingPage = () => {
         engine_power: vehicle.engine_power || 0,
         vin_code: vehicle.vin_code || '',
       });
-      
+
       if (vehicle.images && vehicle.images.length > 0) {
-        setPreviews(vehicle.images.map(img => img.image));
+        setPreviews(vehicle.images.map((img) => img.image));
       }
     }
   }, [vehicle, reset]);
@@ -178,25 +175,25 @@ const EditListingPage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviews(prev => {
+        setPreviews((prev) => {
           const arr = [...prev];
           arr[index] = reader.result as string;
           return arr;
         });
       };
       reader.readAsDataURL(file);
-      setImages(prev => {
+      setImages((prev) => {
         const arr = [...prev];
         arr[index] = file;
         return arr;
       });
     } else {
-      setPreviews(prev => {
+      setPreviews((prev) => {
         const arr = [...prev];
         arr[index] = null;
         return arr;
       });
-      setImages(prev => {
+      setImages((prev) => {
         const arr = [...prev];
         arr[index] = null;
         return arr;
@@ -236,7 +233,7 @@ const EditListingPage = () => {
       // Завантаження нових зображень
       const imageUploadPromises = images
         .filter((image): image is File => image !== null)
-        .map(image => {
+        .map((image) => {
           return addVehicleImage({ vehicleId: vehicleId, image }).unwrap();
         });
 
@@ -282,8 +279,8 @@ const EditListingPage = () => {
   return (
     <Box sx={{ py: 3, overflowX: 'hidden' }}>
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-        <Paper 
-          elevation={0} 
+        <Paper
+          elevation={0}
           sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}
           component="form"
           id="edit-listing-form"
@@ -496,7 +493,9 @@ const EditListingPage = () => {
                     <FormControl fullWidth size="small" error={!!errors.transmission}>
                       <InputLabel sx={labelSx}>Коробка передач</InputLabel>
                       <Select {...field} label="Коробка передач" sx={inputSx}>
-                        <MenuItem value=""><em>Оберіть</em></MenuItem>
+                        <MenuItem value="">
+                          <em>Оберіть</em>
+                        </MenuItem>
                         {transmissions.map((t) => (
                           <MenuItem key={t} value={t}>
                             {t}
@@ -521,7 +520,9 @@ const EditListingPage = () => {
                     <FormControl fullWidth size="small" error={!!errors.drive_type}>
                       <InputLabel sx={labelSx}>Привід</InputLabel>
                       <Select {...field} label="Привід" sx={inputSx}>
-                        <MenuItem value=""><em>Оберіть</em></MenuItem>
+                        <MenuItem value="">
+                          <em>Оберіть</em>
+                        </MenuItem>
                         {driveTypes.map((d) => (
                           <MenuItem key={d} value={d}>
                             {d}
@@ -602,7 +603,8 @@ const EditListingPage = () => {
               Перевірені VIN–коди підвищують шанси на швидкий продаж.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Автоматична безкоштовна перевірка авто за державними та дилерськими реєстрами підвищує рейтинг оголошення в пошуку.
+              Автоматична безкоштовна перевірка авто за державними та дилерськими реєстрами підвищує рейтинг оголошення
+              в пошуку.
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Controller
@@ -644,13 +646,7 @@ const EditListingPage = () => {
               Вказуйте, що ви власник — це приваблює більше покупців.
             </Typography>
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isOwner}
-                  onChange={e => setIsOwner(e.target.checked)}
-                  size="small"
-                />
-              }
+              control={<Checkbox checked={isOwner} onChange={(e) => setIsOwner(e.target.checked)} size="small" />}
               label={<Typography sx={{ fontSize: 15 }}>Я власник авто</Typography>}
             />
           </Box>
@@ -663,11 +659,7 @@ const EditListingPage = () => {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Додайте 2-3 фото з відкритим держ. номером
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 1, display: 'flex', alignItems: 'center' }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
               <Box
                 component="span"
                 sx={{
@@ -768,9 +760,7 @@ const EditListingPage = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                 <Box sx={infoIconSx}>i</Box>
-                <Typography variant="body2">
-                  Залишати посилання або контактні дані
-                </Typography>
+                <Typography variant="body2">Залишати посилання або контактні дані</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={infoIconSx}>i</Box>
@@ -809,13 +799,7 @@ const EditListingPage = () => {
           {/* --- Угода та кнопка --- */}
           <Box sx={{ mt: 4 }}>
             <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  checked={agree}
-                  onChange={e => setAgree(e.target.checked)}
-                />
-              }
+              control={<Checkbox color="primary" checked={agree} onChange={(e) => setAgree(e.target.checked)} />}
               label={
                 <Typography variant="body2" color="text.secondary">
                   я згоден з умовами{' '}

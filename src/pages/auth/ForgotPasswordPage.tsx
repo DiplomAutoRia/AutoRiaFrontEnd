@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 relative min-h-screen overflow-auto bg-white">
         <img
-          src="/locales/images/Logo2.png"
+          src="/assets/images/Logo2.png"
           alt="Logo"
           className="absolute top-4 left-4 h-20 z-50 cursor-pointer"
           onClick={() => navigate(routes.HOME)}
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       <div className="hidden md:block w-1/2 bg-blue-600 max-h-screen">
-        <img src="/locales/images/Password.png" alt="Password Recovery" className="w-full h-full object-cover" />
+        <img src="/assets/images/Password.png" alt="Password Recovery" className="w-full h-full object-cover" />
       </div>
     </div>
   );

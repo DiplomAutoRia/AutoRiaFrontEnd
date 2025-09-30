@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,7 +13,6 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
   Checkbox,
   Chip,
   Grid,
@@ -25,33 +24,32 @@ import {
   Typography,
 } from '@mui/material';
 
+import ProfileChat from '../../components/profile/ProfileChat';
 import ProfileLayout from '../../components/profile/ProfileLayout';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
-import ProfileChat from '../../components/profile/ProfileChat';
 import UserListingCard from '../../components/vehicles/UserListingCard';
 import UserListingsGrid from '../../components/vehicles/UserListingsGrid';
-import type { RootState } from '../../redux/store';
-import { useGetMyVehiclesQuery, useGetVehicleQuery, useDeleteVehicleMutation } from '../../redux/api/vehiclesApi';
 import { useGetFavoritesQuery, useRemoveFromFavoritesMutation } from '../../redux/api/favoritesApi';
+import { useGetMyVehiclesQuery, useGetVehicleQuery } from '../../redux/api/vehiclesApi';
+import type { RootState } from '../../redux/store';
 
 interface Favorite {
   id: number;
   vehicle: any; // This can be a Vehicle object or a number (ID)
 }
 
-
 interface FavoriteVehicleWithIdProps {
   vehicleId: number;
   favoriteId: number;
-  onRemove: (favoriteId: number) => void;
-  onNavigate: (vehicleId: number) => void;
+  onRemove: (_favoriteId: number) => void;
+  onNavigate: (_vehicleId: number) => void;
 }
 
-const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({ 
-  vehicleId, 
-  favoriteId, 
-  onRemove, 
-  onNavigate 
+const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({
+  vehicleId,
+  favoriteId,
+  onRemove,
+  onNavigate: _onNavigate,
 }) => {
   const { data: vehicle, isLoading, error } = useGetVehicleQuery(vehicleId);
 
@@ -67,11 +65,7 @@ const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({
               ID: {vehicleId}
             </Typography>
           </Box>
-          <IconButton 
-            size="small" 
-            onClick={() => onRemove(favoriteId)}
-            color="primary"
-          >
+          <IconButton size="small" onClick={() => onRemove(favoriteId)} color="primary">
             <FavoriteIcon />
           </IconButton>
         </Box>
@@ -91,11 +85,7 @@ const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({
               ID: {vehicleId}
             </Typography>
           </Box>
-          <IconButton 
-            size="small" 
-            onClick={() => onRemove(favoriteId)}
-            color="primary"
-          >
+          <IconButton size="small" onClick={() => onRemove(favoriteId)} color="primary">
             <FavoriteIcon />
           </IconButton>
         </Box>
@@ -113,7 +103,6 @@ const FavoriteVehicleWithId: React.FC<FavoriteVehicleWithIdProps> = ({
     />
   );
 };
-
 
 export default function ProfilePage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -162,7 +151,7 @@ export default function ProfilePage() {
 
   const { data: favoritesData = [], isLoading: favoritesLoading } = useGetFavoritesQuery(undefined, { skip: !user });
   const favorites = favoritesData as Favorite[];
-  
+
   // Debug: log favorites structure to understand the API response
   React.useEffect(() => {
     if (favorites && favorites.length > 0) {
@@ -172,7 +161,6 @@ export default function ProfilePage() {
     }
   }, [favorites]);
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
-  const [deleteVehicle] = useDeleteVehicleMutation();
 
   const handleSettingsClick = (vehicleId: number) => {
     navigate(`/vehicles/${vehicleId}/edit`);
@@ -312,7 +300,7 @@ export default function ProfilePage() {
                   {favorites.slice(0, 3).map((favorite) => {
                     // Handle case where vehicle might be an ID (number) or an object
                     const vehicle = favorite.vehicle;
-                    
+
                     // If vehicle is a number (ID), fetch the vehicle data
                     if (typeof vehicle === 'number') {
                       return (
@@ -325,7 +313,7 @@ export default function ProfilePage() {
                         />
                       );
                     }
-                    
+
                     // If vehicle is an object with id property, display it
                     if (vehicle && typeof vehicle === 'object' && 'id' in vehicle) {
                       return (
@@ -338,7 +326,7 @@ export default function ProfilePage() {
                         />
                       );
                     }
-                    
+
                     // Fallback for invalid vehicle data
                     return (
                       <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
@@ -351,11 +339,7 @@ export default function ProfilePage() {
                               ID: {favorite.id}
                             </Typography>
                           </Box>
-                          <IconButton 
-                            size="small" 
-                            onClick={() => handleRemoveFavorite(favorite.id)}
-                            color="primary"
-                          >
+                          <IconButton size="small" onClick={() => handleRemoveFavorite(favorite.id)} color="primary">
                             <FavoriteIcon />
                           </IconButton>
                         </Box>
@@ -545,7 +529,7 @@ export default function ProfilePage() {
                 {favorites.map((favorite) => {
                   // Handle case where vehicle might be an ID (number) or an object
                   const vehicle = favorite.vehicle;
-                  
+
                   // If vehicle is a number (ID), fetch the vehicle data
                   if (typeof vehicle === 'number') {
                     return (
@@ -558,7 +542,7 @@ export default function ProfilePage() {
                       />
                     );
                   }
-                  
+
                   // If vehicle is an object with id property, display it
                   if (vehicle && typeof vehicle === 'object' && 'id' in vehicle) {
                     return (
@@ -571,7 +555,7 @@ export default function ProfilePage() {
                       />
                     );
                   }
-                  
+
                   // Fallback for invalid vehicle data
                   return (
                     <Paper elevation={0} sx={{ p: 2, border: '1px solid #e0e0e0' }}>
@@ -584,11 +568,7 @@ export default function ProfilePage() {
                             ID: {favorite.id}
                           </Typography>
                         </Box>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleRemoveFavorite(favorite.id)}
-                          color="primary"
-                        >
+                        <IconButton size="small" onClick={() => handleRemoveFavorite(favorite.id)} color="primary">
                           <FavoriteIcon />
                         </IconButton>
                       </Box>

@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import './App.css';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
-import { MessageFloatingButton } from './components/messages';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import NotFound from './pages/404NotFound';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import PasswordResetConfirmPage from './pages/auth/PasswordResetConfirmPage';
@@ -22,23 +21,19 @@ import MyVehiclesPage from './pages/vehicles/MyVehiclesPage';
 import VehicleDetailPage from './pages/vehicles/VehicleDetailPage';
 import VehiclesPage from './pages/vehicles/VehiclesPage';
 import { checkTokenValidity } from './redux/auth/authSlice';
-import { type RootState, useAppDispatch } from './redux/store';
+import { useAppDispatch } from './redux/store';
 import { routes } from './routes';
 
 function App() {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const user = useSelector((state: RootState) => state.auth.user);
+  // const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     dispatch(checkTokenValidity());
   }, [dispatch]);
 
-  const showFloatingButton =
-    user &&
-    !location.pathname.includes('/login') &&
-    !location.pathname.includes('/register') &&
-    !location.pathname.includes('/messages');
+  const showScrollToTop = !location.pathname.includes('/login') && !location.pathname.includes('/register');
 
   const hideNavbar =
     location.pathname.includes('/login') ||
@@ -69,7 +64,7 @@ function App() {
         <Route path={routes.NOT_FOUND} element={<NotFound />} />
       </Routes>
       {!hideNavbar && <Footer />}
-      {showFloatingButton && <MessageFloatingButton />}
+      {showScrollToTop && <ScrollToTopButton />}
     </>
   );
 }

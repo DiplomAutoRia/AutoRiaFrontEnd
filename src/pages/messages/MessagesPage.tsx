@@ -1,8 +1,7 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 
 import ConversationList from '../../components/messages/ConversationList';
 import ConversationView from '../../components/messages/ConversationView';
@@ -10,7 +9,6 @@ import NotificationsForm from '../../components/notifications/NotificationsForm'
 import ProfileLayout from '../../components/profile/ProfileLayout';
 
 const MessagesPage: React.FC = () => {
-  const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId?: string }>();
 
   return (

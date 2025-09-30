@@ -1,27 +1,29 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Settings, Speed, DirectionsCar, ConfirmationNumber, LocationOn, Favorite } from '@mui/icons-material';
-import { Card, CardMedia, IconButton, Box, Typography, Stack, Chip, Button } from '@mui/material';
+import { ConfirmationNumber, DirectionsCar, Favorite, LocationOn, Settings, Speed } from '@mui/icons-material';
+import { Box, Button, Card, CardMedia, IconButton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 import type { Vehicle } from '../../models/vehicle';
 
 interface UserListingCardProps {
   vehicle: Vehicle;
-  onSettingsClick: (vehicleId: number) => void;
-  onDelete?: (vehicleId: number) => void; // Додаємо проп
+  onSettingsClick: (_vehicleId: number) => void;
+  onDelete?: (_vehicleId: number) => void; // Додаємо проп
   showFavoriteIcon?: boolean; // Показувати іконку сердечка замість налаштувань
-  onFavoriteClick?: (vehicleId: number) => void; // Обробник кліку на сердечко
+  onFavoriteClick?: (_vehicleId: number) => void; // Обробник кліку на сердечко
 }
 
-const UserListingCard: React.FC<UserListingCardProps> = ({ 
-  vehicle, 
-  onSettingsClick, 
+const UserListingCard: React.FC<UserListingCardProps> = ({
+  vehicle,
+  onSettingsClick,
   onDelete,
   showFavoriteIcon = false,
-  onFavoriteClick
+  onFavoriteClick,
 }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'UAH') {
@@ -37,11 +39,12 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
     <Card
       sx={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         position: 'relative',
         borderRadius: 0,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        height: 200,
+        height: isMobile ? 'auto' : 200,
         '&:hover': {
           boxShadow: 3,
           transform: 'translateY(-2px)',
@@ -71,7 +74,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
           }
         }}
         size="small"
-        color={showFavoriteIcon ? "primary" : "default"}
+        color={showFavoriteIcon ? 'primary' : 'default'}
       >
         {showFavoriteIcon ? <Favorite fontSize="small" /> : <Settings fontSize="small" />}
       </IconButton>
@@ -105,9 +108,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
             objectFit: 'cover',
             backgroundColor: '#f5f5f5',
           }}
-          image={vehicle.images && vehicle.images.length > 0 
-            ? vehicle.images[0].image 
-            : '/locales/images/car.png'}
+          image={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].image : '/assets/images/car.png'}
           alt={`${vehicle.brand} ${vehicle.model}`}
         />
         {vehicle.vin_code && (
@@ -149,7 +150,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
 
         {/* Engine specifications under title */}
         {(vehicle.engine_volume || vehicle.engine_power || vehicle.fuel_type) && (
-          <Stack direction="row" spacing={1} >
+          <Stack direction="row" spacing={1}>
             {vehicle.engine_volume && (
               <Typography variant="body2" color="text.secondary">
                 {vehicle.engine_volume} л
@@ -178,12 +179,7 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
               <Typography variant="body2" color="text.secondary" component="span" sx={{ mx: 0.5 }}>
                 |
               </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                component="span"
-                sx={{ fontSize: '0.9rem' }}
-              >
+              <Typography variant="body2" color="text.secondary" component="span" sx={{ fontSize: '0.9rem' }}>
                 {formatPrice(vehicle.price * (vehicle.currency === 'USD' ? 40 : 43), 'UAH')} грн
               </Typography>
             </>
@@ -222,7 +218,11 @@ const UserListingCard: React.FC<UserListingCardProps> = ({
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <LocationOn fontSize="small" color="action" />
                 <Typography variant="body2">
-                  {vehicle.location.split(',').map(part => part.trim()).slice(0, 2).join(', ')}
+                  {vehicle.location
+                    .split(',')
+                    .map((part) => part.trim())
+                    .slice(0, 2)
+                    .join(', ')}
                 </Typography>
               </Stack>
             )}
